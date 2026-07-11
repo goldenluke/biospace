@@ -74,6 +74,7 @@
       <a href="#geometries" class="hover:text-ink transition-colors" data-i18n="nav.geometries">Geometry</a>
       <a href="#principles" class="hover:text-ink transition-colors" data-i18n="nav.principles">Principles</a>
       <a href="#architecture" class="hover:text-ink transition-colors" data-i18n="nav.architecture">Architecture</a>
+      <a href="#validation" class="hover:text-ink transition-colors" data-i18n="nav.validation">Validation</a>
       <a href="#code" class="hover:text-ink transition-colors" data-i18n="nav.code">Code</a>
     </nav>
     <div class="flex items-center gap-2 sm:gap-3">
@@ -437,8 +438,8 @@ for phenotype in phenotypes:
         <p class="text-sm text-ink2 mt-1 leading-relaxed" data-i18n="arch.3.body">Semantic domains automatically generate the system's ontology — documentation never goes stale.</p>
       </div>
       <div>
-        <h3 class="font-display font-semibold" data-i18n="arch.4.title">plugins/sleep validates the theory</h3>
-        <p class="text-sm text-ink2 mt-1 leading-relaxed" data-i18n="arch.4.body">Spreadsheet loading, normalization, longitudinal grouping per patient, phenotyping and survival analysis — the first complete implementation of the meta-model.</p>
+        <h3 class="font-display font-semibold" data-i18n="arch.4.title">two independent plugins validate the theory</h3>
+        <p class="text-sm text-ink2 mt-1 leading-relaxed" data-i18n="arch.4.body">plugins/sleep (Obstructive Sleep Apnea, real clinical cohort) and plugins/metabolic (endocrine-metabolic system, diabetes as one clinical interpretation among several) — spreadsheet loading, normalization, longitudinal grouping, phenotyping and survival analysis, unchanged across both.</p>
       </div>
     </div>
   </div>
@@ -447,7 +448,7 @@ for phenotype in phenotypes:
 <!-- CONTRACTS -->
 <section id="contracts" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
   <p class="eyebrow text-teal text-xs mb-3" data-i18n="contracts.eyebrow">formal contracts</p>
-  <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="contracts.title">Ten contracts, locked by regression tests</h2>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="contracts.title">Eleven contracts, locked by regression tests</h2>
   <p class="text-ink2 max-w-2xl mb-10" data-i18n="contracts.subtitle">Every principle of the meta-model is verifiable in code — not just described in prose. A real example: out-of-order observations can no longer contaminate a trajectory's past, a subtle bug fixed by propagating <code class="text-sm bg-paper2 rounded px-1.5 py-0.5">as_of</code> through the whole chain.</p>
   <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 text-sm font-mono">
     <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.1">5.1 Traceability</span></span>
@@ -460,7 +461,9 @@ for phenotype in phenotypes:
     <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.8">5.8 Reproducibility</span></span>
     <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.9">5.9 Versionability</span></span>
     <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.10">5.10 Interoperability</span></span>
+    <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.11">Injectivity (pop.)</span></span>
   </div>
+  <p class="text-sm text-ink2 mt-6 max-w-2xl" data-i18n="contracts.closed">3.3, 3.6, 3.9 and 3.10 were the last to gain a dedicated empirical test, each with a positive case and a decisive negative case (e.g. a domain-specific algorithm correctly <em>fails</em> the algorithmic independence contract when applied to a mismatched representation) — see <code class="text-sm bg-paper2 rounded px-1.5 py-0.5">ontology.run_contract_suite</code>.</p>
 </section>
 
 <!-- CODE -->
@@ -489,13 +492,35 @@ phenotypes = phenotyper.fit(space)
   <div class="flex flex-wrap gap-3 text-sm">
     <span class="card rounded-full px-4 py-2" data-i18n="apps.1">Sleep Medicine</span>
     <span class="card rounded-full px-4 py-2" data-i18n="apps.2">Cardiology</span>
-    <span class="card rounded-full px-4 py-2" data-i18n="apps.3">Endocrinology</span>
+    <span class="card rounded-full px-4 py-2.5 border-2 border-teal bg-teal/10 text-teal font-semibold" data-i18n="apps.3">Endocrinology ✓ validated (NHANES, UCI)</span>
     <span class="card rounded-full px-4 py-2" data-i18n="apps.4">Oncology</span>
     <span class="card rounded-full px-4 py-2" data-i18n="apps.5">Neurology</span>
     <span class="card rounded-full px-4 py-2" data-i18n="apps.6">Psychiatry</span>
     <span class="card rounded-full px-4 py-2" data-i18n="apps.7">Epidemiology</span>
     <span class="card rounded-full px-4 py-2" data-i18n="apps.8">Intensive Care</span>
   </div>
+</section>
+
+<!-- REAL-WORLD VALIDATION -->
+<section id="validation" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="valid.eyebrow">independent, real, public data</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="valid.title">Endocrinology is no longer hypothetical</h2>
+  <p class="text-ink2 max-w-2xl mb-10" data-i18n="valid.subtitle">The same <code class="text-sm bg-paper2 rounded px-1.5 py-0.5">MetabolicRepresentation</code> was tested against two independent, real, public sources — NHANES (a national health survey) and UCI Diabetes 130-US Hospitals (administrative hospital records) — with structures different enough that they required two genuinely distinct sets of domains, connected only where a real physiological mechanism justified it.</p>
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card rounded-xl p-6">
+      <p class="eyebrow text-teal text-xs mb-2" data-i18n="valid.nhanes.eyebrow">NHANES · 9,232 adults</p>
+      <h3 class="font-display font-semibold text-lg" data-i18n="valid.nhanes.title">Lab-based diagnosis vs. self-report</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="valid.nhanes.body">A laboratory classifier (ADA glycemic criteria) agrees with self-reported diabetes diagnosis at 66.6% sensitivity and 95.6% specificity — consistent with well-documented underdiagnosis. 91.5% of lab-classified pre-diabetes cases carry no self-reported diagnosis at all.</p>
+      <p class="text-sm text-ink2 mt-3 leading-relaxed" data-i18n="valid.nhanes.body2">Physiological process coherence — the hypothesis that HbA1c and glucose correlate more with each other than with unrelated variables — <strong class="text-ink">confirms</strong> in this real population (p = 0.0022), the exact opposite of the same test applied earlier to a synthetic cohort.</p>
+    </div>
+    <div class="card rounded-xl p-6">
+      <p class="eyebrow text-amber text-xs mb-2" data-i18n="valid.uci.eyebrow">UCI Diabetes 130-US Hospitals · 71,518 patients</p>
+      <h3 class="font-display font-semibold text-lg" data-i18n="valid.uci.title">Utilization, not medication, predicts readmission</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="valid.uci.body">A phenotype built without age or diagnosis codes — only hospital utilization, sparse glycemic testing and medication intensity — shows nearly double the 30-day readmission rate of the others (8.75% vs. 3.97–4.64%).</p>
+      <p class="text-sm text-ink2 mt-3 leading-relaxed" data-i18n="valid.uci.body2">The highest-risk phenotype is <em>not</em> the one with the most intensive medication regimen — it's the one with the highest <strong class="text-ink">prior</strong> utilization, consistent with established readmission-prediction literature. 23.4% of patients had multiple encounters, producing this project's first real multi-point trajectories.</p>
+    </div>
+  </div>
+  <p class="text-xs text-ink2/70 mt-6 font-mono" data-i18n="valid.footnote">Full tables and confusion matrices: see the manuscript, §10.11, and the dedicated paper "Empirical Findings on Type 2 Diabetes Mellitus in Two Independent Real-World Data Sources."</p>
 </section>
 
 <!-- CTA / FOOTER -->
@@ -535,7 +560,7 @@ phenotypes = phenotyper.fit(space)
     en: {}, // uses the default textContent already in the HTML
     pt: {
       "nav.meta":"Meta-modelo","nav.domains":"Domínios","nav.geometries":"Geometria","nav.principles":"Princípios",
-      "nav.architecture":"Arquitetura","nav.code":"Código","nav.manuscript":"Manuscrito","nav.repo":"Repositório",
+      "nav.architecture":"Arquitetura","nav.validation":"Validação","nav.code":"Código","nav.manuscript":"Manuscrito","nav.repo":"Repositório",
       "hero.eyebrow":"infraestrutura de representação · não uma biblioteca de ML",
       "hero.title":"Um paciente<br> não é um vetor.",
       "hero.body":"Algoritmos nunca observam um paciente. Eles observam uma representação construída a partir de exames, sinais e observações. O BioSpace trata essa representação como um problema científico independente — e a torna executável.",
@@ -590,16 +615,30 @@ phenotypes = phenotyper.fit(space)
       "arch.1.title":"core não conhece doenças","arch.1.body":"Todo conhecimento clínico específico vive nos plugins. O núcleo matemático permanece o mesmo para sono, cardiologia ou oncologia.",
       "arch.2.title":"geometry é plugável","arch.2.body":"Como a geometria é independente da representação, trocar de métrica nunca exige reconstruir pacientes.",
       "arch.3.title":"ontology é documentação executável","arch.3.body":"Os domínios semânticos geram automaticamente a ontologia do sistema — a documentação nunca fica desatualizada.",
-      "arch.4.title":"plugins/sleep valida a teoria","arch.4.body":"Carregamento de planilhas, normalização, agrupamento longitudinal por paciente, fenotipagem e análise de sobrevivência — primeira implementação completa do meta-modelo.",
-      "contracts.eyebrow":"contratos formais","contracts.title":"Dez contratos, travados por testes de regressão",
+      "arch.4.title":"dois plugins independentes validam a teoria","arch.4.body":"plugins/sleep (Apneia Obstrutiva do Sono, coorte clínica real) e plugins/metabolic (sistema endócrino-metabólico, diabetes como uma interpretação clínica entre várias) — carregamento de planilhas, normalização, agrupamento longitudinal, fenotipagem e análise de sobrevivência, inalterados entre os dois.",
+      "contracts.eyebrow":"contratos formais","contracts.title":"Onze contratos, travados por testes de regressão",
       "contracts.subtitle":'Cada princípio do meta-modelo é verificável em código — não apenas descrito em prosa. Um exemplo real: observações fora de ordem cronológica não podem mais contaminar o passado de uma trajetória, um bug sutil corrigido propagando <code class="text-sm bg-paper2 rounded px-1.5 py-0.5">as_of</code> por toda a cadeia.',
       "contracts.1":"5.1 Rastreabilidade","contracts.2":"5.2 Preserv. Semântica","contracts.3":"5.3 Composicionalidade",
       "contracts.4":"5.4 Continuidade","contracts.5":"5.5 Extensibilidade","contracts.6":"5.6 Indep. Algorítmica",
       "contracts.7":"5.7 Temporalidade","contracts.8":"5.8 Reprodutibilidade","contracts.9":"5.9 Versionabilidade","contracts.10":"5.10 Interoperabilidade",
+      "contracts.11":"Injetividade (pop.)",
+      "contracts.closed":'3.3, 3.6, 3.9 e 3.10 foram os últimos a ganhar teste empírico dedicado, cada um com um caso positivo e um caso negativo decisivo (ex.: um algoritmo específico de domínio corretamente <em>falha</em> o contrato de independência algorítmica quando aplicado a uma representação incompatível) — ver <code class="text-sm bg-paper2 rounded px-1.5 py-0.5">ontology.run_contract_suite</code>.',
+      "valid.eyebrow":"dado independente, real, público",
+      "valid.title":"Endocrinologia deixou de ser hipotética",
+      "valid.subtitle":'A mesma <code class="text-sm bg-paper2 rounded px-1.5 py-0.5">MetabolicRepresentation</code> foi testada contra duas fontes independentes, reais e públicas — NHANES (inquérito de saúde nacional) e UCI Diabetes 130-US Hospitals (registros administrativos hospitalares) — com estruturas diferentes o bastante para exigir dois conjuntos de domínios genuinamente distintos, conectados só onde um mecanismo fisiológico real justificava.',
+      "valid.nhanes.eyebrow":"NHANES · 9.232 adultos",
+      "valid.nhanes.title":"Diagnóstico laboratorial x autorrelato",
+      "valid.nhanes.body":"Um classificador laboratorial (critério glicêmico ADA) concorda com o diagnóstico autorreferido com sensibilidade de 66,6% e especificidade de 95,6% — consistente com subdiagnóstico bem documentado. 91,5% dos casos de pré-diabetes classificados por laboratório não têm nenhum diagnóstico autorreferido.",
+      "valid.nhanes.body2":"Coerência de processo fisiológico — a hipótese de que HbA1c e glicemia correlacionam mais entre si que com variáveis não relacionadas — <strong class=\"text-ink\">se confirma</strong> nesta população real (p = 0,0022), o oposto exato do mesmo teste aplicado antes a uma coorte sintética.",
+      "valid.uci.eyebrow":"UCI Diabetes 130-US Hospitals · 71.518 pacientes",
+      "valid.uci.title":"Utilização, não medicação, prevê readmissão",
+      "valid.uci.body":"Um fenótipo construído sem idade nem código de diagnóstico — só utilização hospitalar, testagem glicêmica esparsa e intensidade de medicação — mostra quase o dobro da taxa de readmissão em 30 dias dos demais (8,75% vs. 3,97–4,64%).",
+      "valid.uci.body2":"O fenótipo de maior risco <em>não</em> é o de regime medicamentoso mais intenso — é o de maior utilização <strong class=\"text-ink\">prévia</strong>, consistente com a literatura estabelecida de predição de readmissão. 23,4% dos pacientes tiveram múltiplos encontros, produzindo as primeiras trajetórias reais multi-ponto deste projeto.",
+      "valid.footnote":'Tabelas completas e matrizes de confusão: ver o manuscrito, §10.11, e o artigo dedicado "Achados Empíricos sobre Diabetes Mellitus Tipo 2 em Duas Fontes de Dados Reais e Independentes."',
       "code.eyebrow":"de ponta a ponta","code.title":"Exemplo completo",
       "apps.eyebrow":"além do sono","apps.title":"Uma infraestrutura, qualquer especialidade",
       "apps.subtitle":"Cada especialidade implementa apenas seus próprios domínios semânticos. Toda a infraestrutura — core, geometria, fenotipagem, longitudinal — permanece inalterada.",
-      "apps.1":"Medicina do Sono","apps.2":"Cardiologia","apps.3":"Endocrinologia","apps.4":"Oncologia",
+      "apps.1":"Medicina do Sono","apps.2":"Cardiologia","apps.3":"Endocrinologia ✓ validada (NHANES, UCI)","apps.4":"Oncologia",
       "apps.5":"Neurologia","apps.6":"Psiquiatria","apps.7":"Epidemiologia","apps.8":"Medicina Intensiva",
       "cta.eyebrow":"fundamentos matemáticos da representação computacional de sistemas biológicos",
       "cta.title":"A teoria já é software. Leia o código, rode os testes, estenda para sua doença.",
