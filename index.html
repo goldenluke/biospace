@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BioSpace — A Meta-Model for Precision Computational Medicine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#EEF2F1',
+          paper2: '#E4EAE8',
+          ink: '#0E1620',
+          ink2: '#3B4653',
+          line: '#C7D2D1',
+          teal: '#0E7C7B',
+          amber: '#D6912B',
+          violet: '#6C5B9E',
+          rose: '#B85C6B',
+          sky: '#3E7CA6',
+          olive: '#7A8450',
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', 'sans-serif'],
+          body: ['Inter', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', 'monospace'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  :root{ --grid: rgba(14,22,32,0.06); }
+  html{ scroll-behavior:smooth; }
+  body{ background-color:#EEF2F1;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .reveal{ opacity:0; transform:translateY(14px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; letter-spacing:.14em; text-transform:uppercase; }
+  .card{ background:#F8FAF9; border:1px solid #C7D2D1; }
+  ::selection{ background:#0E7C7B; color:#F8FAF9; }
+  .chip{ border:1px solid currentColor; }
+  #geo-path-riem{ stroke-dasharray: 900; stroke-dashoffset: 900; animation: draw 2.4s .4s ease forwards; }
+  @keyframes draw{ to{ stroke-dashoffset:0; } }
+  .fade-line{ stroke-dasharray:6 5; }
+  .glow-dot{ filter: drop-shadow(0 0 5px rgba(14,124,123,.55)); }
+  code, pre { font-family:'IBM Plex Mono', monospace; }
+  .scrollbar-thin::-webkit-scrollbar{ height:6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb{ background:#C7D2D1; border-radius:4px; }
+  [data-i18n]{ transition: opacity .15s ease; }
+  .lang-fade{ opacity:0; }
+</style>
+</head>
+<body class="font-body text-ink">
+
+<!-- NAV -->
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur bg-paper/85 border-b border-line">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+    <a href="#hero" class="flex items-center gap-2 font-display font-semibold text-lg">
+      <svg width="22" height="22" viewBox="0 0 22 22"><line x1="2" y1="11" x2="20" y2="11" stroke="#0E1620" stroke-width="1.4"/><line x1="11" y1="2" x2="11" y2="20" stroke="#0E1620" stroke-width="1.4"/><circle cx="15" cy="7" r="2.4" fill="#0E7C7B"/><circle cx="8" cy="15" r="2.4" fill="#D6912B"/></svg>
+      BioSpace
+    </a>
+    <nav class="hidden lg:flex items-center gap-7 text-sm text-ink2 font-medium">
+      <a href="#meta-model" class="hover:text-ink transition-colors" data-i18n="nav.meta">Meta-model</a>
+      <a href="#domains" class="hover:text-ink transition-colors" data-i18n="nav.domains">Domains</a>
+      <a href="#geometries" class="hover:text-ink transition-colors" data-i18n="nav.geometries">Geometry</a>
+      <a href="#principles" class="hover:text-ink transition-colors" data-i18n="nav.principles">Principles</a>
+      <a href="#architecture" class="hover:text-ink transition-colors" data-i18n="nav.architecture">Architecture</a>
+      <a href="#code" class="hover:text-ink transition-colors" data-i18n="nav.code">Code</a>
+    </nav>
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button id="lang-toggle" class="flex items-center gap-1.5 border border-line rounded-full px-3 py-2 text-xs font-mono font-semibold hover:border-teal hover:text-teal transition-colors">
+        <span id="lang-en" class="px-1 rounded-full">EN</span>
+        <span class="text-ink2/40">/</span>
+        <span id="lang-pt" class="px-1 rounded-full">PT</span>
+      </button>
+      <a href="https://goldenluke.github.io/patient-representation/" target="_blank" rel="noopener"
+         class="hidden sm:inline-flex items-center gap-2 bg-teal text-paper px-4 py-2 rounded-full text-sm font-semibold hover:bg-ink transition-colors" data-i18n="nav.manuscript">
+        Manuscript
+      </a>
+      <a href="https://github.com/goldenluke/biospace" target="_blank" rel="noopener"
+         class="flex items-center gap-2 bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-teal transition-colors">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.49c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.72-.5.06-.49.06-.49.8.06 1.22.82 1.22.82.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.22 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        <span data-i18n="nav.repo">Repository</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section id="hero" class="pt-32 pb-20 lg:pt-44 lg:pb-28 px-6 lg:px-10 max-w-7xl mx-auto">
+  <div class="grid lg:grid-cols-2 gap-14 items-center">
+    <div>
+      <p class="eyebrow text-teal text-xs mb-5" data-i18n="hero.eyebrow">representation infrastructure · not an ML library</p>
+      <h1 class="font-display font-semibold text-[2.6rem] leading-[1.05] sm:text-6xl lg:text-[3.4rem] tracking-tight text-ink" data-i18n="hero.title">
+        A patient is<br> not a vector.
+      </h1>
+      <p class="mt-6 text-lg text-ink2 leading-relaxed max-w-xl" data-i18n="hero.body">
+        Algorithms never observe a patient. They observe a representation built from exams, signals and observations. BioSpace treats that representation as an independent scientific problem — and makes it executable.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center gap-4">
+        <a href="https://goldenluke.github.io/patient-representation/" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 border-2 border-teal bg-teal text-paper px-5 py-3 rounded-full font-semibold hover:bg-ink hover:border-ink transition-colors shadow-[0_0_0_4px_rgba(14,124,123,0.12)]">
+          <span data-i18n="hero.cta.manuscript">Read the manuscript</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M11 3H5M11 3V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="https://github.com/goldenluke/biospace" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 bg-ink text-paper px-5 py-3 rounded-full font-medium hover:bg-teal transition-colors">
+          <span data-i18n="hero.cta1">View on GitHub</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M11 3H5M11 3V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#meta-model" class="inline-flex items-center gap-2 text-ink font-medium border-b border-ink/40 hover:border-teal hover:text-teal transition-colors pb-0.5" data-i18n="hero.cta2">
+          Explore the meta-model
+        </a>
+      </div>
+      <p class="mt-10 font-mono text-xs text-ink2 border-l-2 border-line pl-4" data-i18n="hero.formula">
+        M = (B, O, D, R, X, G, Γ, F, C) — nine entities, one theory, any disease.
+      </p>
+    </div>
+
+    <!-- SIGNATURE VISUAL -->
+    <div class="card rounded-2xl p-6 lg:p-8 relative">
+      <div class="flex items-center justify-between mb-4">
+        <p class="eyebrow text-[11px] text-ink2" data-i18n="hero.visual.eyebrow">representation space · live demonstration</p>
+        <div class="flex gap-1.5 text-[11px] font-mono">
+          <button id="btn-euclid" class="chip px-2.5 py-1 rounded-full text-rose transition-colors" data-i18n="hero.visual.straight">straight</button>
+          <button id="btn-riem" class="chip px-2.5 py-1 rounded-full text-teal bg-teal/10 transition-colors" data-i18n="hero.visual.geodesic">geodesic</button>
+        </div>
+      </div>
+      <svg viewBox="0 0 420 340" class="w-full h-auto" id="spiral-svg">
+        <g id="dots-group"></g>
+        <path id="geo-path-euclid" d="" fill="none" stroke="#B85C6B" stroke-width="2" class="fade-line" />
+        <path id="geo-path-riem" d="" fill="none" stroke="#0E7C7B" stroke-width="2.5" />
+        <circle id="pt-a" r="5.5" fill="#0E1620" class="glow-dot"/>
+        <circle id="pt-b" r="5.5" fill="#0E1620" class="glow-dot"/>
+      </svg>
+      <p id="caption" class="mt-3 text-sm text-ink2 leading-relaxed min-h-[2.5rem]"></p>
+      <p class="mt-2 font-mono text-[11px] text-ink2/70"><span data-i18n="hero.visual.basedon">based on</span> <code class="text-ink2">test_riemannian_geodesic_exceeds_euclidean_across_spiral_loops</code></p>
+    </div>
+  </div>
+</section>
+
+<!-- MANUSCRIPT BANNER -->
+<section id="manuscript" class="px-6 lg:px-10 max-w-7xl mx-auto pb-4">
+  <a href="https://goldenluke.github.io/patient-representation/" target="_blank" rel="noopener"
+     class="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 rounded-2xl border-2 border-teal bg-teal/10 hover:bg-teal px-7 py-7 sm:px-9 sm:py-8 transition-colors">
+    <div class="flex items-start gap-4">
+      <svg class="shrink-0 mt-1 text-teal group-hover:text-ink transition-colors" width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M4 3h11l5 5v13H4V3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M15 3v5h5M8 12h8M8 15.5h8M8 8.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div>
+        <p class="eyebrow text-teal group-hover:text-ink text-xs mb-1.5 transition-colors" data-i18n="manuscript.eyebrow">full academic paper</p>
+        <h2 class="font-display font-semibold text-xl sm:text-2xl text-ink group-hover:text-ink transition-colors" data-i18n="manuscript.title">Mathematical Foundations of the Computational Representation of Biological Systems</h2>
+        <p class="text-sm text-ink2 group-hover:text-ink/80 mt-2 max-w-xl transition-colors" data-i18n="manuscript.body">The formal derivation of every entity, principle and contract on this page — with proofs, related work and the full OSAS case study.</p>
+      </div>
+    </div>
+    <span class="shrink-0 inline-flex items-center gap-2 bg-ink text-paper group-hover:bg-paper group-hover:text-ink px-5 py-3 rounded-full font-semibold whitespace-nowrap transition-colors">
+      <span data-i18n="manuscript.cta">Read the manuscript</span>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M11 3H5M11 3V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+  </a>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line">
+  <div class="grid lg:grid-cols-[1.1fr_1.4fr] gap-12">
+    <div>
+      <p class="eyebrow text-teal text-xs mb-3" data-i18n="problem.eyebrow">the problem</p>
+      <h2 class="font-display text-3xl font-semibold tracking-tight" data-i18n="problem.title">The object no one defines</h2>
+    </div>
+    <div class="space-y-5 text-ink2 leading-relaxed">
+      <p data-i18n="problem.p1">Most AI in healthcare implicitly assumes a patient can be reduced to a vector <span class="font-mono text-ink">x = (x₁, x₂, …, xₙ) ∈ ℝⁿ</span>. But that vector isn't the patient — it's just an arbitrary selection of attributes:</p>
+      <p class="font-mono text-sm bg-ink text-paper rounded-lg px-4 py-3 inline-block">x = f(P), and almost always x ≠ P</p>
+      <p data-i18n="problem.p2">Two studies on the same syndrome — Obstructive Sleep Apnea, for instance — can mathematically describe <em>different patients</em>: one uses only the AHI, another adds age and BMI, a third incorporates dozens of polysomnography variables. No algorithm resolves this inconsistency — because it's born before the algorithm, in the very definition of the input object.</p>
+      <p data-i18n="problem.p3">BioSpace proposes explicitly separating four layers that most pipelines treat as one: the <strong class="text-ink">real biological system</strong>, its <strong class="text-ink">observations</strong>, its <strong class="text-ink">computational representation</strong>, and the <strong class="text-ink">inference algorithms</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- META-MODEL -->
+<section id="meta-model" class="px-6 lg:px-10 max-w-7xl mx-auto py-20 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="meta.eyebrow">the formal core</p>
+  <h2 class="font-display text-3xl sm:text-4xl font-semibold tracking-tight mb-2">M = (B, O, D, R, X, G, Γ, F, C)</h2>
+  <p class="text-ink2 max-w-2xl mb-12" data-i18n="meta.subtitle">Nine formal entities, each with a corresponding computational implementation. The core knows nothing about any specific disease.</p>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="card rounded-xl p-6">
+      <span class="font-mono text-2xl text-teal">B</span>
+      <h3 class="font-display font-semibold text-lg mt-2" data-i18n="meta.b.title">Biological System</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="meta.b.body">The patient stops being a spreadsheet row. It becomes an entity that accumulates observations over time.</p>
+      <code class="block mt-3 text-xs text-ink2 bg-paper2 rounded px-3 py-2">system = SleepSystem()</code>
+    </div>
+    <div class="card rounded-xl p-6">
+      <span class="font-mono text-2xl text-amber">O</span>
+      <h3 class="font-display font-semibold text-lg mt-2" data-i18n="meta.o.title">Observations</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="meta.o.body">Not loose numbers — measurement processes with preserved origin, timestamp and provenance.</p>
+      <code class="block mt-3 text-xs text-ink2 bg-paper2 rounded px-3 py-2">system.observe(exam({...}))</code>
+    </div>
+    <div class="card rounded-xl p-6">
+      <span class="font-mono text-2xl text-violet">D</span>
+      <h3 class="font-display font-semibold text-lg mt-2" data-i18n="meta.d.title">Semantic Domains</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="meta.d.body">Observations grouped by physiological process — anthropometry, apnea, hypoxemia — each with its own meaning.</p>
+    </div>
+    <div class="card rounded-xl p-6">
+      <span class="font-mono text-2xl text-rose">R</span>
+      <h3 class="font-display font-semibold text-lg mt-2" data-i18n="meta.r.title">Representation</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="meta.r.body">Composition of domains into an auditable vector.</p>
+      <code class="block mt-3 text-xs text-ink2 bg-paper2 rounded px-3 py-2">R(B) = (φ₁(D₁), …, φₙ(Dₙ))</code>
+    </div>
+    <div class="card rounded-xl p-6">
+      <span class="font-mono text-2xl text-sky">X</span>
+      <h3 class="font-display font-semibold text-lg mt-2" data-i18n="meta.x.title">Representation Space</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="meta.x.body">The product of individual spaces. The patient occupies a position, not an isolated vector.</p>
+      <code class="block mt-3 text-xs text-ink2 bg-paper2 rounded px-3 py-2">X = X₁ × X₂ × … × Xₙ</code>
+    </div>
+    <div class="card rounded-xl p-6">
+      <span class="font-mono text-2xl text-olive">G</span>
+      <h3 class="font-display font-semibold text-lg mt-2" data-i18n="meta.g.title">Geometry</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="meta.g.body">A structure independent of the representation: Euclidean, Mahalanobis, Wasserstein, Information.</p>
+    </div>
+    <div class="card rounded-xl p-6">
+      <span class="font-mono text-2xl text-teal">Γ</span>
+      <h3 class="font-display font-semibold text-lg mt-2" data-i18n="meta.gamma.title">Trajectories</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="meta.gamma.body">The patient stops being a static state and gains a temporal evolution.</p>
+      <code class="block mt-3 text-xs text-ink2 bg-paper2 rounded px-3 py-2">Γ(t) = R(B(t))</code>
+    </div>
+    <div class="card rounded-xl p-6">
+      <span class="font-mono text-2xl text-amber">F</span>
+      <h3 class="font-display font-semibold text-lg mt-2" data-i18n="meta.f.title">Phenotypes</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="meta.f.body">Not algorithms. Regions of the representation space — algorithms merely estimate them.</p>
+    </div>
+    <div class="card rounded-xl p-6">
+      <span class="font-mono text-2xl text-violet">C</span>
+      <h3 class="font-display font-semibold text-lg mt-2" data-i18n="meta.c.title">Cohorts</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="meta.c.body">Sets of biological systems — cross-sectional snapshots or complete longitudinal trajectories.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="pipeline.eyebrow">representation flow</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-10" data-i18n="pipeline.title">From biological system to inference</h2>
+  <div class="overflow-x-auto scrollbar-thin pb-4">
+    <div class="flex items-center gap-2 min-w-max text-sm font-mono">
+      <span class="card rounded-full px-4 py-2 whitespace-nowrap" data-i18n="pipeline.1">Biological System</span>
+      <span class="text-ink2">→</span>
+      <span class="card rounded-full px-4 py-2 whitespace-nowrap" data-i18n="pipeline.2">Observations</span>
+      <span class="text-ink2">→</span>
+      <span class="card rounded-full px-4 py-2 whitespace-nowrap">Measurements</span>
+      <span class="text-ink2">→</span>
+      <span class="card rounded-full px-4 py-2 whitespace-nowrap" data-i18n="pipeline.4">Semantic Domains</span>
+      <span class="text-ink2">→</span>
+      <span class="card rounded-full px-4 py-2 whitespace-nowrap">Features</span>
+      <span class="text-ink2">→</span>
+      <span class="card rounded-full px-4 py-2 whitespace-nowrap">Representation</span>
+      <span class="text-ink2">→</span>
+      <span class="card rounded-full px-4 py-2 whitespace-nowrap">Representation Space</span>
+      <span class="text-ink2">→</span>
+      <span class="card rounded-full px-4 py-2 whitespace-nowrap">Geometry</span>
+      <span class="text-ink2">→</span>
+      <span class="card rounded-full px-4 py-2 whitespace-nowrap">Phenotyping</span>
+      <span class="text-ink2">→</span>
+      <span class="rounded-full px-4 py-2 whitespace-nowrap bg-ink text-paper" data-i18n="pipeline.11">Inference</span>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES / AUDIT -->
+<section class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <div class="grid lg:grid-cols-2 gap-12 items-start">
+    <div>
+      <p class="eyebrow text-teal text-xs mb-3" data-i18n="audit.eyebrow">traceability</p>
+      <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="audit.title">A Feature is never just a number</h2>
+      <p class="text-ink2 leading-relaxed mb-4" data-i18n="audit.p1">Every coordinate of the space carries all information needed for audit — raw value, z-score, weight, missingness and provenance. No coordinate loses the path back to the clinical observation that originated it.</p>
+      <p class="text-ink2 leading-relaxed" data-i18n="audit.p2">This is what makes the representation a <strong class="text-ink">contract</strong>, not a convenience: any coordinate can be explained, at any moment, for any patient.</p>
+    </div>
+    <pre class="card rounded-xl p-6 text-[13px] leading-relaxed overflow-x-auto scrollbar-thin"><code>Feature(
+    name="spo2_minimum",
+    value=-0.62,
+    raw_value=88,
+    z_score=-0.62,
+    weight=0.93,
+    is_missing=False,
+    provenance=[...],
+)</code></pre>
+  </div>
+</section>
+
+<!-- DOMAINS -->
+<section id="domains" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="domains.eyebrow">validation plugin · sleep medicine</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="domains.title">Semantic domains</h2>
+  <p class="text-ink2 max-w-2xl mb-10" data-i18n="domains.subtitle">Each domain represents only one physiological aspect of the biological system and implements extraction, normalization, weighting and Feature construction independently of the others.</p>
+  <div class="flex flex-wrap gap-3">
+    <span class="chip text-teal px-4 py-2 rounded-full text-sm font-medium" data-i18n="domains.1">Anthropometric</span>
+    <span class="chip text-amber px-4 py-2 rounded-full text-sm font-medium" data-i18n="domains.2">Apnea</span>
+    <span class="chip text-violet px-4 py-2 rounded-full text-sm font-medium" data-i18n="domains.3">Hypoxemia</span>
+    <span class="chip text-rose px-4 py-2 rounded-full text-sm font-medium" data-i18n="domains.4">Sleep Architecture</span>
+    <span class="chip text-sky px-4 py-2 rounded-full text-sm font-medium" data-i18n="domains.5">Cardiovascular</span>
+    <span class="chip text-olive px-4 py-2 rounded-full text-sm font-medium" data-i18n="domains.6">Comorbidities</span>
+    <span class="chip text-ink px-4 py-2 rounded-full text-sm font-medium" data-i18n="domains.7">Symptoms</span>
+    <span class="chip text-ink2 px-4 py-2 rounded-full text-sm font-medium" data-i18n="domains.8">Treatment</span>
+  </div>
+</section>
+
+<!-- GEOMETRIES -->
+<section id="geometries" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="geo.eyebrow">space geometry</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="geo.title">Clinical distance is not unique</h2>
+  <p class="text-ink2 max-w-2xl mb-10" data-i18n="geo.subtitle">Geometry is a structure independent of the representation. Switching metrics never rebuilds the patient — it only reinterprets distances between points that already exist.</p>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="card rounded-xl p-5">
+      <h3 class="font-display font-semibold">Euclidean</h3>
+      <p class="text-sm text-ink2 mt-2" data-i18n="geo.1">Straight-line distance in Feature space.</p>
+    </div>
+    <div class="card rounded-xl p-5">
+      <h3 class="font-display font-semibold">Mahalanobis</h3>
+      <p class="text-sm text-ink2 mt-2" data-i18n="geo.2">Corrects for correlation and scale across domains.</p>
+    </div>
+    <div class="card rounded-xl p-5">
+      <h3 class="font-display font-semibold">Wasserstein</h3>
+      <p class="text-sm text-ink2 mt-2" data-i18n="geo.3">Compares distributions, not just points.</p>
+    </div>
+    <div class="card rounded-xl p-5">
+      <h3 class="font-display font-semibold">Information Geometry</h3>
+      <p class="text-sm text-ink2 mt-2" data-i18n="geo.4">Distance over the underlying statistical manifold.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PHENOTYPING -->
+<section id="phenotyping" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <div class="grid lg:grid-cols-2 gap-12 items-start">
+    <div>
+      <p class="eyebrow text-teal text-xs mb-3" data-i18n="pheno.eyebrow">phenotyping</p>
+      <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="pheno.title">Phenotypes are regions, not labels</h2>
+      <p class="text-ink2 leading-relaxed mb-6" data-i18n="pheno.body">Any operator — clinical K-Means, HDBSCAN, GMM, spectral clustering — operates over exactly the same representation space. Swapping the algorithm never swaps the patient.</p>
+      <div class="flex flex-wrap gap-2 text-sm font-mono">
+        <span class="card rounded-lg px-3 py-1.5">Clinical K-Means</span>
+        <span class="card rounded-lg px-3 py-1.5">HDBSCAN</span>
+        <span class="card rounded-lg px-3 py-1.5">Gaussian Mixture</span>
+        <span class="card rounded-lg px-3 py-1.5">Spectral Clustering</span>
+      </div>
+    </div>
+    <pre class="card rounded-xl p-6 text-[13px] leading-relaxed overflow-x-auto scrollbar-thin"><code>space = cohort.snapshot()
+
+phenotyper = ClinicalKMeansPhenotyper()
+phenotypes = phenotyper.fit(space)
+
+for phenotype in phenotypes:
+    print(phenotype.name,
+          phenotype.interpretation)</code></pre>
+  </div>
+</section>
+
+<!-- PRINCIPLES -->
+<section id="principles" class="px-6 lg:px-10 max-w-7xl mx-auto py-20 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="princ.eyebrow">core principles</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-10" data-i18n="princ.title">Six principles that constrain the entire architecture</h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
+    <div class="border-l-2 border-teal pl-4">
+      <span class="font-mono text-xs text-ink2">3.1</span>
+      <h3 class="font-display font-semibold mt-1" data-i18n="princ.1.title">Algorithmic Independence</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="princ.1.body">The same representation space can be used by any learning method.</p>
+    </div>
+    <div class="border-l-2 border-amber pl-4">
+      <span class="font-mono text-xs text-ink2">3.2</span>
+      <h3 class="font-display font-semibold mt-1" data-i18n="princ.2.title">Compositionality</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="princ.2.body">The representation emerges from composing independent physiological domains.</p>
+    </div>
+    <div class="border-l-2 border-violet pl-4">
+      <span class="font-mono text-xs text-ink2">3.3</span>
+      <h3 class="font-display font-semibold mt-1" data-i18n="princ.3.title">Semantic Preservation</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="princ.3.body">Every coordinate keeps its clinical interpretation and the origin of the information.</p>
+    </div>
+    <div class="border-l-2 border-rose pl-4">
+      <span class="font-mono text-xs text-ink2">3.4</span>
+      <h3 class="font-display font-semibold mt-1" data-i18n="princ.4.title">Continuity</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="princ.4.body">Small clinical changes don't produce discontinuous jumps in the space.</p>
+    </div>
+    <div class="border-l-2 border-sky pl-4">
+      <span class="font-mono text-xs text-ink2">3.5</span>
+      <h3 class="font-display font-semibold mt-1" data-i18n="princ.5.title">Extensibility</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="princ.5.body">New physiological domains plug in without modifying existing infrastructure.</p>
+    </div>
+    <div class="border-l-2 border-olive pl-4">
+      <span class="font-mono text-xs text-ink2">3.6</span>
+      <h3 class="font-display font-semibold mt-1" data-i18n="princ.6.title">Reuse</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="princ.6.body">The same infrastructure serves any disease that can be observed.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="arch.eyebrow">implementation</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-10" data-i18n="arch.title">Package architecture</h2>
+  <div class="grid lg:grid-cols-2 gap-10">
+    <pre class="card rounded-xl p-6 text-[13px] leading-loose overflow-x-auto scrollbar-thin"><code>biospace/
+├── core/            <span class="text-ink2" data-i18n="arch.tree.core"># mathematical core of the theory</span>
+│   ├── biological_system.py
+│   ├── observation.py
+│   ├── measurement.py
+│   ├── feature.py
+│   ├── domain.py
+│   ├── representation.py
+│   ├── representation_space.py
+│   ├── geometry.py
+│   ├── trajectory.py
+│   ├── phenotype.py
+│   ├── cohort.py
+│   ├── operator.py
+│   └── plugin.py
+├── geometry/        <span class="text-ink2" data-i18n="arch.tree.geo"># Euclidean · Mahalanobis · Wasserstein · Info.</span>
+├── phenotyping/     <span class="text-ink2" data-i18n="arch.tree.pheno"># K-Means · HDBSCAN · GMM · Spectral</span>
+├── ontology/        <span class="text-ink2" data-i18n="arch.tree.ont"># auto-generated ontology</span>
+├── longitudinal/    <span class="text-ink2" data-i18n="arch.tree.long"># trajectories, transitions, survival</span>
+└── plugins/         <span class="text-ink2" data-i18n="arch.tree.plug"># per-disease implementations — e.g. sleep</span></code></pre>
+    <div class="space-y-6">
+      <div>
+        <h3 class="font-display font-semibold" data-i18n="arch.1.title">core knows no diseases</h3>
+        <p class="text-sm text-ink2 mt-1 leading-relaxed" data-i18n="arch.1.body">All disease-specific clinical knowledge lives in plugins. The mathematical core stays the same for sleep, cardiology or oncology.</p>
+      </div>
+      <div>
+        <h3 class="font-display font-semibold" data-i18n="arch.2.title">geometry is pluggable</h3>
+        <p class="text-sm text-ink2 mt-1 leading-relaxed" data-i18n="arch.2.body">Since geometry is independent of representation, swapping metrics never requires rebuilding patients.</p>
+      </div>
+      <div>
+        <h3 class="font-display font-semibold" data-i18n="arch.3.title">ontology is executable documentation</h3>
+        <p class="text-sm text-ink2 mt-1 leading-relaxed" data-i18n="arch.3.body">Semantic domains automatically generate the system's ontology — documentation never goes stale.</p>
+      </div>
+      <div>
+        <h3 class="font-display font-semibold" data-i18n="arch.4.title">plugins/sleep validates the theory</h3>
+        <p class="text-sm text-ink2 mt-1 leading-relaxed" data-i18n="arch.4.body">Spreadsheet loading, normalization, longitudinal grouping per patient, phenotyping and survival analysis — the first complete implementation of the meta-model.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTRACTS -->
+<section id="contracts" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="contracts.eyebrow">formal contracts</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="contracts.title">Ten contracts, locked by regression tests</h2>
+  <p class="text-ink2 max-w-2xl mb-10" data-i18n="contracts.subtitle">Every principle of the meta-model is verifiable in code — not just described in prose. A real example: out-of-order observations can no longer contaminate a trajectory's past, a subtle bug fixed by propagating <code class="text-sm bg-paper2 rounded px-1.5 py-0.5">as_of</code> through the whole chain.</p>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 text-sm font-mono">
+    <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.1">5.1 Traceability</span></span>
+    <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.2">5.2 Semantic Preserv.</span></span>
+    <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.3">5.3 Compositionality</span></span>
+    <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.4">5.4 Continuity</span></span>
+    <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.5">5.5 Extensibility</span></span>
+    <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.6">5.6 Algorithmic Indep.</span></span>
+    <span class="card rounded-lg px-3 py-2.5 bg-teal/10 border-teal text-teal"><span data-i18n="contracts.7">5.7 Temporality</span></span>
+    <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.8">5.8 Reproducibility</span></span>
+    <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.9">5.9 Versionability</span></span>
+    <span class="card rounded-lg px-3 py-2.5"><span data-i18n="contracts.10">5.10 Interoperability</span></span>
+  </div>
+</section>
+
+<!-- CODE -->
+<section id="code" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="code.eyebrow">end to end</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-10" data-i18n="code.title">Complete example</h2>
+  <pre class="card rounded-xl p-7 text-[13.5px] leading-relaxed overflow-x-auto scrollbar-thin"><code><span class="text-violet">from</span> biospace.plugins.sleep <span class="text-violet">import</span> load_from_excel
+<span class="text-violet">from</span> biospace.phenotyping <span class="text-violet">import</span> ClinicalKMeansPhenotyper
+
+cohort, representation = load_from_excel(<span class="text-teal">"Exams.xlsx"</span>)
+
+space = cohort.snapshot()
+
+phenotyper = ClinicalKMeansPhenotyper()
+phenotypes = phenotyper.fit(space)
+
+<span class="text-violet">for</span> phenotype <span class="text-violet">in</span> phenotypes:
+    print(phenotype.name, phenotype.interpretation)</code></pre>
+</section>
+
+<!-- APPLICATIONS -->
+<section id="applications" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="apps.eyebrow">beyond sleep</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="apps.title">One infrastructure, any specialty</h2>
+  <p class="text-ink2 max-w-2xl mb-10" data-i18n="apps.subtitle">Each specialty implements only its own semantic domains. All infrastructure — core, geometry, phenotyping, longitudinal — stays unchanged.</p>
+  <div class="flex flex-wrap gap-3 text-sm">
+    <span class="card rounded-full px-4 py-2" data-i18n="apps.1">Sleep Medicine</span>
+    <span class="card rounded-full px-4 py-2" data-i18n="apps.2">Cardiology</span>
+    <span class="card rounded-full px-4 py-2" data-i18n="apps.3">Endocrinology</span>
+    <span class="card rounded-full px-4 py-2" data-i18n="apps.4">Oncology</span>
+    <span class="card rounded-full px-4 py-2" data-i18n="apps.5">Neurology</span>
+    <span class="card rounded-full px-4 py-2" data-i18n="apps.6">Psychiatry</span>
+    <span class="card rounded-full px-4 py-2" data-i18n="apps.7">Epidemiology</span>
+    <span class="card rounded-full px-4 py-2" data-i18n="apps.8">Intensive Care</span>
+  </div>
+</section>
+
+<!-- CTA / FOOTER -->
+<section id="repo" class="px-6 lg:px-10 max-w-7xl mx-auto py-20 border-t border-line reveal">
+  <div class="rounded-2xl bg-ink text-paper px-8 py-14 lg:px-16 text-center">
+    <p class="eyebrow text-teal text-xs mb-4" data-i18n="cta.eyebrow">mathematical foundations of computational representation of biological systems</p>
+    <h2 class="font-display text-3xl sm:text-4xl font-semibold tracking-tight max-w-2xl mx-auto leading-tight" data-i18n="cta.title">
+      The theory is already software. Read the code, run the tests, extend it to your disease.
+    </h2>
+    <div class="mt-9 flex flex-wrap items-center justify-center gap-4">
+      <a href="https://github.com/goldenluke/biospace" target="_blank" rel="noopener"
+         class="inline-flex items-center gap-2 bg-paper text-ink px-6 py-3 rounded-full font-medium hover:bg-teal hover:text-paper transition-colors">
+        github.com/goldenluke/biospace
+      </a>
+      <a href="https://goldenluke.github.io/patient-representation/" target="_blank" rel="noopener"
+         class="inline-flex items-center gap-2 border-2 border-teal text-teal bg-teal/10 px-6 py-3 rounded-full font-semibold hover:bg-teal hover:text-ink transition-colors">
+        <span data-i18n="cta.manuscript">Read the full manuscript</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M11 3H5M11 3V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-ink2">
+    <p data-i18n="footer.desc">BioSpace — mathematical core, pluggable geometries, validation plugin in Sleep Medicine.</p>
+    <p class="font-mono" data-i18n="footer.license">MIT license</p>
+  </div>
+</section>
+
+<script>
+  // reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:.12 });
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // ---- i18n ----
+  const translations = {
+    en: {}, // uses the default textContent already in the HTML
+    pt: {
+      "nav.meta":"Meta-modelo","nav.domains":"Domínios","nav.geometries":"Geometria","nav.principles":"Princípios",
+      "nav.architecture":"Arquitetura","nav.code":"Código","nav.manuscript":"Manuscrito","nav.repo":"Repositório",
+      "hero.eyebrow":"infraestrutura de representação · não uma biblioteca de ML",
+      "hero.title":"Um paciente<br> não é um vetor.",
+      "hero.body":"Algoritmos nunca observam um paciente. Eles observam uma representação construída a partir de exames, sinais e observações. O BioSpace trata essa representação como um problema científico independente — e a torna executável.",
+      "hero.cta1":"Ver no GitHub","hero.cta2":"Explorar o meta-modelo","hero.cta.manuscript":"Ler o manuscrito",
+      "manuscript.eyebrow":"artigo acadêmico completo",
+      "manuscript.title":"Fundamentos Matemáticos da Representação Computacional de Sistemas Biológicos",
+      "manuscript.body":"A derivação formal de cada entidade, princípio e contrato desta página — com provas, trabalhos relacionados e o estudo de caso completo em AOS.",
+      "manuscript.cta":"Ler o manuscrito",
+      "hero.formula":"M = (B, O, D, R, X, G, Γ, F, C) — nove entidades, uma teoria, qualquer doença.",
+      "hero.visual.eyebrow":"espaço de representação · demonstração real",
+      "hero.visual.straight":"reta","hero.visual.geodesic":"geodésica","hero.visual.basedon":"baseado em",
+      "problem.eyebrow":"o problema","problem.title":"O objeto que ninguém define",
+      "problem.p1":'A maior parte da IA em saúde assume, implicitamente, que um paciente pode ser reduzido a um vetor <span class="font-mono text-ink">x = (x₁, x₂, …, xₙ) ∈ ℝⁿ</span>. Mas esse vetor não é o paciente — é apenas uma seleção arbitrária de atributos:',
+      "problem.p2":"Dois estudos sobre a mesma síndrome — a Apneia Obstrutiva do Sono, por exemplo — podem descrever matematicamente <em>pacientes diferentes</em>: um usa só o IAH, outro adiciona idade e IMC, um terceiro incorpora dezenas de variáveis da polissonografia. Nenhum algoritmo resolve essa inconsistência — porque ela nasce antes do algoritmo, na própria definição do objeto de entrada.",
+      "problem.p3":'O BioSpace propõe separar explicitamente quatro camadas que a maioria dos pipelines trata como uma só: o <strong class="text-ink">sistema biológico real</strong>, suas <strong class="text-ink">observações</strong>, sua <strong class="text-ink">representação computacional</strong> e os <strong class="text-ink">algoritmos de inferência</strong>.',
+      "meta.eyebrow":"o núcleo formal","meta.subtitle":"Nove entidades formais, cada uma com implementação computacional correspondente. O núcleo não sabe nada sobre nenhuma doença específica.",
+      "meta.b.title":"Sistema Biológico","meta.b.body":"O paciente deixa de ser uma linha de planilha. Passa a ser uma entidade que acumula observações ao longo do tempo.",
+      "meta.o.title":"Observações","meta.o.body":"Não são números soltos — são processos de medida com origem, instante e proveniência preservados.",
+      "meta.d.title":"Domínios Semânticos","meta.d.body":"Observações agrupadas por processo fisiológico — antropometria, apneia, hipoxemia — cada uma com significado próprio.",
+      "meta.r.title":"Representação","meta.r.body":"Composição dos domínios em um vetor auditável.",
+      "meta.x.title":"Espaço de Representação","meta.x.body":"O produto dos espaços individuais. O paciente ocupa uma posição, não um vetor isolado.",
+      "meta.g.title":"Geometria","meta.g.body":"Estrutura independente da representação: Euclidiana, Mahalanobis, Wasserstein, Informação.",
+      "meta.gamma.title":"Trajetórias","meta.gamma.body":"O paciente deixa de ser um estado estático e passa a ter evolução temporal.",
+      "meta.f.title":"Fenótipos","meta.f.body":"Não são algoritmos. São regiões do espaço de representação — os algoritmos apenas as estimam.",
+      "meta.c.title":"Coortes","meta.c.body":"Conjuntos de sistemas biológicos — snapshots transversais ou trajetórias longitudinais completas.",
+      "pipeline.eyebrow":"fluxo da representação","pipeline.title":"Do sistema biológico à inferência",
+      "pipeline.1":"Sistema Biológico","pipeline.2":"Observações","pipeline.4":"Domínios Semânticos","pipeline.11":"Inferência",
+      "audit.eyebrow":"rastreabilidade","audit.title":"Uma Feature nunca é só um número",
+      "audit.p1":"Cada coordenada do espaço carrega toda a informação necessária para auditoria — valor bruto, z-score, peso, ausência e proveniência. Nenhuma coordenada perde o caminho até a observação clínica que a originou.",
+      "audit.p2":'Isso é o que torna a representação <strong class="text-ink">contrato</strong>, não conveniência: qualquer coordenada pode ser explicada, a qualquer momento, para qualquer paciente.',
+      "domains.eyebrow":"plugin de validação · medicina do sono","domains.title":"Domínios semânticos",
+      "domains.subtitle":"Cada domínio representa apenas um aspecto fisiológico do sistema biológico e implementa extração, normalização, ponderação e construção de Features de forma independente dos demais.",
+      "domains.1":"Antropométrico","domains.2":"Apneia","domains.3":"Hipoxemia","domains.4":"Arquitetura do Sono",
+      "domains.5":"Cardiovascular","domains.6":"Comorbidades","domains.7":"Sintomas","domains.8":"Tratamento",
+      "geo.eyebrow":"geometria do espaço","geo.title":"A distância clínica não é única",
+      "geo.subtitle":"A geometria é uma estrutura independente da representação. Trocar de métrica nunca reconstrói o paciente — apenas reinterpreta as distâncias entre pontos já existentes.",
+      "geo.1":"Distância em linha reta no espaço de Features.","geo.2":"Corrige por correlação e escala entre domínios.",
+      "geo.3":"Compara distribuições, não apenas pontos.","geo.4":"Distância sobre a variedade estatística subjacente.",
+      "pheno.eyebrow":"fenotipagem","pheno.title":"Fenótipos são regiões, não rótulos",
+      "pheno.body":"Qualquer operador — K-Means clínico, HDBSCAN, GMM, Spectral Clustering — opera sobre exatamente o mesmo espaço de representação. Trocar o algoritmo nunca troca o paciente.",
+      "princ.eyebrow":"princípios fundamentais","princ.title":"Seis princípios que restringem toda a arquitetura",
+      "princ.1.title":"Independência Algorítmica","princ.1.body":"O mesmo espaço de representação pode ser usado por qualquer método de aprendizado.",
+      "princ.2.title":"Composicionalidade","princ.2.body":"A representação nasce da composição de domínios fisiológicos independentes.",
+      "princ.3.title":"Preservação Semântica","princ.3.body":"Cada coordenada mantém sua interpretação clínica e a origem da informação.",
+      "princ.4.title":"Continuidade","princ.4.body":"Pequenas mudanças clínicas não produzem saltos descontínuos no espaço.",
+      "princ.5.title":"Extensibilidade","princ.5.body":"Novos domínios fisiológicos entram sem modificar a infraestrutura existente.",
+      "princ.6.title":"Reutilização","princ.6.body":"A mesma infraestrutura serve a qualquer doença que possa ser observada.",
+      "arch.eyebrow":"implementação","arch.title":"Arquitetura do pacote",
+      "arch.tree.core":"# núcleo matemático da teoria","arch.tree.geo":"# Euclidean · Mahalanobis · Wasserstein · Info.",
+      "arch.tree.pheno":"# K-Means · HDBSCAN · GMM · Spectral","arch.tree.ont":"# ontologia gerada automaticamente",
+      "arch.tree.long":"# trajetórias, transições, sobrevivência","arch.tree.plug":"# implementações por doença — ex.: sleep",
+      "arch.1.title":"core não conhece doenças","arch.1.body":"Todo conhecimento clínico específico vive nos plugins. O núcleo matemático permanece o mesmo para sono, cardiologia ou oncologia.",
+      "arch.2.title":"geometry é plugável","arch.2.body":"Como a geometria é independente da representação, trocar de métrica nunca exige reconstruir pacientes.",
+      "arch.3.title":"ontology é documentação executável","arch.3.body":"Os domínios semânticos geram automaticamente a ontologia do sistema — a documentação nunca fica desatualizada.",
+      "arch.4.title":"plugins/sleep valida a teoria","arch.4.body":"Carregamento de planilhas, normalização, agrupamento longitudinal por paciente, fenotipagem e análise de sobrevivência — primeira implementação completa do meta-modelo.",
+      "contracts.eyebrow":"contratos formais","contracts.title":"Dez contratos, travados por testes de regressão",
+      "contracts.subtitle":'Cada princípio do meta-modelo é verificável em código — não apenas descrito em prosa. Um exemplo real: observações fora de ordem cronológica não podem mais contaminar o passado de uma trajetória, um bug sutil corrigido propagando <code class="text-sm bg-paper2 rounded px-1.5 py-0.5">as_of</code> por toda a cadeia.',
+      "contracts.1":"5.1 Rastreabilidade","contracts.2":"5.2 Preserv. Semântica","contracts.3":"5.3 Composicionalidade",
+      "contracts.4":"5.4 Continuidade","contracts.5":"5.5 Extensibilidade","contracts.6":"5.6 Indep. Algorítmica",
+      "contracts.7":"5.7 Temporalidade","contracts.8":"5.8 Reprodutibilidade","contracts.9":"5.9 Versionabilidade","contracts.10":"5.10 Interoperabilidade",
+      "code.eyebrow":"de ponta a ponta","code.title":"Exemplo completo",
+      "apps.eyebrow":"além do sono","apps.title":"Uma infraestrutura, qualquer especialidade",
+      "apps.subtitle":"Cada especialidade implementa apenas seus próprios domínios semânticos. Toda a infraestrutura — core, geometria, fenotipagem, longitudinal — permanece inalterada.",
+      "apps.1":"Medicina do Sono","apps.2":"Cardiologia","apps.3":"Endocrinologia","apps.4":"Oncologia",
+      "apps.5":"Neurologia","apps.6":"Psiquiatria","apps.7":"Epidemiologia","apps.8":"Medicina Intensiva",
+      "cta.eyebrow":"fundamentos matemáticos da representação computacional de sistemas biológicos",
+      "cta.title":"A teoria já é software. Leia o código, rode os testes, estenda para sua doença.",
+      "cta.manuscript":"Ler o manuscrito completo",
+      "footer.desc":"BioSpace — núcleo matemático, geometrias plugáveis, plugin de validação em Medicina do Sono.",
+      "footer.license":"licença MIT",
+    }
+  };
+  // capture EN defaults from DOM
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    translations.en[el.getAttribute('data-i18n')] = el.innerHTML;
+  });
+
+  let currentLang = 'en';
+  function applyLang(lang){
+    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key = el.getAttribute('data-i18n');
+      const dict = translations[lang];
+      if(dict && dict[key] !== undefined){ el.innerHTML = dict[key]; }
+      else if(translations.en[key] !== undefined){ el.innerHTML = translations.en[key]; }
+    });
+    document.getElementById('lang-en').classList.toggle('bg-ink', lang==='en');
+    document.getElementById('lang-en').classList.toggle('text-paper', lang==='en');
+    document.getElementById('lang-pt').classList.toggle('bg-ink', lang==='pt');
+    document.getElementById('lang-pt').classList.toggle('text-paper', lang==='pt');
+    updateCaption();
+    currentLang = lang;
+  }
+  document.getElementById('lang-toggle').addEventListener('click', ()=>{
+    applyLang(currentLang === 'en' ? 'pt' : 'en');
+  });
+
+  // ---- signature visual: spiral trajectory, geodesic vs euclidean ----
+  const svg = document.getElementById('spiral-svg');
+  const dotsGroup = document.getElementById('dots-group');
+  const cx = 210, cy = 172;
+  const n = 70;
+  const points = [];
+  for(let i=0;i<n;i++){
+    const t = i/n;
+    const theta = t * 4.4 * Math.PI;
+    const r = 14 + t * 130;
+    const x = cx + r*Math.cos(theta);
+    const y = cy + r*Math.sin(theta);
+    points.push({x,y,theta,r});
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', 2.6);
+    const hue = 165 + t*70;
+    dot.setAttribute('fill', `hsl(${hue} 35% 42%)`);
+    dot.setAttribute('opacity', 0.55);
+    dotsGroup.appendChild(dot);
+  }
+  const idxA = 46, idxB = 14;
+  const a = points[idxA], b = points[idxB];
+  document.getElementById('pt-a').setAttribute('cx', a.x);
+  document.getElementById('pt-a').setAttribute('cy', a.y);
+  document.getElementById('pt-b').setAttribute('cx', b.x);
+  document.getElementById('pt-b').setAttribute('cy', b.y);
+  document.getElementById('geo-path-euclid').setAttribute('d', `M ${a.x} ${a.y} L ${b.x} ${b.y}`);
+  let dpath = `M ${points[idxB].x} ${points[idxB].y} `;
+  for(let i=idxB+1;i<=idxA;i++){ dpath += `L ${points[i].x} ${points[i].y} `; }
+  document.getElementById('geo-path-riem').setAttribute('d', dpath);
+
+  const dEuclid = Math.hypot(a.x-b.x, a.y-b.y);
+  let dRiem = 0;
+  for(let i=idxB;i<idxA;i++){ dRiem += Math.hypot(points[i+1].x-points[i].x, points[i+1].y-points[i].y); }
+
+  const caption = document.getElementById('caption');
+  const btnE = document.getElementById('btn-euclid');
+  const btnR = document.getElementById('btn-riem');
+  const pathE = document.getElementById('geo-path-euclid');
+  const pathR = document.getElementById('geo-path-riem');
+  let mode = 'riem';
+
+  function updateCaption(){
+    if(mode === 'euclid'){
+      pathE.style.opacity = 1; pathR.style.opacity = .15;
+      caption.innerHTML = currentLang === 'pt'
+        ? `Distância euclidiana: <span class="font-mono text-ink">${dEuclid.toFixed(0)}px</span> — mede o espaço vazio entre os pontos, ignorando a variedade que a trajetória clínica realmente percorre.`
+        : `Euclidean distance: <span class="font-mono text-ink">${dEuclid.toFixed(0)}px</span> — measures the empty space between points, ignoring the manifold the clinical trajectory actually traces.`;
+    } else {
+      pathR.style.opacity = 1; pathE.style.opacity = .2;
+      caption.innerHTML = currentLang === 'pt'
+        ? `Distância geodésica: <span class="font-mono text-ink">${dRiem.toFixed(0)}px</span> (${(dRiem/dEuclid).toFixed(2)}× a reta) — a métrica correta quando o espaço tem curvatura fisiológica.`
+        : `Geodesic distance: <span class="font-mono text-ink">${dRiem.toFixed(0)}px</span> (${(dRiem/dEuclid).toFixed(2)}× the straight line) — the correct metric when the space has physiological curvature.`;
+    }
+  }
+  btnE.addEventListener('click', ()=>{ mode='euclid'; btnE.classList.add('bg-rose/10'); btnR.classList.remove('bg-teal/10'); updateCaption(); });
+  btnR.addEventListener('click', ()=>{ mode='riem'; btnR.classList.add('bg-teal/10'); btnE.classList.remove('bg-rose/10'); updateCaption(); });
+
+  applyLang('en');
+</script>
+</body>
+</html>

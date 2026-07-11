@@ -1,0 +1,9 @@
+# Dependências para rodar a suíte de testes (tests/), além das já listadas
+# em biospace_dashboard/requirements.txt
+pytest>=8.0
+numpy>=1.24
+scipy>=1.10
+scikit-learn>=1.3
+pandas>=2.0
+POT>=0.9
+networkx>=3.0
