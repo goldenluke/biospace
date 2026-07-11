@@ -144,7 +144,115 @@ internação prévia 1,85 vs. 0,30-0,48) — consistente com a literatura
 de predição de readmissão, onde utilização prévia é um dos preditores
 mais fortes conhecidos.
 
-## 6. Onde os achados foram publicados
+## 6. Estabilidade, curvatura, dinâmica, representação e GNN: a mesma metodologia de SAOS, aplicada às duas fontes novas
+
+Depois da publicação do artigo de diabetes, apliquei ao NHANES e à UCI
+exatamente a bateria de análise já usada em SAOS — não porque fosse
+óbvio o que ia dar, mas porque não tínhamos testado ainda.
+
+### NHANES: o oposto exato de SAOS na estabilidade fenotípica
+
+Em SAOS, nenhuma das 28 configurações testadas cruzava o limiar de
+estabilidade (ARI≥0,7). No NHANES, com idade incluída, K-Means chega a
+ARI=0,957 em K=2 e fica acima de 0,7 até K=7 — quase todas as
+configurações estáveis.
+
+**Investigado antes de aceitar isso**: será que é só idade disfarçada
+de estrutura metabólica (idade correlaciona com quase tudo numa
+população real — mais velho, pior em cada eixo)? Removi a Feature
+`idade` e repeti. **Correção registrada honestamente**: uma primeira
+verificação com apenas 3 seeds sugeriu que K=3 sempre desestabilizava
+sem idade — uma reexecução independente, mais tarde, contradisse isso
+(uma das mesmas 3 seeds deu ARI=0,953, estável). Investigado com 20
+seeds antes de corrigir a alegação. O achado real, mais preciso: em
+**K=2**, a estabilidade é robusta sem idade em 20/20 seeds (mínimo
+0,871) — há estrutura metabólica genuína além da idade. Em **K=3**, o
+padrão não é "sempre instável" — é MUITO mais **variável**: com idade,
+ARI fica em 0,938±0,018 (quase sem variância, nunca abaixo de 0,7 em
+20 seeds); sem idade, cai para 0,533±0,195 (desvio 10x maior), com 18
+de 20 seeds abaixo do limiar de estabilidade. A idade não "sustenta"
+a partição em K=3 de forma absoluta — torna-a muito mais reproduzível.
+
+### NHANES: curvatura estrutural — achado negativo, e faz sentido
+
+Em SAOS, arestas que cruzam fenótipos diferentes têm curvatura mais
+negativa que arestas dentro do mesmo fenótipo (p=5,7e-19). No NHANES,
+a mesma comparação (K=2, amostra de 1.500) **não é significativa**
+(p=0,36). Interpretação: a assinatura de curvatura parece ser
+específica de fronteiras estruturalmente frágeis num contínuo mal
+separado — quando o fenótipo já é bem separado e estável (como no
+NHANES, ao contrário de SAOS), sobra pouca "tensão estrutural" na
+fronteira para a curvatura detectar.
+
+### UCI: primeira dinâmica ajustada numa trajetória real fora de sleep/sintético
+
+16.773 pacientes com ≥2 encontros — `MeanRevertingEvolutionOperator`
+ajustado neles pela primeira vez em dado genuinamente longitudinal,
+não sintético nem transversal. Resultado: 13/13 Features estáveis
+(globalmente estável). A mais perto do limite de instabilidade
+(`utilization.number_emergency`, φ=0,98) foi testada no mesmo
+diagnóstico de robustez (`check_feature_stability_robustness`) que
+expôs o artefato de outlier em SAOS — aqui, ao contrário, a conclusão
+é **robusta** (não muda removendo nenhum dos 40 pacientes mais
+extremos). Consistente com um fenômeno real e bem documentado em
+pesquisa de serviços de saúde ("frequent flyers" em uso de
+emergência), não um artefato de amostra.
+
+### NHANES: autoencoder vence PCA em dim=2 — a primeira vez neste projeto
+
+Em SAOS (n=355), PCA venceu em toda dimensão testada. No NHANES
+(n=9.232), o autoencoder vence em dim=2, robusto em 9 configurações (3
+tamanhos de camada oculta × 3 seeds) — a margem aumenta com mais
+capacidade (até 0,06 vs. 0,102 de erro com hidden_dim=32). Confirma
+diretamente a hipótese de tamanho de amostra: com dado suficiente, o
+método não linear encontra solução melhor que a ótima linear do PCA.
+Em dim=5 e dim=8, porém, PCA volta a vencer — o efeito é específico de
+dimensão baixa, não universal.
+
+### NHANES: o grafo atrapalha até com poucos rótulos — o oposto de SAOS
+
+Em SAOS, com 5% de rótulos, o grafo ajudava muito (+17,8pp). No
+NHANES, o grafo atrapalha (ou não ajuda) de 5% a 50% de rótulos.
+Interpretação, coerente com os dois achados anteriores desta seção: os
+fenótipos aqui já são tão bem separados (alta estabilidade, curvatura
+que não discrimina fronteira) que a classificação por Features sozinha
+já satura, sobrando pouco espaço para a estrutura relacional ajudar.
+Em frações extremas (~1,5%, n=22), há sinal de que o grafo começa a
+ajudar, mas a margem é pequena demais (+0,009) para afirmar com
+confiança — registrado como achado possível, não conclusivo.
+
+### NHANES: confundimento por indicação real na adoção de insulina, e um limite estrutural honesto do módulo causal
+
+Primeira aplicação do módulo causal (`check_baseline_balance`,
+`match_on_propensity`, `estimate_matched_effect`) fora de SAOS.
+Restrito a adultos com diagnóstico autorreferido de diabetes (n=1.420):
+quem usa insulina tem HbA1c de linha de base muito mais alto que quem
+não usa (SMD=+0,619, o maior desequilíbrio entre 15 Features) —
+confundimento por indicação clássico, insulina prescrita pra diabetes
+mais difícil de controlar, não atribuída ao acaso. Isso só funcionou
+porque uma correção anterior (documentada na própria docstring de
+`causal.balance._collect_baseline`) excluiu a própria Feature de
+tratamento do baseline — sem essa correção, dado transversal como o
+NHANES mascararia o desequilíbrio como SMD=0 trivial.
+
+Pareamento por propensão funcionou perfeitamente: 369 de 413 pacientes
+pareados, desequilíbrio zerado nas 15 Features (incluindo o HbA1c que
+estava severamente desbalanceado). Mas `estimate_matched_effect`
+**recusou corretamente** ao tentar estimar o efeito — o método calcula
+diferença-em-diferença (último exame menos primeiro exame), exigindo
+≥2 exames por paciente; NHANES é transversal, todo paciente tem
+exatamente 1. Documentado como limite estrutural real, não bug: as
+duas etapas do módulo causal têm exigências de dado diferentes —
+balanceamento/pareamento funcionam em dado transversal, estimativa de
+efeito exige longitudinal. O módulo recusa em vez de devolver um
+número degenerado que pareceria válido sem ser.
+
+Ver `tests/test_nhanes_real_data.py` (estabilidade, curvatura,
+autoencoder, GNN, causal) e `tests/test_uci_diabetes_real_data.py`
+(dinâmica) — os achados desta seção viraram testes de regressão nos
+arquivos por-fonte já existentes, não um arquivo consolidado à parte.
+
+## 7. Onde os achados foram publicados
 
 - **Artigo**: "Achados Empíricos sobre Diabetes Mellitus Tipo 2 em Duas
   Fontes de Dados Reais e Independentes" (PDF) — os 4 achados clínicos
@@ -158,9 +266,12 @@ mais fortes conhecidos.
   `tests/test_uci_diabetes_domains.py` (6 testes, dado fabricado, roda
   em CI), `tests/test_metabolic_package_genericity.py`,
   `tests/test_physiological_process.py`,
-  `tests/test_derived_variable.py`, `tests/test_process_coherence.py`.
+  `tests/test_derived_variable.py`, `tests/test_process_coherence.py`,
+  `tests/test_metabolic_real_data_dynamics_and_structure.py` (6
+  testes — estabilidade/dependência de idade, curvatura, dinâmica de
+  trajetória real).
 
-## 7. O que ficou de fora, deliberadamente
+## 8. O que ficou de fora, deliberadamente
 
 - **`DomainPackage` como interface abstrata** para replicar este
   padrão em outros sistemas do corpo (respiratório, neurológico,
@@ -176,3 +287,15 @@ mais fortes conhecidos.
   — deliberadamente evitada; a Seção 5 explica por que isso seria
   metodologicamente impróprio dado o quanto as duas fontes diferem
   estruturalmente.
+- **Dado real ainda não extraído**: códigos de diagnóstico ICD-9 na
+  UCI (`diag_1`/`diag_2`/`diag_3`, hoje completamente ignorados);
+  creatinina real do NHANES (arquivo `BIOPRO_J`, fecharia o
+  `RenalDomain` com dado de verdade); perfil lipídico do NHANES
+  (`TCHOL_J`/`HDL_J`/`TRIGLY_J`, fecharia os 5 critérios completos de
+  síndrome metabólica); medicação de diabetes do próprio `P_DIQ.xpt`
+  já baixado (`DIQ050`/`DIQ070`, abriria uma pergunta causal real de
+  efeito de insulina sobre controle glicêmico); raça/gênero da UCI
+  (análise de equidade — o fenótipo de alto risco de readmissão
+  distribui igual entre grupos demográficos?).
+- **Autoencoder vs. PCA e GNN semi-supervisionado** nas duas fontes
+  novas — testados em SAOS, ainda não em NHANES/UCI.

@@ -29,6 +29,20 @@ os tiver localmente.
 | Síndrome Metabólica | Critério adaptado NCEP ATP III (2 de 4 critérios disponíveis) |
 | Coerência de Processo | `check_process_coherence` — confirma em população real (p=0,0022), diferente do gerador sintético usado em outras partes do projeto |
 | Paciente | Busca individual, vetor de representação completo |
+| Estabilidade e Curvatura | Varredura de estabilidade fenotípica com/sem idade, curvatura estrutural — mesma metodologia de SAOS |
+
+## Achado novo: o oposto exato de SAOS na estabilidade fenotípica
+
+Em SAOS, nenhuma das 28 configurações testadas cruzava o limiar de
+estabilidade (ARI≥0,7). No NHANES, K-Means chega a 0,957 em K=2.
+Testado se é só idade disfarçada de estrutura metabólica: em K=2 a
+estabilidade sobrevive quase intacta sem idade — estrutura genuína
+além dela; em K=3 desaba sem idade — ali, idade sustentava a
+partição sozinha. Curvatura estrutural, por outro lado, **não**
+discrimina fronteira de fenótipo aqui (diferente de SAOS) — achado
+negativo, consistente com a interpretação de que curvatura é uma
+assinatura de fronteiras frágeis em contínuos mal separados, ausente
+quando o fenótipo já é bem separado.
 
 ## Achados documentados nesta coorte
 

@@ -77,6 +77,7 @@ else:
 - **Diagnóstico** — classificação laboratorial x autorrelato (sensibilidade/especificidade)
 - **Síndrome Metabólica** — critérios adaptados NCEP ATP III
 - **Coerência de Processo** — `check_process_coherence` em população real
+- **Estabilidade e Curvatura** — varredura de estabilidade fenotípica (com/sem idade) e curvatura estrutural, mesma metodologia de SAOS
 - **Paciente** — busca individual
         """
     )

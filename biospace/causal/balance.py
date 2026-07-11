@@ -92,12 +92,32 @@ def _collect_baseline(
     `biospace.causal.propensity` — para os dois nunca divergirem em como
     definem "tratado" ou "linha de base".
 
+    A própria Feature de tratamento (`treatment_domain.treatment_feature`)
+    é EXCLUÍDA de `feature_names` e dos vetores de linha de base —
+    comparar/prever o tratamento usando o tratamento como preditor é
+    autoinclusão, não confundimento. ACHADO REAL que motivou esta
+    correção: em dado TRANSVERSAL (um único ponto por paciente — ex.:
+    NHANES), a Feature de tratamento no "baseline" (`traj.at(0)`, a
+    única observação disponível) já revela o próprio rótulo de grupo,
+    fazendo `check_baseline_balance` mascarar o desequilíbrio máximo
+    como SMD=0 (variância zero dentro de cada grupo — tratados=todos
+    1.0, não-tratados=todos 0.0 — quebra a fórmula de SMD por
+    divisão por pooled_std≈0) e fazendo `estimate_propensity` treinar
+    um modelo que prevê o tratamento a partir de si mesmo (AUC=1.0
+    trivial, não confundimento genuíno). Em dado LONGITUDINAL onde
+    `traj.at(0)` antecede genuinamente a adoção do tratamento (ex.:
+    SAOS/AAM), essa autoinclusão não causava sintoma visível porque o
+    valor na linha de base já era ~0 para todo mundo — mas era
+    conceitualmente incorreta de qualquer forma, agora corrigida na
+    origem para as duas situações.
+
     Retorna (vetores de linha de base por system_id, ids que eventualmente
-    são tratados, nomes de Feature).
+    são tratados, nomes de Feature — SEM a própria Feature de tratamento).
     """
     baseline_vectors: dict[str, np.ndarray] = {}
     treated_ids: set[str] = set()
     feature_names: list[str] = []
+    treatment_qualified_name = f"{treatment_domain}.{treatment_feature}"
 
     for sid, traj in cohort.trajectories.items():
         n = len(traj)
@@ -120,14 +140,28 @@ def _collect_baseline(
             domain_order = order or sorted(baseline_vec.components.keys())
             for domain_name in domain_order:
                 for f in baseline_vec.components[domain_name]:
-                    names.append(f"{domain_name}.{f.name}")
+                    qualified = f"{domain_name}.{f.name}"
+                    if qualified != treatment_qualified_name:
+                        names.append(qualified)
             feature_names = names
 
-        baseline_vectors[sid] = baseline_vec.as_vector(order)
+        vetor_completo = baseline_vec.as_vector(order)
+        indices_manter = [i for i, nome in enumerate(_qualified_names(baseline_vec, order)) if nome != treatment_qualified_name]
+        baseline_vectors[sid] = vetor_completo[indices_manter]
         if ever_treated:
             treated_ids.add(sid)
 
     return baseline_vectors, treated_ids, feature_names
+
+
+def _qualified_names(vector, order: Optional[Sequence[str]] = None) -> list[str]:
+    """Nomes 'dominio.feature' na MESMA ordem que `RepresentationVector.as_vector(order)` produz — necessário para filtrar por índice de forma consistente."""
+    domain_order = order or sorted(vector.components.keys())
+    names = []
+    for domain_name in domain_order:
+        for f in vector.components[domain_name]:
+            names.append(f"{domain_name}.{f.name}")
+    return names
 
 
 def check_baseline_balance(

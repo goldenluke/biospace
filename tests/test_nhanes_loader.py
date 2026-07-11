@@ -33,7 +33,7 @@ def _fabricated_frames(n=20, seed=0, omitir_glicemia_de=None):
     ghb = pd.DataFrame({"SEQN": seqns, "LBXGH": rng.normal(6.0, 1.5, n)})
     bmx = pd.DataFrame({"SEQN": seqns, "BMXBMI": rng.normal(28, 5, n), "BMXWAIST": rng.normal(95, 12, n)})
     bpxo = pd.DataFrame({"SEQN": seqns, "BPXOSY1": rng.normal(125, 15, n), "BPXODI1": rng.normal(80, 10, n)})
-    diq = pd.DataFrame({"SEQN": seqns, "DIQ010": rng.integers(1, 4, n).astype(float)})
+    diq = pd.DataFrame({"SEQN": seqns, "DIQ010": rng.integers(1, 4, n).astype(float), "DIQ050": rng.choice([1.0, 2.0, np.nan], n)})
     return {"demo": demo, "ghb": ghb, "glu": glu, "bmx": bmx, "bpxo": bpxo, "diq": diq}
 
 
@@ -63,7 +63,7 @@ def test_merge_renames_to_biospace_column_names():
     esperadas = {
         "paciente", "idade", "hba1c_pct", "glicemia_jejum_mg_dl", "imc",
         "circunferencia_abdominal_cm", "pressao_sistolica_mmhg", "pressao_diastolica_mmhg",
-        "diabetes_autorreferido", "data_exame",
+        "diabetes_autorreferido", "insulina", "data_exame",
     }
     assert esperadas <= set(resultado.columns)
 

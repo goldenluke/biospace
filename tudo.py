@@ -3,7 +3,7 @@ import os
 def juntar_arquivos_pasta_atual(
     extensoes=(
         '.py', '.js', '.jsx', '.ts', '.tsx',
-        '.css', '.astro', '.sh',
+        '.css', '.astro', '.sh', '.html'
         '.yml', '.yaml', '.txt'
     ),
     arquivo_saida='codigo_completo.txt',

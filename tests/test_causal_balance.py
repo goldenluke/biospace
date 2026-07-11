@@ -125,3 +125,37 @@ def test_observational_effect_estimator_raises_without_any_transitions(exam_valu
     estimator = ObservationalEffectEstimator(treatment_domain="treatment", treatment_feature="aam", order=representation.domain_names())
     with pytest.raises(ValueError):
         estimator.estimate(cohort)
+
+
+def test_treatment_feature_is_excluded_from_its_own_baseline_comparison(exam_values_factory):
+    """
+    O TESTE DECISIVO para o bug real encontrado com dado NHANES (transversal,
+    1 exame por paciente): a propria Feature de tratamento (`treatment.aam`)
+    NUNCA deveria aparecer em `feature_names`/`smd` -- compara-la consigo
+    mesma e' autoinclusao, nao confundimento. Em dado TRANSVERSAL (1
+    exame, tratamento observado no MESMO ponto que define o grupo), sem
+    esta exclusao a formula de SMD quebra silenciosamente (variancia
+    zero dentro de cada grupo -> pooled_std=0 -> SMD mascarado como 0.0,
+    escondendo o desequilibrio maximo possivel em vez de reporta-lo).
+    """
+    representation = SleepRepresentation()
+    cohort = Cohort()
+
+    # Cada paciente com APENAS 1 exame -- tratamento observado no MESMO
+    # ponto que define o grupo, reproduzindo a estrutura do NHANES.
+    for i in range(10):
+        system = SleepSystem()
+        tratado = i < 5
+        system.observe(exam(exam_values_factory(tratamentos="Aparelho de avanço mandibular" if tratado else ""), timestamp=datetime(2020, 1, 1)))
+        cohort.update(system, representation, timestamp=datetime(2020, 1, 1))
+
+    order = representation.domain_names()
+    balance = check_baseline_balance(cohort, "treatment", "aam", order=order)
+    assert "treatment.aam" not in balance.feature_names, "A propria Feature de tratamento nao deveria aparecer em feature_names."
+    assert "treatment.aam" not in balance.smd
+
+    from biospace.causal import estimate_propensity
+
+    modelo = estimate_propensity(cohort, "treatment", "aam", order=order)
+    assert "treatment.aam" not in modelo.feature_names, "O modelo de propensao nao deveria usar o proprio tratamento como preditor."
+    assert "treatment.aam" not in modelo.coefficients

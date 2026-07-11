@@ -13,6 +13,7 @@ from __future__ import annotations
 from datetime import datetime
 
 import pandas as pd
+import pytest
 
 from biospace.core import Measurement, Observation
 from biospace.datasets.uci_diabetes import (
@@ -21,6 +22,7 @@ from biospace.datasets.uci_diabetes import (
     UCIHospitalRepresentation,
     UCIHospitalSystem,
     _row_to_values,
+    icd9_to_category,
 )
 
 
@@ -65,10 +67,6 @@ def test_utilization_domain_marks_missing_features_explicitly():
     assert por_nome["num_lab_procedures"].is_missing is True
 
 
-def test_uci_representation_has_three_domains():
-    representation = UCIHospitalRepresentation()
-    assert set(representation.domain_names()) == {"utilization", "glycemic_testing", "medication_intensity"}
-
 
 def test_uci_system_accumulates_multiple_encounters():
     system = UCIHospitalSystem(identifier="uci_teste")
@@ -86,3 +84,57 @@ def test_uci_system_accumulates_multiple_encounters():
 
     traj = cohort.trajectories[system.id]
     assert len(traj) == 3
+
+
+class TestIcd9Categoria:
+    """icd9_to_category: agrupamento padrao de Strack et al. (2014), testado contra codigos com categoria CONHECIDA."""
+
+    @pytest.mark.parametrize("codigo,esperado", [
+        ("250.8", "diabetes"), ("250", "diabetes"),
+        ("428", "circulatory"), ("410", "circulatory"), ("785", "circulatory"),
+        ("486", "respiratory"), ("491", "respiratory"), ("786", "respiratory"),
+        ("787", "digestive"), ("530", "digestive"),
+        ("996", "injury"), ("850", "injury"),
+        ("715", "musculoskeletal"), ("720", "musculoskeletal"),
+        ("580", "genitourinary"), ("788", "genitourinary"),
+        ("174", "neoplasms"), ("153", "neoplasms"),
+        ("V57", "other"), ("E888", "other"), ("276", "other"), ("38", "other"),
+    ])
+    def test_known_codes_map_to_expected_category(self, codigo, esperado):
+        assert icd9_to_category(codigo) == esperado
+
+    @pytest.mark.parametrize("codigo", ["?", None, "", "nan"])
+    def test_missing_or_invalid_codes_map_to_none(self, codigo):
+        assert icd9_to_category(codigo) is None
+
+
+def test_diagnosis_category_domain_flags_any_of_three_diagnoses():
+    """DiagnosisCategoryDomain deve marcar uma categoria como presente se QUALQUER um dos 3 diagnosticos cair nela -- nao so o primeiro."""
+    row = pd.Series({
+        "time_in_hospital": 2, "num_lab_procedures": 30, "num_procedures": 1, "num_medications": 10,
+        "number_diagnoses": 3, "number_outpatient": 0, "number_emergency": 0, "number_inpatient": 0,
+        "diag_1": "428", "diag_2": "250.8", "diag_3": "715",  # circulatory, diabetes, musculoskeletal
+    })
+    valores = _row_to_values(row)
+    assert valores["diag_cat_circulatory"] == 1.0
+    assert valores["diag_cat_diabetes"] == 1.0
+    assert valores["diag_cat_musculoskeletal"] == 1.0
+    assert valores["diag_cat_respiratory"] == 0.0
+    assert valores["diag_cat_neoplasms"] == 0.0
+
+
+def test_diagnosis_category_domain_handles_missing_diagnosis_slots():
+    """Encontros com diag_2/diag_3 ausentes (comum -- nem todo encontro tem 3 diagnosticos) nao devem quebrar, nem inventar categoria."""
+    row = pd.Series({
+        "time_in_hospital": 2, "num_lab_procedures": 30, "num_procedures": 1, "num_medications": 10,
+        "number_diagnoses": 1, "number_outpatient": 0, "number_emergency": 0, "number_inpatient": 0,
+        "diag_1": "428", "diag_2": "?", "diag_3": None,
+    })
+    valores = _row_to_values(row)
+    assert valores["diag_cat_circulatory"] == 1.0
+    assert sum(v for k, v in valores.items() if k.startswith("diag_cat_")) == 1.0, "So circulatory deveria estar marcado -- os outros 2 slots sao ausentes/invalidos."
+
+
+def test_uci_representation_now_has_four_domains():
+    representation = UCIHospitalRepresentation()
+    assert set(representation.domain_names()) == {"utilization", "glycemic_testing", "medication_intensity", "diagnosis_category"}

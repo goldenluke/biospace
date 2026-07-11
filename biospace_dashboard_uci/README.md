@@ -30,6 +30,17 @@ encontros) para exploração rápida.
 | Fenótipos e Readmissão | A associação mais forte do projeto — fenótipo sem idade/diagnóstico prevê readmissão |
 | Trajetórias | Pacientes com múltiplos encontros (23,4% da coorte), variável derivada (slope) |
 | Paciente | Busca individual, vetor de representação completo |
+| Dinâmica | `MeanRevertingEvolutionOperator` na trajetória real multi-encontro, diagnóstico de robustez |
+
+## Achado novo: dinâmica estável, sem artefato de outlier
+
+Primeira aplicação do módulo de dinâmica a trajetória real fora de
+sleep/sintético — 16.773 pacientes com ≥2 encontros, dinâmica
+globalmente estável (13/13 Features). A Feature mais perto da
+instabilidade (`number_emergency`, φ=0,98) foi testada no mesmo
+diagnóstico de robustez que expôs um artefato de outlier em SAOS —
+aqui a conclusão é robusta, consistente com o fenômeno real de
+"frequent flyers" em uso de emergência, não um artefato de amostra.
 
 ## Achado mais forte do projeto
 

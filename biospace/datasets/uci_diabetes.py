@@ -56,9 +56,11 @@ __all__ = [
     "HospitalUtilizationDomain",
     "GlycemicTestingDomain",
     "MedicationIntensityDomain",
+    "DiagnosisCategoryDomain",
     "UCIHospitalSystem",
     "UCIHospitalRepresentation",
     "load_uci_diabetes_cohort",
+    "icd9_to_category",
 ]
 
 _UTILIZACAO_COLS = [
@@ -69,6 +71,53 @@ _UTILIZACAO_COLS = [
 _A1C_ORDINAL = {"Norm": 0.0, ">7": 1.0, ">8": 2.0}
 _GLU_ORDINAL = {"Norm": 0.0, ">200": 1.0, ">300": 2.0}
 _INSULIN_ORDINAL = {"No": 0.0, "Steady": 1.0, "Down": 2.0, "Up": 2.0}
+
+_CATEGORIAS_DIAGNOSTICO = ["diabetes", "circulatory", "respiratory", "digestive", "injury", "musculoskeletal", "genitourinary", "neoplasms", "other"]
+
+
+def icd9_to_category(code) -> Optional[str]:
+    """
+    Agrupamento PADRÃO de códigos ICD-9 usado por Strack et al. (2014,
+    o próprio artigo que publicou esta base) e replicado na literatura
+    subsequente que usa este dataset — não um esquema inventado aqui.
+    Faixas: circulatory 390-459+785, respiratory 460-519+786,
+    digestive 520-579+787, diabetes 250.xx, injury 800-999,
+    musculoskeletal 710-739, genitourinary 580-629+788, neoplasms
+    140-239, other = resto (inclui códigos V/E — classificação
+    suplementar e causas externas, não uma categoria diagnóstica
+    própria neste esquema).
+
+    Retorna None para código ausente/'?' — distinto de "other" (código
+    presente mas fora das faixas nomeadas).
+    """
+    if code is None or (isinstance(code, float) and pd.isna(code)):
+        return None
+    code = str(code).strip()
+    if code == "" or code == "?" or code.lower() == "nan":
+        return None
+    if code.startswith("250"):
+        return "diabetes"
+    if code.startswith(("V", "E", "v", "e")):
+        return "other"
+    try:
+        numero = float(code)
+    except ValueError:
+        return "other"
+    if 390 <= numero <= 459 or numero == 785:
+        return "circulatory"
+    if 460 <= numero <= 519 or numero == 786:
+        return "respiratory"
+    if 520 <= numero <= 579 or numero == 787:
+        return "digestive"
+    if 800 <= numero <= 999:
+        return "injury"
+    if 710 <= numero <= 739:
+        return "musculoskeletal"
+    if 580 <= numero <= 629 or numero == 788:
+        return "genitourinary"
+    if 140 <= numero <= 239:
+        return "neoplasms"
+    return "other"
 
 
 class _CountObservable(Observable):
@@ -148,6 +197,33 @@ class MedicationIntensityDomain(SemanticDomain):
         return features
 
 
+class DiagnosisCategoryDomain(SemanticDomain):
+    """
+    Categorias diagnósticas ICD-9 (agrupamento padrão de Strack et al.,
+    2014 — ver `icd9_to_category`) presentes em diag_1/diag_2/diag_3 do
+    encontro. Flags binárias, uma por categoria (1.0 se QUALQUER um dos
+    até 3 diagnósticos cair nela). Nunca ausente por incompletude — a
+    ausência aqui é sempre "categoria não presente neste encontro", não
+    "dado não coletado" (diferente de glycemic_testing, onde ausência
+    significa exame não realizado).
+    """
+
+    name = "diagnosis_category"
+    description = "Categorias diagnósticas ICD-9 (agrupamento padrão) presentes nos até 3 diagnósticos do encontro."
+
+    def __init__(self):
+        super().__init__([_CountObservable(f"diag_cat_{c}") for c in _CATEGORIAS_DIAGNOSTICO])
+
+    def encode(self, measurements: dict[str, Measurement]) -> list[Feature]:
+        features = []
+        for cat in _CATEGORIAS_DIAGNOSTICO:
+            key = f"diag_cat_{cat}"
+            m = measurements.get(key)
+            v = float(m.value) if (m is not None and not m.is_missing()) else 0.0
+            features.append(Feature(name=key, value=v, raw_value=v, provenance=(key,)))
+        return features
+
+
 class UCIHospitalSystem(BiologicalSystem):
     """Um paciente (patient_nbr) desta base -- pode ter 1 a 39 encontros observados, ordenados por encounter_id (proxy de ordem cronológica, não datas reais)."""
 
@@ -155,12 +231,28 @@ class UCIHospitalSystem(BiologicalSystem):
 
 
 class UCIHospitalRepresentation(Representation):
-    def __init__(self, mean_std_utilizacao: Optional[dict[str, tuple[float, float]]] = None):
-        super().__init__([
+    def __init__(self, mean_std_utilizacao: Optional[dict[str, tuple[float, float]]] = None, include_diagnosis_category: bool = True):
+        """
+        `include_diagnosis_category`: default True (representação mais
+        rica). ACHADO REAL ao adicionar este domínio: incluí-lo muda o
+        que K-Means encontra como fenótipo dominante — desvia de uma
+        partição organizada por HISTÓRICO DE UTILIZAÇÃO (que associava
+        fortemente com readmissão, achado original documentado) para
+        uma organizada mais por TEMPO DE INTERNAÇÃO extremo (grupo
+        minúsculo, ~0,2% da coorte, com 13,4 dias médios vs. 4,2-4,6
+        dos demais) — a associação com readmissão fica bem mais fraca
+        (razão ~1,1-1,5x, não mais ~2x). Nenhuma das duas representações
+        está "errada"; captam estruturas diferentes. Use `False` para
+        reproduzir exatamente o achado original de readmissão.
+        """
+        domains = [
             HospitalUtilizationDomain(mean_std_utilizacao),
             GlycemicTestingDomain(),
             MedicationIntensityDomain(),
-        ])
+        ]
+        if include_diagnosis_category:
+            domains.append(DiagnosisCategoryDomain())
+        super().__init__(domains)
 
 
 def _fit_utilization_mean_std(df: pd.DataFrame) -> dict[str, tuple[float, float]]:
@@ -174,10 +266,16 @@ def _row_to_values(row: pd.Series) -> dict:
     valores["insulin_ordinal"] = _INSULIN_ORDINAL.get(row.get("insulin"), 0.0)
     valores["change_flag"] = 1.0 if row.get("change") == "Ch" else 0.0
     valores["diabetes_med_flag"] = 1.0 if row.get("diabetesMed") == "Yes" else 0.0
+
+    categorias_presentes = {icd9_to_category(row.get(col)) for col in ("diag_1", "diag_2", "diag_3")}
+    categorias_presentes.discard(None)
+    for cat in _CATEGORIAS_DIAGNOSTICO:
+        valores[f"diag_cat_{cat}"] = 1.0 if cat in categorias_presentes else 0.0
+
     return {k: v for k, v in valores.items() if v is not None and not (isinstance(v, float) and pd.isna(v))}
 
 
-def load_uci_diabetes_cohort(csv_path: str, max_rows: Optional[int] = None) -> tuple[Cohort, UCIHospitalRepresentation]:
+def load_uci_diabetes_cohort(csv_path: str, max_rows: Optional[int] = None, include_diagnosis_category: bool = True) -> tuple[Cohort, UCIHospitalRepresentation]:
     """
     Agrupa por `patient_nbr` (não `encounter_id`), ordena por
     `encounter_id` dentro de cada paciente (proxy de ordem cronológica),
@@ -186,13 +284,16 @@ def load_uci_diabetes_cohort(csv_path: str, max_rows: Optional[int] = None) -> t
 
     Datas sintéticas: primeiro encontro em 2020-01-01, cada encontro
     subsequente +1 dia -- preserva ORDEM, não intervalo real.
+
+    `include_diagnosis_category`: ver docstring de `UCIHospitalRepresentation`
+    — muda o que a fenotipagem encontra como estrutura dominante.
     """
     df = pd.read_csv(csv_path)
     if max_rows is not None:
         df = df.head(max_rows)
 
     mean_std = _fit_utilization_mean_std(df)
-    representation = UCIHospitalRepresentation(mean_std_utilizacao=mean_std)
+    representation = UCIHospitalRepresentation(mean_std_utilizacao=mean_std, include_diagnosis_category=include_diagnosis_category)
     cohort = Cohort()
 
     grupos = df.sort_values("encounter_id").groupby("patient_nbr")

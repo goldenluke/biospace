@@ -35,12 +35,16 @@ contra documentação:
 | P_BPXO     | BPXOSY1          | pressao_sistolica_mmhg         |
 | P_BPXO     | BPXODI1          | pressao_diastolica_mmhg        |
 | P_DIQ      | DIQ010           | diabetes_autorreferido (1=Sim, 2=Não, 3=Borderline, 7/9=Recusa/NSei) |
+| P_DIQ      | DIQ050           | insulina (recodificado 1=Sim/2=Não→1.0/0.0; só perguntado a quem respondeu Sim em DIQ010 — ~93% ausente por desenho do questionário, não erro) |
 
-NÃO incluído (fora do conjunto inicial de arquivos escolhido):
-creatinina, eGFR, frequência cardíaca de repouso (`P_BPXO` tem pulso —
-`BPXOPLS1` — mas não foi mapeado ainda), comorbidades além de diabetes,
-tratamento farmacológico. Essas Features do `MetabolicRepresentation`
-ficarão ausentes — imputadas por completude (mecanismo já existente no
+NÃO incluído (fora do conjunto de arquivos baixados): creatinina, eGFR,
+frequência cardíaca de repouso (`P_BPXO` tem pulso — `BPXOPLS1` — mas
+não foi mapeado ainda), perfil lipídico, hipoglicemiante oral (DIQ070
+existe no arquivo mas mede "qualquer agente oral", não metformina
+especificamente — não mapeado para não forçar uma equivalência
+imprecisa), comorbidades além de diabetes autorreferido. Essas Features
+do `MetabolicRepresentation` ficarão ausentes — imputadas por
+completude (mecanismo já existente no
 núcleo), não um erro.
 
 NHANES é TRANSVERSAL, não longitudinal por desenho: cada SEQN aparece
@@ -73,8 +77,16 @@ _COLUMN_MAP: dict[str, dict[str, str]] = {
     "glu": {"LBXGLU": "glicemia_jejum_mg_dl"},
     "bmx": {"BMXBMI": "imc", "BMXWAIST": "circunferencia_abdominal_cm"},
     "bpxo": {"BPXOSY1": "pressao_sistolica_mmhg", "BPXODI1": "pressao_diastolica_mmhg"},
-    "diq": {"DIQ010": "diabetes_autorreferido"},
+    "diq": {"DIQ010": "diabetes_autorreferido", "DIQ050": "insulina_bruta"},
 }
+
+# DIQ050 (uso de insulina) só é perguntado a quem já respondeu "Sim" para
+# diabetes em DIQ010 -- por isso a alta taxa de ausência (~93%) não é um
+# problema de qualidade do dado, é o desenho do questionário. Codificação
+# NHANES: 1=Sim, 2=Não, 9=Não sabe. Recodificado para o padrão binário
+# 1.0/0.0 que `TreatmentDomain.encode()` espera -- "Não sabe" (9) vira
+# ausente, não um terceiro valor arbitrário.
+_SIM_NAO_NHANES = {1.0: 1.0, 2.0: 0.0}
 
 _ORDEM_JUNCAO = ["ghb", "glu", "bmx", "bpxo", "diq"]
 
@@ -114,6 +126,8 @@ def _merge_nhanes_frames(frames: dict[str, pd.DataFrame]) -> pd.DataFrame:
     merged = merged.rename(columns={"SEQN": "paciente"})
     merged["paciente"] = merged["paciente"].astype(int).astype(str).apply(lambda s: f"nhanes_{s}")
     merged["data_exame"] = pd.Timestamp("2018-09-01")  # ciclo combinado ago/2017-mar/2020, sem data exata por participante -- ponto medio aproximado
+    merged["insulina"] = merged["insulina_bruta"].map(_SIM_NAO_NHANES)  # 9.0 (Nao sabe) e NaN (nao perguntado) viram NaN aqui, tratados como ausencia pelo TreatmentDomain
+    merged = merged.drop(columns=["insulina_bruta"])
     return merged
 
 

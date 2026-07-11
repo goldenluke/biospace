@@ -79,6 +79,7 @@ else:
 - **Visão Geral** — distribuições de utilização hospitalar
 - **Fenótipos e Readmissão** — a associação mais forte encontrada no projeto
 - **Trajetórias** — pacientes com múltiplos encontros, variável derivada
+- **Dinâmica** — `MeanRevertingEvolutionOperator` na trajetória real, diagnóstico de robustez
 - **Paciente** — busca individual
         """
     )
