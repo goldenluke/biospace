@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathematical Foundations of the Computational Representation of Biological Systems — BioSpace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#EEF2F1', paper2: '#E4EAE8', ink: '#0E1620', ink2: '#3B4653',
+          line: '#C7D2D1', teal: '#0E7C7B', amber: '#D6912B', violet: '#6C5B9E',
+          rose: '#B85C6B', sky: '#3E7CA6', olive: '#7A8450',
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', 'sans-serif'],
+          body: ['Inter', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', 'monospace'],
+        }
+      }
+    }
+  }
+</script>
+<script>
+  window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] } };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  html{ scroll-behavior:smooth; }
+  body{ background-color:#EEF2F1; }
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; letter-spacing:.14em; text-transform:uppercase; }
+  ::selection{ background:#0E7C7B; color:#F8FAF9; }
+  article h2 { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.6rem; margin-top:3rem; margin-bottom:1rem; color:#0E1620; scroll-margin-top: 6rem; border-top:1px solid #C7D2D1; padding-top:2rem; }
+  article h1 { display:none; }
+  article h3 { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.2rem; margin-top:2rem; margin-bottom:.75rem; color:#0E1620; scroll-margin-top:6rem; }
+  article p { margin-bottom:1.1rem; line-height:1.8; color:#232D3A; }
+  article strong { color:#0E1620; }
+  article ul, article ol { margin: 0 0 1.1rem 1.4rem; line-height:1.8; color:#232D3A; }
+  article li { margin-bottom:.4rem; }
+  article table { width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:.92rem; }
+  article th, article td { border:1px solid #C7D2D1; padding:.5rem .75rem; text-align:left; }
+  article th { background:#E4EAE8; font-family:'IBM Plex Mono',monospace; font-size:.75rem; letter-spacing:.05em; text-transform:uppercase; }
+  article code { font-family:'IBM Plex Mono',monospace; background:#E4EAE8; padding:.1rem .35rem; border-radius:.25rem; font-size:.85em; }
+  article pre { background:#0E1620; color:#EEF2F1; padding:1.25rem; border-radius:.6rem; overflow-x:auto; margin-bottom:1.1rem; }
+  article pre code { background:none; padding:0; color:inherit; }
+  article blockquote { border-left:3px solid #0E7C7B; padding-left:1rem; color:#3B4653; font-style:italic; margin:1.5rem 0; }
+  article .math.display { overflow-x:auto; margin: 1.25rem 0; }
+  article hr { border:none; border-top:1px solid #C7D2D1; margin:2.5rem 0; }
+  .scrollbar-thin::-webkit-scrollbar{ width:5px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb{ background:#C7D2D1; border-radius:4px; }
+</style>
+</head>
+<body class="font-body text-ink">
+
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur bg-paper/85 border-b border-line">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2 font-display font-semibold text-lg">
+      <svg width="22" height="22" viewBox="0 0 22 22"><line x1="2" y1="11" x2="20" y2="11" stroke="#0E1620" stroke-width="1.4"/><line x1="11" y1="2" x2="11" y2="20" stroke="#0E1620" stroke-width="1.4"/><circle cx="15" cy="7" r="2.4" fill="#0E7C7B"/><circle cx="8" cy="15" r="2.4" fill="#D6912B"/></svg>
+      BioSpace
+    </a>
+    <a href="index.html" class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-ink2 hover:text-teal transition-colors">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 3 3 11M3 11H9M3 11V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to overview
+    </a>
+    <a href="https://github.com/goldenluke/biospace" target="_blank" rel="noopener"
+       class="flex items-center gap-2 bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-teal transition-colors">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.49c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.72-.5.06-.49.06-.49.8.06 1.22.82 1.22.82.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.22 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      Repository
+    </a>
+  </div>
+</header>
+
+<section class="pt-32 pb-10 px-6 lg:px-10 max-w-4xl mx-auto">
+  <p class="eyebrow text-teal text-xs mb-4">manuscript</p>
+  <h1 class="font-display font-semibold text-3xl sm:text-4xl leading-tight tracking-tight text-ink">
+    Mathematical Foundations of the Computational Representation of Biological Systems
+  </h1>
+  <p class="font-display text-lg sm:text-xl text-ink2 mt-2">A Meta-Model for Computational Precision Medicine</p>
+  <div class="mt-6 flex flex-wrap gap-3">
+    <a href="https://github.com/goldenluke/biospace" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-teal text-teal px-4 py-2 rounded-full text-sm font-semibold hover:bg-teal hover:text-paper transition-colors">View the implementation on GitHub</a>
+  </div>
+</section>
+
+<div class="max-w-7xl mx-auto px-6 lg:px-10 pb-24 grid lg:grid-cols-[240px_1fr] gap-12">
+  <nav class="hidden lg:block">
+    <div class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-thin pr-2">
+      <p class="eyebrow text-ink2 text-[11px] mb-3">contents</p>
+      <div class="text-sm">
+<a href="#introduction" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">1. Introduction</a>
+<a href="#motivation-the-problem-of-computational-representation" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">2. Motivation: The Problem of Computational Representation</a>
+<a href="#central-hypothesis-and-fundamental-principles" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">3. Central Hypothesis and Fundamental Principles</a>
+<a href="#the-formal-meta-model-of-the-computational-representation-of-the-patient" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">4. The Formal Meta-Model of the Computational Representation of the Patient</a>
+<a href="#formal-contracts-of-the-meta-model" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">5. Formal Contracts of the Meta-Model</a>
+<a href="#representation-spaces" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">6. Representation Spaces</a>
+<a href="#geometry-of-the-representation-space" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">7. Geometry of the Representation Space</a>
+<a href="#phenotyping-as-an-emergent-property-of-the-representation-space" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">8. Phenotyping as an Emergent Property of the Representation Space</a>
+<a href="#automatic-construction-of-longitudinal-cohorts" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">9. Automatic Construction of Longitudinal Cohorts</a>
+<a href="#generalization-to-chronic-diseases" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">10. Generalization to Chronic Diseases</a>
+<a href="#multimodal-integration" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">11. Multimodal Integration</a>
+<a href="#a-general-theory-of-computational-precision-medicine" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">12. A General Theory of Computational Precision Medicine</a>
+<a href="#discussion" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">13. Discussion</a>
+<a href="#conclusion" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">14. Conclusion</a>
+      </div>
+    </div>
+  </nav>
+  <article class="max-w-3xl">
+<h1 id="mathematical-foundations-of-the-computational-representation-of-biological-systems-a-meta-model-for-computational-precision-medicine">Mathematical Foundations of the Computational Representation of Biological Systems — A Meta-Model for Computational Precision Medicine</h1>
+<h2 id="introduction">1. Introduction</h2>
+<p>Contemporary medicine produces an unprecedented amount of data. Electronic health records, laboratory tests, continuous physiological signals, medical imaging, wearable devices, and omics data now describe the patient at a resolution previously unattainable. In parallel, advances in machine learning and artificial intelligence have made it possible to exploit this growing volume of information for tasks such as diagnosis, risk stratification, phenotype discovery, and clinical decision support.</p>
+<p>Despite this progress, there is a fundamental aspect that remains surprisingly underdiscussed: the object on which all these algorithms actually operate.</p>
+<p>Although it is common to say that algorithms “learn from patients,” this statement is, from a computational standpoint, incorrect. Algorithms never directly observe a patient. They observe a computational representation constructed from clinical, laboratory, functional, or imaging observations. In other words, the true input object of the algorithms is not the biological system itself, but a mathematical abstraction of that system.</p>
+<p>This distinction, seemingly subtle, carries profound scientific implications.</p>
+<p>In practice, the construction of this representation is rarely treated as an independent problem. In much of the literature, it emerges as a byproduct of preprocessing and feature-engineering steps, often defined by the specific needs of the algorithm employed or by data availability. The result is that different studies on the same disease may use completely distinct representations of the patient, hindering reproducibility, comparison between methods, model reuse, and integration across different data modalities.</p>
+<p>Consider, for example, Obstructive Sleep Apnea Syndrome (OSAS). One study may represent each individual using only the Apnea-Hypopnea Index (AHI). Another may use age, body mass index (BMI), and minimum oxygen saturation. A third may incorporate hundreds of variables derived from polysomnography. Although all claim to study the same disease, each work mathematically describes a different patient. The difference does not necessarily lie in the algorithm used, but in the very computational definition of the object being analyzed.</p>
+<p>This situation reveals a conceptual limitation of contemporary computational medicine. While fields such as computer vision, natural language processing, and representation learning have devoted decades to the formal study of representation structures, medical informatics has focused predominantly on algorithm development, implicitly assuming that patient representation was already a solved problem.</p>
+<p>However, computational representation constitutes a scientific problem in its own right. Before asking which algorithm produces the best performance, it is necessary to answer more fundamental questions.</p>
+<p>What is a patient from a computational point of view?</p>
+<p>How should different clinical observations be organized to preserve their physiological semantics?</p>
+<p>What mathematical properties must a representation satisfy to be considered clinically valid?</p>
+<p>How can different data modalities be integrated without losing conceptual consistency?</p>
+<p>These questions precede any machine-learning technique. They belong to the domain of the computational modeling of biological systems.</p>
+<p>This work argues that the absence of a formal theory of the computational representation of the patient constitutes a structural gap in computational medicine. As a response, a formal meta-model is proposed, capable of explicitly separating four conceptual levels that are frequently treated as a single problem:</p>
+<p>the real biological system; its observations; its computational representation; the inference algorithms responsible for the inference.</p>
+<p>This separation profoundly changes the traditional architecture of artificial intelligence systems in healthcare. Instead of treating representation as an auxiliary preprocessing step, it comes to occupy a central position in computational modeling. Algorithms cease to operate directly on heterogeneous data and instead act on a formal representation built according to explicit principles that are independent of the learning technique used.</p>
+<p>The proposal presented in this article is not a new machine-learning algorithm, nor a new phenotype-discovery technique. Nor is it restricted to a specific disease or a particular data modality. Its objective is to define a conceptual language capable of describing, in a uniform way, how biological systems can be observed, semantically organized, and computationally represented.</p>
+<p>To this end, a meta-model is introduced composed of fundamental entities — Biological System, Observation, Semantic Domain, Representation, Representation Space, Geometry, Trajectory, Phenotype, and Cohort — together with their relations, properties, and formal constraints. The computational implementation thus becomes a consequence of a representation theory, rather than its starting point.</p>
+<p>This perspective brings computational medicine closer to established paradigms in computer science. Just as the relational model established a formal theory for data organization and UML defined a common language for software system modeling, it is proposed here that the computational representation of the patient likewise be understood as an independent conceptual layer, capable of sustaining different mathematical implementations and different inference strategies.</p>
+<p>Although the development of this theory was initially motivated by the modeling of patients with Obstructive Sleep Apnea Syndrome, its formulation is deliberately independent of the disease studied. The central hypothesis is that the principles presented here can be generalized to any biological system amenable to observation, constituting a unifying foundation for future applications in precision medicine, computational epidemiology, phenotype discovery, intelligent decision-support systems, and multimodal integration of clinical data.</p>
+<p>Ultimately, this work proposes a shift in perspective. Rather than asking how to build increasingly sophisticated algorithms to analyze patients, it proposes asking how to mathematically represent a patient so that any algorithm can operate on that representation in a consistent, reproducible, and physiologically grounded way. It is this conceptual inversion that underlies the meta-model presented in the following sections.</p>
+<h2 id="motivation-the-problem-of-computational-representation">2. Motivation: The Problem of Computational Representation</h2>
+<p>Most modern artificial-intelligence architectures in healthcare can be summarized by a relatively simple flow. Clinical data are collected, undergo cleaning and feature-engineering steps, are organized into a numerical matrix, and are subsequently used by machine-learning algorithms to produce diagnoses, predictions, or clusterings.</p>
+<p>Formally, this process can be represented as:</p>
+<p><span class="math display">\[Data → Preprocessing → Feature Engineering → Machine Learning → Inference.\]</span></p>
+<p>Although this architecture has produced important advances, it hides a fundamental conceptual problem: the mathematical object on which the algorithm operates is never explicitly defined.</p>
+<p>In practice, it is implicitly assumed that a patient can be represented by an attribute vector</p>
+<p><span class="math display">\[x = (x₁, x₂, …, xₙ) ∈ ℝⁿ,\]</span></p>
+<p>where each component corresponds to a clinical variable.</p>
+<p>For example, for a patient with Obstructive Sleep Apnea Syndrome (OSAS), a conventional representation may be written as</p>
+<p><span class="math display">\[x = (AHI, BMI, Age, minimum SpO₂, ODI, ESS).\]</span></p>
+<p>From this representation, any learning algorithm can be defined as a function</p>
+<p><span class="math display">\[A : ℝⁿ → Y,\]</span></p>
+<p>where Y represents the set of possible outputs, such as diagnostic classes, probabilities, phenotypes, or prognostic values.</p>
+<p>However, this formulation contains a rarely discussed assumption: it is assumed that the vector x adequately represents the patient.</p>
+<p>In reality, it represents only an arbitrary selection of attributes made by the researcher.</p>
+<p>In other words,</p>
+<p><span class="math display">\[x ≠ P,\]</span></p>
+<p>where P represents the patient as a biological system.</p>
+<p>More precisely,</p>
+<p><span class="math display">\[x = f(P),\]</span></p>
+<p>where f is a representation function normally constructed during the feature-engineering step.</p>
+<p>This distinction has important consequences.</p>
+<p>Consider two independent studies on OSAS.</p>
+<p>The first represents each patient using only the Apnea-Hypopnea Index (AHI):</p>
+<p><span class="math display">\[R₁(P) = (AHI).\]</span></p>
+<p>The second adds age and body mass index:</p>
+<p><span class="math display">\[R₂(P) = (AHI, BMI, Age).\]</span></p>
+<p>A third uses dozens of variables derived from polysomnography:</p>
+<p><span class="math display">\[R₃(P) = (AHI, ODI, minimum SpO₂, mean SpO₂, T90, Hypoxic Burden, Microarousals, …).\]</span></p>
+<p>Although all claim to study the same disease, each study uses a different computational representation of the patient.</p>
+<p>Consequently,</p>
+<p><span class="math display">\[R₁(P) ≠ R₂(P) ≠ R₃(P).\]</span></p>
+<p>This difference does not stem from the algorithm used.</p>
+<p>It stems from the mathematical definition of the object of study itself.</p>
+<p>Therefore, two models trained on different representations are not, strictly speaking, learning about the same patient.</p>
+<p>This observation leads to an even deeper consequence.</p>
+<p>Consider two distinct algorithms, A₁ and A₂, applied to two distinct representations. One obtains</p>
+<p><span class="math display">\[A₁(R₁(P)) and A₂(R₂(P)).\]</span></p>
+<p>When their performances are compared, the observed difference is normally attributed to the algorithms’ capacity.</p>
+<p>However,</p>
+<p><span class="math display">\[A₁(R₁(P)) ≠ A₂(R₂(P))\]</span></p>
+<p>does not necessarily imply</p>
+<p><span class="math display">\[A₁ ≠ A₂.\]</span></p>
+<p>The difference may lie exclusively in</p>
+<p><span class="math display">\[R₁ ≠ R₂.\]</span></p>
+<p>This means that countless studies comparing different algorithms may, in reality, be comparing different representations.</p>
+<p>The problem becomes even more evident when new data modalities are incorporated. Suppose a study begins to use full polysomnography signals. The representation ceases to be an attribute vector and comes to include time series,</p>
+<p><span class="math display">\[s(t) ∈ S,\]</span></p>
+<p>where S represents a space of physiological signals. Likewise, imaging exams belong to another space,</p>
+<p><span class="math display">\[I ∈ 𝓘,\]</span></p>
+<p>while clinical text belongs to a linguistic space,</p>
+<p><span class="math display">\[L ∈ 𝓛.\]</span></p>
+<p>The traditional representation based exclusively on vectors becomes incapable of naturally integrating these different modalities. The result is that each new type of data requires the complete reconstruction of the computational infrastructure.</p>
+<p>This scenario reveals a conceptual limitation of the currently predominant architecture. The literature concentrates its efforts on developing inference functions,</p>
+<p><span class="math display">\[A : R(P) → Y,\]</span></p>
+<p>but rarely investigates the function itself</p>
+<p><span class="math display">\[R : P → X,\]</span></p>
+<p>responsible for transforming a biological system into a mathematical object.</p>
+<p>In this work it is argued that this function should occupy a central position in computational medicine. More specifically, it is proposed that computational representation constitute an independent layer between the biological system and the inference algorithms.</p>
+<p>Thus, the traditional flow</p>
+<p><span class="math display">\[P → A → Y\]</span></p>
+<p>is replaced by</p>
+<p><span class="math display">\[P → R → X → A → Y,\]</span></p>
+<p>where P represents the biological system; R represents the representation function; X represents the representation space; A represents any inference algorithm; Y represents the produced result.</p>
+<p>This reformulation profoundly changes the conceptual organization of computational medicine. The algorithm ceases to be the central element of the architecture. Representation comes to occupy that position. As a consequence, it becomes possible to investigate properties of the representation independently of the algorithms that will later act on it, establishing a proper conceptual layer for the computational modeling of patients.</p>
+<p>This shift in perspective constitutes the main motivation for the meta-model proposed in the following sections.</p>
+<h2 id="central-hypothesis-and-fundamental-principles">3. Central Hypothesis and Fundamental Principles</h2>
+<p>The main hypothesis of this work is that the computational representation of the patient constitutes a scientific problem independent of machine-learning algorithms. This statement may seem simple, but it profoundly changes how computational medicine is traditionally organized.</p>
+<p>In the contemporary literature, practically all efforts concentrate on building inference functions. Algorithms are developed to predict clinical outcomes, identify phenotypes, estimate risks, or recommend treatments. However, these algorithms operate on a previously constructed representation of the patient, whose definition is rarely formalized.</p>
+<p>In other words, the literature devotes great attention to the function</p>
+<p><span class="math display">\[A : X → Y,\]</span></p>
+<p>where X represents the space used by the algorithm and Y represents the produced output.</p>
+<p>Yet the prior problem remains practically unexplored:</p>
+<p><span class="math display">\[R : P → X,\]</span></p>
+<p>that is, how to transform a biological system into a mathematical object while preserving its physiological structure.</p>
+<p>In this work it is proposed to invert this perspective. Instead of treating representation as a consequence of the algorithm, it is proposed to treat it as an independent layer on which any algorithm may operate.</p>
+<p>Thus, the logical chain ceases to be</p>
+<p><span class="math display">\[P → A → Y,\]</span></p>
+<p>and becomes</p>
+<p><span class="math display">\[P → R → X → A → Y.\]</span></p>
+<p>This shift establishes an explicit separation between four conceptual levels frequently conflated in the literature. The first level corresponds to the biological system, that is, to the patient as a real organism. The second corresponds to the observations, produced by exams, sensors, instruments, and clinical assessments. The third corresponds to the computational representation, responsible for mathematically organizing these observations. The fourth corresponds to computational inference, carried out by statistical or machine-learning algorithms.</p>
+<p>Formally,</p>
+<p><span class="math display">\[Biological System → Observations → Representation → Inference.\]</span></p>
+<p>The central hypothesis of this theory can then be expressed as follows.</p>
+<p>The validity of a computational model depends both on the quality of the representation and on the quality of the inference algorithm.</p>
+<p>Mathematically, consider a biological system</p>
+<p><span class="math display">\[P ∈ 𝒫,\]</span></p>
+<p>where 𝒫 represents the set of all possible patients.</p>
+<p>A representation function is defined as</p>
+<p><span class="math display">\[R : P → X,\]</span></p>
+<p>where X represents the computational representation space.</p>
+<p>Subsequently, any algorithm</p>
+<p><span class="math display">\[A : X → Y\]</span></p>
+<p>operates exclusively on elements of X. Note that A never receives P directly. It receives only R(P). Therefore, the complete pipeline can be described by</p>
+<p><span class="math display">\[Y = A(R(P)).\]</span></p>
+<p>This equation synthesizes the entire proposed hypothesis. The result produced by the algorithm depends simultaneously on two independent functions: R, the representation function, and A, the inference function. Traditionally, the literature concentrates on optimizing A, keeping R practically fixed. However, it is argued in this work that changes in R can produce impacts as significant as changes in A. Consequently, representation becomes an independent object of study.</p>
+<h3 id="the-principle-of-algorithmic-independence">3.1 The Principle of Algorithmic Independence</h3>
+<p>The first consequence of this hypothesis is the Principle of Algorithmic Independence. This principle states that a computational representation must not depend on the algorithm subsequently used.</p>
+<p>Formally, let A₁ and A₂ be any two algorithms. A valid representation must satisfy</p>
+<p><span class="math display">\[R(P) = R(P),\]</span></p>
+<p>regardless of the choice between A₁ or A₂. In other words, the representation is built before inference. This means that different algorithms can operate on exactly the same represented patient. Thus, it becomes possible to compare algorithms without altering the mathematical object analyzed.</p>
+<h3 id="the-principle-of-compositionality">3.2 The Principle of Compositionality</h3>
+<p>Biological systems are composed of different physiological processes. Consequently, a computational representation must also possess a compositional nature.</p>
+<p>A set of clinical domains is defined,</p>
+<p><span class="math display">\[D = {D₁, D₂, …, Dₙ},\]</span></p>
+<p>where each domain represents a distinct physiological perspective. For example, Respiratory, Hypoxic, Cardiovascular, Metabolic, Symptoms, and so on.</p>
+<p>The complete representation is no longer built directly. It is instead composed of the individual representations of each domain. Formally,</p>
+<p><span class="math display">\[R(P) = (R₁(D₁), R₂(D₂), …, Rₙ(Dₙ)).\]</span></p>
+<p>This decomposition reduces coupling between components and allows new domains to be added without rebuilding the entire architecture.</p>
+<h3 id="the-principle-of-semantic-preservation">3.3 The Principle of Semantic Preservation</h3>
+<p>Every computational representation must preserve the clinical meaning of the observations it represents. Let S₁ and S₂ be two distinct physiological states. A consistent representation must satisfy</p>
+<p><span class="math display">\[S₁ ≠ S₂ ⟹ R(S₁) ≠ R(S₂).\]</span></p>
+<p>This property prevents clinically distinct states from being represented by the same mathematical structure. In other words, the representation must be sufficiently expressive to distinguish relevant physiological conditions.</p>
+<h3 id="the-principle-of-continuity">3.4 The Principle of Continuity</h3>
+<p>Another desirable property is continuity. Small physiological changes should not produce abrupt changes in the representation.</p>
+<p>Formally, for any patients P₁ and P₂, if</p>
+<p><span class="math display">\[d_P(P₁, P₂) → 0,\]</span></p>
+<p>then it must follow that</p>
+<p><span class="math display">\[d_X(R(P₁), R(P₂)) → 0,\]</span></p>
+<p>where d_P represents a measure of physiological difference, and d_X a distance defined over the representation space. This property guarantees robustness to experimental noise and small clinical variations.</p>
+<h3 id="the-principle-of-extensibility">3.5 The Principle of Extensibility</h3>
+<p>Medicine is in constant evolution. New biomarkers, new imaging modalities, new wearable devices, and new laboratory techniques continually emerge. Therefore, a representation cannot depend on a fixed set of variables.</p>
+<p>Formally, let D = {D₁, …, Dₙ}. Introducing a new domain Dₙ₊₁ must produce</p>
+<p><span class="math display">\[D′ = D ∪ {Dₙ₊₁},\]</span></p>
+<p>without invalidating the previously built representation. That is, the architecture must admit incremental expansion while preserving backward compatibility.</p>
+<h3 id="the-principle-of-reuse">3.6 The Principle of Reuse</h3>
+<p>A direct consequence of the previous principles is that the representation ceases to belong to a specific disease. It becomes a computational infrastructure.</p>
+<p>Let Θ be the set of modeled diseases. For each disease θᵢ ∈ Θ, only a specific set of domains is defined, keeping the entire representation infrastructure unchanged. Formally,</p>
+<p><span class="math display">\[Rθᵢ : P → X\]</span></p>
+<p>shares exactly the same meta-model, changing only the composition of the clinical domains. This property turns computational representation into a reusable layer across different medical specialties.</p>
+<p>The principles presented in this section constitute the conceptual hypothesis of the proposed theory. They do not yet define a specific mathematical implementation, nor do they impose the use of vector spaces, graphs, tensors, or any other structure. Their purpose is to establish the fundamental properties that any computational representation of the patient must satisfy, independent of the mathematics employed or the inference algorithm subsequently used.</p>
+<p>From these principles, it becomes possible to introduce, in the following section, the formal meta-model responsible for defining the fundamental entities of the computational representation of biological systems.</p>
+<h2 id="the-formal-meta-model-of-the-computational-representation-of-the-patient">4. The Formal Meta-Model of the Computational Representation of the Patient</h2>
+<p>The previous sections argued that the computational representation of the patient constitutes a scientific problem independent of machine-learning algorithms. However, stating that representation should occupy its own layer is not sufficient. It is necessary to formally define which objects compose this layer, which relations are permitted among them, and which properties must be preserved by any implementation.</p>
+<p>This is precisely the objective of a meta-model.</p>
+<p>In Computer Science, a meta-model does not implement a computational system. It defines the language used to describe it. The relational model defines concepts such as relations, attributes, and keys before the implementation of databases. UML defines classes, associations, and inheritance before the implementation of software. Likewise, a meta-model is proposed here capable of defining the fundamental elements of the computational representation of biological systems.</p>
+<p>The proposed meta-model does not describe a specific disease, a learning algorithm, or a particular mathematical structure. It describes only the minimal concepts necessary to transform a biological system into a computational object amenable to analysis.</p>
+<p>Formally, the meta-model is defined as the tuple</p>
+<p><span class="math display">\[M = (B, O, D, R, X, G, Γ, F, C),\]</span></p>
+<p>where B represents the set of biological systems; O represents the set of observations; D represents the semantic domains; R represents the computational representations; X represents the representation spaces; G represents the admissible geometric structures; Γ represents the longitudinal trajectories; F represents the phenotypes; C represents the cohorts.</p>
+<p>These entities constitute the primitive elements of the theory. All other computational structures derive from them.</p>
+<h3 id="biological-system">4.1 Biological System</h3>
+<p>The first element of the meta-model is the biological system itself. A biological system is defined as</p>
+<p><span class="math display">\[B = (E, T),\]</span></p>
+<p>where E represents the physiological state of the organism and T represents its temporal evolution.</p>
+<p>Note that this definition precedes any clinical observation. The biological system exists independently of exams, sensors, or computational models. Consequently,</p>
+<p><span class="math display">\[B ∉ X,\]</span></p>
+<p>that is, the biological system does not belong to the computational space. It belongs to the physical world.</p>
+<h3 id="observations">4.2 Observations</h3>
+<p>Since the physiological state cannot be observed directly, the Observation entity is introduced. Each observation corresponds to an operator that extracts partial information from the biological system. Formally,</p>
+<p><span class="math display">\[Oᵢ : B → Mᵢ,\]</span></p>
+<p>where Mᵢ represents the measurement space produced by the corresponding instrument. Examples include polysomnography, electrocardiogram, laboratory tests, magnetic resonance imaging, wearable devices, and clinical questionnaires.</p>
+<p>Note that observations are not data. They are measurement operators. Different observations may measure distinct aspects of the same biological system.</p>
+<h3 id="semantic-domains">4.3 Semantic Domains</h3>
+<p>Individual observations do not possess clinical meaning in isolation. They need to be organized according to their physiological interpretation. A semantic domain is thus defined as</p>
+<p><span class="math display">\[Dᵢ = (Σᵢ, Oᵢ),\]</span></p>
+<p>where Σᵢ represents the clinical semantics of the domain and Oᵢ represents the set of associated observations.</p>
+<p>For example, the respiratory domain can be defined as</p>
+<p><span class="math display">\[D_Resp = (Σ_Resp, {AHI, RDI, Flow, Apneas, Hypopneas}).\]</span></p>
+<p>Likewise, the hypoxia domain can be written as</p>
+<p><span class="math display">\[D_Hyp = (Σ_Hyp, {ODI, SpO₂, T90, Hypoxic Burden}).\]</span></p>
+<p>Note that domains are defined by the clinical meaning of the observations, and not by their mathematical structure.</p>
+<h3 id="representations">4.4 Representations</h3>
+<p>Once domains are defined, it becomes possible to represent them mathematically. Each domain possesses a representation operator</p>
+<p><span class="math display">\[φᵢ : Dᵢ → Xᵢ,\]</span></p>
+<p>where Xᵢ is a mathematical space appropriate to the domain. This space can assume different natures. For example,</p>
+<p><span class="math display">\[Xᵢ ∈ {ℝⁿ, H, G, T, E},\]</span></p>
+<p>representing, respectively, vector spaces, functional spaces, graphs, tensors, and embeddings.</p>
+<p>The theory does not impose which mathematical structure must be used. It requires only that a consistent representation operator exist.</p>
+<h3 id="global-computational-representation">4.5 Global Computational Representation</h3>
+<p>The complete representation of a biological system is defined by the composition of the individual representations. Formally,</p>
+<p><span class="math display">\[R : B → X,\]</span></p>
+<p>such that</p>
+<p><span class="math display">\[R(B) = (φ₁(D₁), φ₂(D₂), …, φₙ(Dₙ)).\]</span></p>
+<p>This equation represents the core of the meta-model. Note that the patient ceases to be described by a single attribute vector. The patient becomes defined as a composition of multiple physiological domains.</p>
+<h3 id="representation-space">4.6 Representation Space</h3>
+<p>The set of all possible representations defines the computational space. Formally,</p>
+<p><span class="math display">\[X = X₁ × X₂ × ⋯ × Xₙ.\]</span></p>
+<p>At this point, each patient occupies a unique position in X. However, this space does not yet possess any notion of distance or proximity. It represents only a structural organization of the representations.</p>
+<h3 id="geometry">4.7 Geometry</h3>
+<p>To allow comparison between patients, a geometric structure is introduced. An operator is defined,</p>
+<p><span class="math display">\[G : X → M,\]</span></p>
+<p>where M represents the set of admissible geometries. This formulation is purposefully generic. An implementation may use Euclidean distance, Mahalanobis, Wasserstein, information geometry, Riemannian manifolds, or hyperbolic spaces. All remain compatible with the meta-model. Geometry ceases to be a fixed property of the theory. It becomes a characteristic of the implementation.</p>
+<h3 id="trajectories">4.8 Trajectories</h3>
+<p>Since biological systems evolve continuously, the representation must also incorporate temporality. A trajectory is defined as</p>
+<p><span class="math display">\[Γ : T → X.\]</span></p>
+<p>Each instant t ∈ T is associated with a specific representation, such that</p>
+<p><span class="math display">\[Γ(t) = R(B_t).\]</span></p>
+<p>The fundamental object ceases to be only the patient. It becomes the patient’s trajectory across the representation space.</p>
+<h3 id="phenotypes">4.9 Phenotypes</h3>
+<p>Traditionally, computational phenotypes are treated as outputs of clustering algorithms. In this theory, a different interpretation is adopted. Phenotypes are defined as structured regions of the representation space. Formally,</p>
+<p><span class="math display">\[F ⊆ X.\]</span></p>
+<p>Learning algorithms cease to create phenotypes. They merely estimate subsets belonging to X. This distinction shifts the scientific contribution from the algorithm to the structure of the representation.</p>
+<h3 id="cohorts">4.10 Cohorts</h3>
+<p>Finally, a cohort is defined as a set of trajectories. Formally,</p>
+<p><span class="math display">\[C = {Γ₁, Γ₂, …, Γₙ}.\]</span></p>
+<p>Note that, in this formulation, a cohort ceases to be merely a collection of patients. It comes to represent the longitudinal evolution of multiple biological systems within the same representation space. Each new exam adds only a new point to the existing trajectory, without the need to reconstruct the database.</p>
+<h3 id="fundamental-relations-of-the-meta-model">4.11 Fundamental Relations of the Meta-Model</h3>
+<p>The entities defined above relate through a single causal chain,</p>
+<p><span class="math display">\[B → O → D → R → X → G → Γ → F → C.\]</span></p>
+<p>This chain represents the backbone of the theory. No implementation should violate this organization. In particular, learning algorithms must never operate directly on observations or biological systems. All computational inference must occur exclusively on representations belonging to the space X.</p>
+<p>This separation establishes a clear distinction between observation, representation, and inference, allowing different mathematical implementations to coexist within the same conceptual structure.</p>
+<p>The meta-model thus becomes a formal language for the computational representation of biological systems, independent of the disease studied, the data modality used, or the learning algorithm subsequently employed.</p>
+<h3 id="axiomatic-foundations">4.12 Axiomatic Foundations</h3>
+<p>Sections 4.1–4.11 introduced the entities of the meta-model definitionally. We now state five axioms governing how these entities relate. Each was chosen because it corresponds to a property already implemented as an executable formal contract (§5) — the axioms are not introduced as free-standing mathematical decoration, and one of them, as noted below, was violated by a real implementation bug before being corrected.</p>
+<p><strong>Axiom 1 (Existence).</strong> For every observed biological system there exists at least one admissible computational representation:</p>
+<p><span class="math display">\[\forall B \in \mathcal{B} \text{ with } O(B) \neq \emptyset,\ \exists\, R(B) \in X.\]</span></p>
+<p>The qualification O(B) ≠ ∅ is deliberate, not decorative: existence is guaranteed constructively by R being a total function of available Observations, not of the biological system itself (§4.1: B ∉ X). A system that has never been observed has no representation, trivially — there is nothing yet for R to act on.</p>
+<p><strong>Axiom 2 (Observational Determinism).</strong> Under the same set of observations, the representation is unique:</p>
+<p><span class="math display">\[O_1 = O_2 \implies R(O_1) = R(O_2).\]</span></p>
+<p>This restates Contract 5.8 (Reproducibility) axiomatically. It is tested, not merely assumed: the regression suite confirms bit-identical output across repeated construction from identical input, rather than treating the axiom as self-evidently true of any implementation claiming to satisfy it.</p>
+<p><strong>Axiom 3 (Semantic Preservation).</strong> The representation preserves a declared biological equivalence relation ~:</p>
+<p><span class="math display">\[b_i \sim b_j \implies R(b_i) \sim R(b_j).\]</span></p>
+<p>This restates Contract 5.2. We flag explicitly that ~ must be <em>declared per domain</em> — the meta-model supplies no universal biological equivalence relation of its own. The axiom constrains whatever equivalence a domain author asserts; it is not evidence that a philosophically privileged notion of biological equivalence exists prior to that choice.</p>
+<p><strong>Axiom 4 (Temporal Consistency).</strong> If t_i &lt; t_j, the representation at t_i cannot depend on observations occurring after t_i:</p>
+<p><span class="math display">\[t_i < t_j \implies R(B, t_i) \text{ is independent of } O(B, t_j).\]</span></p>
+<p>This restates Contract 5.7 (Temporality) — and is, to our knowledge, the only one of these five axioms whose violation was caught empirically rather than only reasoned about in advance: an unpropagated <code>as_of</code> parameter once allowed a later observation to leak into an earlier snapshot, a genuine bug, corrected and now covered by a dedicated regression test (§5.7). We report this because it is direct evidence that stating a property axiomatically does not, by itself, guarantee an implementation satisfies it — the axiom is a specification against which code can fail, not a description of code that cannot.</p>
+<p><strong>Axiom 5 (Closure).</strong> Every admissible operator maps the representation space to itself:</p>
+<p><span class="math display">\[T : X \to X.\]</span></p>
+<p>Unlike Axioms 1–4, this is not independently falsifiable by testing an existing implementation — it is closer to a definitional boundary of the theory: an operator whose output leaves X is, by construction, outside the scope of this framework. We state it as an axiom because it is the condition that makes the algebraic structure of §4.14 possible, not because it is itself an empirical claim.</p>
+<h3 id="metric-structure-of-the-representation-space">4.13 Metric Structure of the Representation Space</h3>
+<p>We formalize the representation space of §4.6 as a triple</p>
+<p><span class="math display">\[(X, d, \Sigma),\]</span></p>
+<p>where X is the set of admissible representations, d is a distance function, and Σ is the semantic structure assigning each coordinate to a named domain — already implemented as <code>RepresentationVector.components</code>, a mapping from domain name to Feature list, distinct from the flat vector <code>as_vector(order)</code> that a geometry or algorithm actually consumes.</p>
+<p>A function d: X × X → ℝ≥0 is a metric on X if, for all x, y, z ∈ X, it satisfies non-negativity, identity of indiscernibles (d(x,y)=0 iff x=y), symmetry, and the triangle inequality (d(x,z) ≤ d(x,y) + d(y,z)).</p>
+<p>Not every geometry implemented in this framework satisfies all four properties, and we state this as a limitation rather than eliding it. Euclidean distance and the approximate Riemannian geodesic distance over a k-nearest-neighbor graph are true metrics by construction. Dynamic Time Warping is well documented in the sequence-alignment literature as generally failing the triangle inequality (Müller, 2007; Jain, 2018) — and, resolving a question our own earlier informal testing had left open, this failure is confirmed for the specific implementation used in this project. Using the published counterexample of Tralie et al. (2022) — three sequences a = (−1,…,−1,0), b = (−1,0,1), c = (0,1,…,1), each repeated element occurring more than once — we verified that <code>biospace.geometry.DTW</code> violates the triangle inequality both with and without its optional path-length normalization; the specific violation our earlier ad hoc trajectories failed to expose was simply not adversarial enough. We therefore treat DTW as a <em>dissimilarity</em>, not a metric, on stronger grounds than before, and restrict the completeness-dependent theorems of §4.15 to geometries confirmed to be true metrics. Any theorem stated below for "the representation space (X,d)" implicitly assumes d is a genuine metric, and does not automatically transfer to every geometry this framework happens to implement.</p>
+<h3 id="algebra-of-operators">4.14 Algebra of Operators</h3>
+<p>Let T = {T : X → X} denote the admissible operators under Axiom 5. Composition T₂∘T₁, an identity operator I(x)=x for all x ∈ X, and associativity ((T₃∘T₂)∘T₁ = T₃∘(T₂∘T₁)) together give (T, ∘, I) the structure of a monoid. Associativity requires no separate proof specific to this framework — it is inherited for free from function composition in general, once Axiom 5 guarantees closure.</p>
+<p>We stop short of claiming a group structure, because it would be false: most operators implemented in this project — phenotyping, dimensionality reduction, aggregation — are not invertible. A K-Means assignment or a PCA projection loses information and admits no T⁻¹ recovering the original representation. The algebra of admissible operators on this framework is a monoid, not a group, and we state this precisely rather than reach for a stronger structure the implementation does not support.</p>
+<h3 id="fundamental-theorems">4.15 Fundamental Theorems</h3>
+<p><strong>Theorem 1 (Existence of a stationary state under mean-reverting dynamics).</strong> Consider a single coordinate of the representation space evolving under the mean-reverting evolution operator of §9, x_{t+1} = φx_t + (1−φ)μ + ε_t. Discarding the stochastic term ε_t, the deterministic map T(x) = φx + (1−φ)μ satisfies |T(x) − T(y)| = |φ|·|x − y| for all x, y. If |φ| &lt; 1, T is a contraction on (ℝ, |·|), and by the Banach fixed-point theorem, T has a unique fixed point x* = μ, to which every trajectory converges under iteration.</p>
+<p>We state the scope of this result precisely rather than let it read more broadly than it is: it holds per coordinate, because the fitted model is diagonal — each Feature's φ is estimated independently (§9) — not as a claim about a single global contraction on the full multi-dimensional space (X,d), which would require characterizing the operator's behavior jointly across all dimensions, something we have not done. The condition |φ| &lt; 1 is exactly the stability criterion this project already computes and tests for every Feature. This makes the theorem's hypothesis directly checkable against real data rather than merely assumed: in §10.11, all thirteen Features of the UCI hospital cohort satisfy |φ| &lt; 1, so Theorem 1 applies to each of them, guaranteeing a unique stationary mean for each — the same conclusion the empirical stability check already reports, now derived from a named classical theorem rather than from a numerical threshold alone.</p>
+<p><strong>Theorem 2 (Continuity of representation, with documented exceptions).</strong> If R is continuous, small biological perturbations produce small representational perturbations: for every ε &gt; 0 there exists δ &gt; 0 such that d_B(B₁,B₂) &lt; δ implies d_X(R(B₁),R(B₂)) &lt; ε.</p>
+<p>We do not claim this holds as a blanket property of the meta-model, because it provably does not. Continuous-valued domains under <em>fixed</em> completeness weighting are Lipschitz continuous — a z-score is an affine, hence Lipschitz, function of the raw measurement. But completeness-weighted z-score has a genuine discontinuity at the missingness boundary: moving from "present" to "missing" changes a Feature's weight discretely, not continuously (already part of the documented semantics of <code>Feature.is_missing</code>/<code>weight</code>). Ordinal and categorical encodings — for instance the UCI plugin's <code>glycemic_testing</code> domain, which maps laboratory categories to {0,1,2} — are inherently discrete-valued and are not continuous in the underlying input in any useful sense. Theorem 2 therefore holds on the subset of domains using purely continuous encoding with fixed completeness, and does not hold across a missingness transition or for categorical domains. We record this as a real, structural limitation of the current representation, not a caveat to be glossed over.</p>
+<p><strong>Corollary 1 (Indistinguishability under identical representation).</strong> If R(B₁) = R(B₂), then M(R(B₁)) = M(R(B₂)) for any function M defined on X.</p>
+<p>We label this a corollary, not a theorem, because it is an immediate consequence of function well-definedness — M applied to equal arguments produces equal results, by the definition of "function" — not a result requiring proof specific to this framework. Its value is not mathematical depth; it is that stating it explicitly makes precise a claim otherwise left implicit throughout this manuscript: an inference algorithm M has access only to R(B), never to B directly, so any two biological systems the meta-model represents identically are, by construction, indistinguishable to every downstream algorithm. This is the formal grounding for treating representation and inference as independent methodological degrees of freedom (§10; see also the companion analysis "Representation Before Inference").</p>
+<h3 id="invariants">4.16 Invariants</h3>
+<p><strong>Domain-order invariance.</strong> <code>RepresentationVector.components</code> is a mapping keyed by domain name, not a sequence: two representations built from the same Observations are equal as elements of X regardless of the order domains were registered in a Representation's constructor. This invariance does not automatically extend to the flat vector consumed by geometries and algorithms — <code>as_vector(order)</code> requires an explicit order argument, and comparing two vectors built with different orders compares different coordinates under the same index. The implementation avoids this failure mode by requiring order to be threaded consistently through every downstream call, verified by <code>test_domain_update_independence</code> and related tests, not by any property of X that makes the failure mode structurally impossible.</p>
+<p><strong>Scale re-parametrization equivariance, not invariance.</strong> Completeness-weighted z-score is equivariant, not invariant, under an affine change of the underlying unit (for example, kilograms to pounds): refitting the reference statistics in the new unit reproduces the identical z-score, because the z-score transform commutes with an affine change of variable. This is a weaker and more precise claim than "invariance" — the representation does not ignore units; it is stable under simultaneously changing the reported unit and refitting the reference distribution in that unit. <strong>Confirmed</strong> by a dedicated regression test: identical to floating-point precision (|Δ| &lt; 1e-9) across the base case, partial missingness in the reference population, sign-inverted domains, and ten independently drawn random scale factors — not merely deduced from the transform's algebraic form.</p>
+<p><strong>Temporal discretization: tested, and the invariance does not hold.</strong> We subsampled real multi-encounter trajectories from the UCI hospital cohort of §10.11 (retaining every other encounter per patient, which exactly doubles the time interval between remaining consecutive points) and re-fit the mean-reverting evolution operator of Theorem 1. The per-day contraction rate φ is <em>not</em> invariant to this change: it increases systematically under subsampling for nearly every Feature tested — for instance, <code>utilization.time_in_hospital</code> goes from φ ≈ 0.21 at daily resolution to φ ≈ 0.43 at the coarser resolution, roughly doubling, not a rounding-level discrepancy. For Features already close to the instability boundary (φ ≈ 0.995), the fitted mean μ diverges far more severely (22.8 to 401.0 in one case), consistent with the well-documented near-unit-root estimation problem in the time-series literature — as φ approaches 1, the reversion signal in the data becomes too weak to pin down where the process is reverting to, inflating the variance of the μ estimate. We report this as the most plausible explanation, not a mechanism we have independently confirmed by simulation here. The practical conclusion is stated plainly: φ_per_day, as currently estimated, should not be treated as a discretization-independent physical rate constant of the underlying process — comparing φ values fitted at different observation frequencies is not yet a valid operation in this framework, and Theorem 1's fixed-point guarantee, while still correct for the specific fitted φ at the sampling rate it was estimated from, does not extend to a resampling-invariant statement about the "true" underlying rate without further work.</p>
+<h3 id="categorical-organization">4.17 Categorical Organization</h3>
+<p>The operator algebra of §4.14 can be organized as a category 𝒞<sub>biospace</sub>: objects are representation spaces X_d, one per disease or system plugin (sleep, metabolic, the UCI hospital representation of §10.11); morphisms are admissible operators T: X_d → X_d within a single object — evolution, phenotyping treated as a projection, derived-variable augmentation; identity is I_Xd; composition is as defined in §4.14, associative by inheritance from function composition.</p>
+<p>Within a single representation space, this categorical structure is directly realized by code already in this project: every operator implemented so far — the evolution operator, phenotypers, derived-variable augmentation — is a morphism X_d → X_d in exactly this sense. What we do not yet have is a demonstrated <em>functor</em> between different objects — a structure-preserving map from the sleep category to the metabolic category, for instance. §10.11 connects representations across disease plugins only informally, through shared PhysiologicalProcess labels on individual Features, not through any verified categorical mapping of the whole space. Constructing such a functor, and checking whether it preserves the identity and composition laws a functor requires, is a natural extension of this framework that we have not yet attempted — named here as a direction for future work, not reported as a result.</p>
+<h2 id="formal-contracts-of-the-meta-model">5. Formal Contracts of the Meta-Model</h2>
+<p>The entities presented in the previous section define the structure of the meta-model. However, defining entities is not sufficient to characterize a formal theory. It is necessary to specify which properties every implementation must satisfy.</p>
+<p>In Software Engineering, these properties are often described by contracts, that is, conditions that must remain true regardless of the implementation used.</p>
+<p>In this work, a contract represents a mathematical or semantic property that every computational representation of the patient must preserve. While the meta-model defines what exists, the contracts define how these entities must behave.</p>
+<p>Formally, each contract is a predicate over the representation space,</p>
+<p><span class="math display">\[C_i : X \to \{0, 1\},\]</span></p>
+<p>where C_i(x) = 1 if representation x satisfies property i. Writing K = {C₁, C₂, …, C₁₁} for the eleven contracts of this section — the ten enumerated in §5.1–§5.10 plus a population-level Injectivity contract that does not have its own numbered subsection (§5.12) — the <em>scientifically admissible subspace</em> is</p>
+<p><span class="math display">\[X^{*} = \{x \in X : C_i(x) = 1\ \forall\, C_i \in K\}.\]</span></p>
+<p>Only representations belonging to X* — not X in general — are eligible for the inference operators of §10; a representation that fails even one contract is, by this definition, outside the theory's admissible domain, regardless of whether an implementation happens to compute an output for it. This is precise about what "passing" the contract suite means: <code>ontology.run_contract_suite</code> is an executable test of membership in X*, not an optional diagnostic. §5.12 reports the current empirical status of this membership test.</p>
+<h3 id="traceability-contract">5.1 Traceability Contract</h3>
+<p>No representation can exist without its origin being identifiable. All information used by the representation must have known provenance. Formally, for every representation R(B), there must exist a set of observations</p>
+<p><span class="math display">\[O = {O₁, O₂, …, Oₙ},\]</span></p>
+<p>such that</p>
+<p><span class="math display">\[R(B) ⇐ O.\]</span></p>
+<p>The relation ⇐ denotes provenance dependence. This means that any component of the representation can be traced back to the observation responsible for its construction. Consequently, no computational attribute may arise without an explicit chain of derivation.</p>
+<h3 id="semantic-preservation-contract">5.2 Semantic Preservation Contract</h3>
+<p>A computational representation must preserve the clinical meaning of the biological system. Consider two distinct physiological states, S₁ and S₂. If these states represent different clinical conditions, then their representations must also be different. Formally,</p>
+<p><span class="math display">\[S₁ ≠ S₂ ⟹ R(S₁) ≠ R(S₂).\]</span></p>
+<p>This contract prevents semantically distinct physiological states from being collapsed into the same representation. Note that this principle does not require a unique representation. It requires only that clinically relevant differences remain distinguishable after the representation process.</p>
+<h3 id="compositionality-contract">5.3 Compositionality Contract</h3>
+<p>No representation should be built directly from the biological system. It must result from the composition of independent domain representations. Let D = {D₁, D₂, …, Dₙ}. There must then exist a composition function Ψ such that</p>
+<p><span class="math display">\[R(B) = Ψ(R₁(D₁), R₂(D₂), …, Rₙ(Dₙ)).\]</span></p>
+<p>Note that R does not depend directly on B, but on the composition of the partial representations. This contract reduces coupling between domains and allows independent evolution of each physiological component.</p>
+<h3 id="continuity-contract">5.4 Continuity Contract</h3>
+<p>Computational representations must vary continuously in response to small physiological changes. Let B₁ and B₂ be two biologically similar states. There must then exist a constant L &gt; 0 such that</p>
+<p><span class="math display">\[d_X(R(B₁), R(B₂)) ≤ L · d_B(B₁, B₂).\]</span></p>
+<p>This property characterizes a Lipschitz-type continuity condition. It guarantees that small experimental variations, measurement errors, or instrumental noise do not produce arbitrarily large changes in the representation. This contract makes the system robust to the inevitable uncertainties present in clinical data.</p>
+<h3 id="extensibility-contract">5.5 Extensibility Contract</h3>
+<p>A computational representation must admit new domains without invalidating previously built representations. Consider D = {D₁, …, Dₙ}. If a new domain Dₙ₊₁ is incorporated, the new representation must satisfy</p>
+<p><span class="math display">\[R′ = R ⊕ Rₙ₊₁,\]</span></p>
+<p>where ⊕ represents an extension operator. This operator must preserve all previously existing components. Formally,</p>
+<p><span class="math display">\[R ⊆ R′.\]</span></p>
+<p>Thus, the architecture’s evolution does not require complete reconstruction of the representations.</p>
+<h3 id="algorithmic-independence-contract">5.6 Algorithmic Independence Contract</h3>
+<p>This may be the most important contract of the theory. The computational representation cannot depend on the algorithm that will subsequently be used. Consider two algorithms, A₁ and A₂. It must hold that</p>
+<p><span class="math display">\[R(B) = R(B),\]</span></p>
+<p>regardless of the choice between A₁ or A₂. Consequently, the algorithm acts exclusively on R(B), never on the biological system. Formally,</p>
+<p><span class="math display">\[Yᵢ = Aᵢ(R(B)).\]</span></p>
+<p>Note that R remains constant, while Aᵢ may vary. This allows algorithms to be compared while preserving exactly the same mathematical object.</p>
+<h3 id="temporality-contract">5.7 Temporality Contract</h3>
+<p>Biological systems evolve continuously. Therefore, every representation must preserve its temporal organization. A trajectory is defined as</p>
+<p><span class="math display">\[Γ : T → X,\]</span></p>
+<p>where T represents the temporal domain. Each observation produces an update of the trajectory, not a new independent representation. Formally, for a sequence of observations O(t₁), O(t₂), …, O(tₙ), one obtains</p>
+<p><span class="math display">\[Γ = {R(B, t₁), R(B, t₂), …, R(B, tₙ)}.\]</span></p>
+<p>This contract turns longitudinality into an intrinsic property of the representation.</p>
+<h3 id="reproducibility-contract">5.8 Reproducibility Contract</h3>
+<p>Given the same observations, a representation must be deterministic. If</p>
+<p><span class="math display">\[O₁ = O₂,\]</span></p>
+<p>then</p>
+<p><span class="math display">\[R(O₁) = R(O₂).\]</span></p>
+<p>This contract guarantees that different researchers obtain exactly the same representation when using the same set of observations. The representation thus becomes reproducible and auditable.</p>
+<h3 id="versionability-contract">5.9 Versionability Contract</h3>
+<p>Since clinical systems evolve continuously, the representation must possess a version history. R⁽ᵏ⁾ is defined as version k of the representation. Every update produces R⁽ᵏ⁺¹⁾, preserving prior versions. Formally,</p>
+<p><span class="math display">\[R⁽ᵏ⁾ ≺ R⁽ᵏ⁺¹⁾,\]</span></p>
+<p>where ≺ represents the temporal precedence relation. This contract allows historical analyses to be reproduced even after the architecture has evolved.</p>
+<h3 id="interoperability-contract">5.10 Interoperability Contract</h3>
+<p>Computational representations must be independent of the origin of the data. Let O_A and O_B be observations from different manufacturers, but semantically equivalent. There must exist a harmonization operator H such that</p>
+<p><span class="math display">\[H(O_A) = H(O_B).\]</span></p>
+<p>Consequently, the computational representation becomes independent of the equipment used for data acquisition. This property is particularly important in multicenter applications and longitudinal studies involving different diagnostic platforms.</p>
+<h3 id="synthesis-of-the-contracts">5.11 Synthesis of the Contracts</h3>
+<p>The contracts presented in this section establish the minimal properties that any implementation compatible with the meta-model must respect. While the meta-model defines the fundamental entities of the computational representation, the contracts define the invariant properties that guarantee consistency, auditability, continuity, reuse, and algorithmic independence.</p>
+<p>These contracts play a role similar to axioms in a mathematical theory. They do not specify how a representation must be implemented. Instead, they define the formal criteria that allow one to decide whether a given implementation is compatible with the proposed theory.</p>
+<p>In the following sections, these contracts will serve as the basis for introducing the organization of representation spaces and their geometric structure, allowing learning algorithms to operate on physiologically consistent and mathematically well-defined representations.</p>
+<h3 id="empirical-status-of-the-contracts">5.12 Empirical Status</h3>
+<p>All eleven contracts described above — the ten enumerated here plus a population-level Injectivity contract not derived from the original numbering — are now backed by executable checks, not only formal statements, consolidated under <code>ontology.run_contract_suite</code>. The last four to receive a dedicated empirical test — Compositionality (5.3), Algorithmic Independence (5.6), Versionability (5.9) and Interoperability (5.10) — were closed in a single dedicated round, each with both a positive case and a decisive negative case (for instance, an algorithm with a hard-coded dependency on a specific domain name is shown to correctly <em>fail</em> the algorithmic independence contract when applied to a representation lacking that domain, rather than the test merely confirming success on well-behaved inputs). Versionability, in particular, had already been satisfied by an existing schema-compatibility checker under a different name — discovered only once the eleven-contract inventory was audited systematically, illustrating that a contract's absence from a project's stated list of guarantees does not necessarily mean the guarantee is unmet, only unlabeled.</p>
+<h2 id="representation-spaces">6. Representation Spaces</h2>
+<p>The previous sections established the fundamental elements of the meta-model and the contracts that every implementation must satisfy. However, an essential question remains: where do computational representations exist?</p>
+<p>Every representation produced by the function</p>
+<p><span class="math display">\[R : B → X\]</span></p>
+<p>must belong to some mathematical space. In the traditional literature, it is implicitly assumed that this space corresponds to a Euclidean vector space,</p>
+<p><span class="math display">\[X = ℝⁿ,\]</span></p>
+<p>in which each patient is described by an attribute vector. This hypothesis is sufficiently convenient for applying most classical machine-learning algorithms. However, it presents important limitations when one wishes to represent complex biological organisms.</p>
+<p>First, different clinical domains possess distinct mathematical natures. Second, different data modalities can hardly be described by a single vector structure. Third, physiology itself is not naturally organized as a numerical vector.</p>
+<p>For these reasons, it is proposed to understand the representation space as a composite structure, formed by the integration of different specialized spaces.</p>
+<h3 id="individual-representation-spaces">6.1 Individual Representation Spaces</h3>
+<p>Each semantic domain has its own representation. Formally,</p>
+<p><span class="math display">\[φᵢ : Dᵢ → Xᵢ,\]</span></p>
+<p>where Xᵢ represents the mathematical space associated with domain Dᵢ. Note that the meta-model does not impose any restriction on the nature of Xᵢ. Each domain may use the mathematical structure most appropriate to preserve its semantics.</p>
+<p>For example, the respiratory domain may be represented by a functional space</p>
+<p><span class="math display">\[X_Resp = F,\]</span></p>
+<p>where each element corresponds to a respiratory time series. Likewise, the cardiovascular domain may be described by heart-rate time series,</p>
+<p><span class="math display">\[X_Cardio = T.\]</span></p>
+<p>A comorbidity domain may take the form of a discrete set,</p>
+<p><span class="math display">\[X_Comorb = 2^C,\]</span></p>
+<p>where C represents the set of possible diseases. Medical images may be represented by tensors,</p>
+<p><span class="math display">\[X_Image = ℝ^(H×W×C),\]</span></p>
+<p>while clinical text may be represented by embeddings,</p>
+<p><span class="math display">\[X_Text = ℝ^d.\]</span></p>
+<p>This freedom is a direct consequence of the Principle of Semantic Preservation. The theory does not seek to reduce all domains to the same type of mathematical object. It seeks to preserve the nature of each domain.</p>
+<h3 id="product-of-spaces">6.2 Product of Spaces</h3>
+<p>Once the individual spaces are defined, they must be integrated. Formally, the global space is defined as</p>
+<p><span class="math display">\[X = X₁ × X₂ × ⋯ × Xₙ.\]</span></p>
+<p>Each patient is then described by</p>
+<p><span class="math display">\[R(B) = (x₁, x₂, …, xₙ),\]</span></p>
+<p>where xᵢ ∈ Xᵢ. Note that each component belongs to its own space. There is no requirement that all share the same mathematical structure. The Cartesian product only organizes these representations into a single structure.</p>
+<h3 id="the-representation-space-as-a-computational-object">6.3 The Representation Space as a Computational Object</h3>
+<p>Traditionally, algorithms receive numerical matrices directly. In this theory, the computational object ceases to be a matrix. The object becomes the representation space itself. Formally,</p>
+<p><span class="math display">\[X = {R(B₁), R(B₂), …, R(Bₙ)}.\]</span></p>
+<p>Each element of X corresponds to a complete representation of a biological system. Thus, algorithms cease to operate on tables. They come to operate on elements belonging to X. This distinction may seem subtle, but it completely changes the computational architecture.</p>
+<h3 id="independence-between-spaces">6.4 Independence Between Spaces</h3>
+<p>Another important consequence of the meta-model is that the individual spaces remain decoupled. Formally, for two domains Dᵢ and Dⱼ, their representations are independent,</p>
+<p><span class="math display">\[Xᵢ ≠ Xⱼ, and φᵢ ≠ φⱼ.\]</span></p>
+<p>This means that changes in the representation of one domain do not require reconstructing the representations of the others. For example, a new respiratory-signal processing technique may modify X_Resp without producing any change in X_Cardio or X_Metab. This property drastically reduces coupling between architecture components.</p>
+<h3 id="hierarchical-representations">6.5 Hierarchical Representations</h3>
+<p>Not all domains possess the same level of abstraction. Often a representation can be built upon another. A sequence of operators is defined,</p>
+<p><span class="math display">\[φᵢ⁽¹⁾, φᵢ⁽²⁾, …, φᵢ⁽ᵐ⁾,\]</span></p>
+<p>such that</p>
+<p><span class="math display">\[Dᵢ →φᵢ⁽¹⁾ Xᵢ⁽¹⁾ →φᵢ⁽²⁾ Xᵢ⁽²⁾ → ⋯ →φᵢ⁽ᵐ⁾ Xᵢ⁽ᵐ⁾.\]</span></p>
+<p>This structure allows different levels of abstraction to be represented. For example, the raw respiratory flow may originate respiratory events, which subsequently originate respiratory indices, which finally originate a representation vector. Formally,</p>
+<p><span class="math display">\[Signal → Events → Indicators → Representation.\]</span></p>
+<p>Each transformation remains explicitly defined, guaranteeing complete traceability.</p>
+<h3 id="latent-domains">6.6 Latent Domains</h3>
+<p>Not all physiological domains are directly observable. Many biological states influence multiple observations without ever being directly measured. Consider, for example, systemic inflammatory state. There is no single observation capable of completely describing it. Instead, it manifests through changes distributed across different laboratory tests, physiological parameters, and clinical signals.</p>
+<p>A latent domain, D_L, is thus defined, for which there is no direct observation operator. Its representation depends on an inference problem. Formally,</p>
+<p><span class="math display">\[φ_L : O → X_L.\]</span></p>
+<p>Note that, unlike the other domains, φ_L does not represent a projection, but a computational reconstruction of a non-observable physiological state. This property significantly expands the capacity of the meta-model, allowing it to incorporate physiological concepts that have no direct measures.</p>
+<h3 id="adaptive-spaces">6.7 Adaptive Spaces</h3>
+<p>Another important consequence of the theory is that the representation space need not remain static. As new domains are incorporated, new spaces can be added. Formally, if</p>
+<p><span class="math display">\[X = X₁ × ⋯ × Xₙ,\]</span></p>
+<p>the introduction of a new domain produces</p>
+<p><span class="math display">\[X′ = X × Xₙ₊₁.\]</span></p>
+<p>Note that X ⊂ X′. Thus, the space evolves continuously, preserving compatibility with prior representations. This property follows directly from the Extensibility Contract.</p>
+<h3 id="shared-spaces">6.8 Shared Spaces</h3>
+<p>Although each domain has its own representation, some problems require integration across domains. A composition operator is defined,</p>
+<p><span class="math display">\[Ψ : X₁ × X₂ × ⋯ × Xₙ → X_c,\]</span></p>
+<p>where X_c represents a shared space. This space can be used for phenotype discovery, supervised learning, causal inference, or decision-support systems. Note that X_c does not replace the individual spaces. It represents only an integrated projection, built from them.</p>
+<h3 id="architectural-consequences">6.9 Architectural Consequences</h3>
+<p>The explicit introduction of representation spaces profoundly changes the organization of computational medicine systems. Instead of storing patients as rows of a table, the system organizes representations within a structured mathematical space. Consequently, algorithms cease to operate directly on clinical variables. They come to operate on elements belonging to X. This change completely decouples representation and inference. New domains, new data modalities, and new mathematical structures can be incorporated without altering the general architecture of the system.</p>
+<p>More importantly, the theory ceases to depend on a specific vector representation. Any mathematical structure capable of satisfying the contracts defined in the previous section becomes a valid implementation of the meta-model.</p>
+<p>In the following sections, this representation space will be enriched by a geometric structure, allowing formal definition of concepts such as clinical proximity, physiological trajectories, and computational phenotype discovery.</p>
+<h2 id="geometry-of-the-representation-space">7. Geometry of the Representation Space</h2>
+<p>The previous sections introduced the concept of the representation space as the mathematical environment where patients come to exist computationally. However, a space composed only of elements is not sufficient to sustain clinical inferences.</p>
+<p>A representation only acquires operational meaning when it becomes possible to answer fundamental questions. How similar are two patients? Which individuals belong to the same phenotype? How can clinical progression be measured? How can therapeutic trajectories be compared?</p>
+<p>These questions belong to the domain of geometry. In this theory, geometry is not considered a fixed characteristic of the representation, but an additional structure capable of organizing relations of proximity, continuity, and evolution among patients.</p>
+<p>In other words, the representation describes what each patient is; geometry describes how different patients relate to one another.</p>
+<h3 id="the-problem-of-clinical-distance">7.1 The Problem of Clinical Distance</h3>
+<p>Consider two patients B₁ and B₂. After the representation process, one obtains</p>
+<p><span class="math display">\[R(B₁) = x₁ ∈ X and R(B₂) = x₂ ∈ X.\]</span></p>
+<p>An immediate question arises: what is the distance between x₁ and x₂? In most learning algorithms, this distance is simply assumed to be Euclidean,</p>
+<p><span class="math display">\[d_E(x₁, x₂) = √(Σᵢ (xᵢ − yᵢ)²).\]</span></p>
+<p>However, this hypothesis is rarely valid for biological systems. Distinct domains carry distinct meanings. Comparing age, respiratory flow, medical imaging, and clinical text using the same metric hardly preserves physiology. Therefore, clinical distance cannot be reduced to a distance between numbers. It must reflect physiological relations.</p>
+<h3 id="geometry-as-an-independent-structure">7.2 Geometry as an Independent Structure</h3>
+<p>Instead of assuming a specific geometry, a geometric operator is defined,</p>
+<p><span class="math display">\[G : X → M,\]</span></p>
+<p>where M represents the set of all admissible geometric structures. Note that G does not represent a metric. It represents a function capable of assigning a geometry to the representation space. This distinction is important. The theory remains independent of the mathematics chosen to implement the geometry.</p>
+<h3 id="local-metrics">7.3 Local Metrics</h3>
+<p>Once a geometry is defined, each point of the space acquires a notion of proximity. Formally, a distance function is defined,</p>
+<p><span class="math display">\[d : X × X → ℝ.\]</span></p>
+<p>This function must satisfy, at minimum, the classical properties of a metric. For any x, y, z ∈ X, the following must hold: non-negativity, d(x,y) ≥ 0; identity, d(x,y) = 0 ⟺ x = y; symmetry, d(x,y) = d(y,x); and the triangle inequality, d(x,z) ≤ d(x,y) + d(y,z). These properties guarantee mathematical consistency, regardless of the implementation adopted.</p>
+<h3 id="state-dependent-geometry">7.4 State-Dependent Geometry</h3>
+<p>However, a central hypothesis of this theory is that geometry may depend on the physiological state itself. In other words, the way two patients are compared may vary according to their clinical condition. Formally,</p>
+<p><span class="math display">\[d_R : X × X → ℝ,\]</span></p>
+<p>where d_R depends on the representation. Written explicitly,</p>
+<p><span class="math display">\[d_R(x₁, x₂) = d(x₁, x₂ | R).\]</span></p>
+<p>This formulation allows the representation itself to determine which physiological aspects are most relevant during comparison.</p>
+<h3 id="clinical-similarity">7.5 Clinical Similarity</h3>
+<p>In addition to distance, many applications depend on measures of similarity. A function is defined,</p>
+<p><span class="math display">\[s : X × X → [0, 1],\]</span></p>
+<p>such that s(x,y) = 1 indicates maximum similarity, while s(x,y) = 0 indicates absence of similarity. Note that similarity need not be derived directly from distance. It may incorporate physiological, causal, or probabilistic knowledge.</p>
+<h3 id="neighborhood">7.6 Neighborhood</h3>
+<p>Once geometry is defined, it becomes possible to introduce the concept of neighborhood. For a patient x ∈ X, its neighborhood of radius ε is defined as</p>
+<p><span class="math display">\[N_ε(x) = {y ∈ X : d(x, y) ≤ ε}.\]</span></p>
+<p>Note that this definition is independent of the algorithm subsequently used. It belongs exclusively to the representation space.</p>
+<h3 id="continuity-of-trajectories">7.7 Continuity of Trajectories</h3>
+<p>Geometry also allows defining clinical continuity. Consider a trajectory Γ : T → X. It is desirable that small physiological evolutions produce small displacements in the space. Formally, as Δt → 0, it must follow that</p>
+<p><span class="math display">\[d(Γ(t), Γ(t + Δt)) → 0.\]</span></p>
+<p>This property guarantees the longitudinal stability of the representation.</p>
+<h3 id="clinical-regions">7.8 Clinical Regions</h3>
+<p>An immediate consequence of geometry is the possibility of defining clinical regions. Let Ω ⊆ X. This region may represent, for example, high-risk patients, good therapeutic responders, elevated hypoxic burden, or rapid progression. Note that these regions exist independently of any clustering algorithm. They are geometric properties of the space.</p>
+<h3 id="phenotypes-as-geometric-regions">7.9 Phenotypes as Geometric Regions</h3>
+<p>Traditionally, computational phenotypes are treated as outputs of algorithms. In this theory, a different interpretation is proposed. A phenotype is defined as a region</p>
+<p><span class="math display">\[F ⊆ X.\]</span></p>
+<p>More specifically, a set of patients sharing physiological proximity according to the defined geometry. Formally,</p>
+<p><span class="math display">\[F = {x ∈ X : Φ(x) = 1},\]</span></p>
+<p>where Φ represents a membership operator. Note that K-Means, Gaussian Mixture, HDBSCAN, DBSCAN, or any other algorithm do not define the phenotype. They merely estimate F. This distinction completely shifts the role of the algorithms.</p>
+<h3 id="the-representation-space-as-a-clinical-manifold">7.10 The Representation Space as a Clinical Manifold</h3>
+<p>Under this perspective, the representation space ceases to be a collection of vectors. It comes to represent a continuous structure where patients occupy positions determined by their physiological characteristics. Geometry becomes responsible for organizing this space, allowing the definition of concepts such as clinical proximity, neighborhood, physiological regions, trajectories, and phenotypic stability. Note that none of these properties depends on the choice of a specific algorithm. All belong to the representation space itself.</p>
+<h3 id="independence-from-implementation">7.11 Independence from Implementation</h3>
+<p>An important characteristic of the meta-model is that it does not impose a single geometry. Any implementation capable of satisfying the contracts established in Section 5 remains compatible with the theory. Thus, an implementation may use Euclidean geometry, Mahalanobis geometry, information geometry, kernel-based metrics, hyperbolic spaces, differentiable manifolds, or any other mathematical structure. All represent implementation choices. The theory remains unchanged.</p>
+<p>This separation preserves the independence between the conceptual definition of the representation and the mathematical tools used to explore it.</p>
+<p>In the next section, this geometric structure will be used to introduce a new interpretation of computational phenotyping, in which phenotypes cease to be products of clustering algorithms and come to be understood as emergent properties of the representation space itself.</p>
+<h2 id="phenotyping-as-an-emergent-property-of-the-representation-space">8. Phenotyping as an Emergent Property of the Representation Space</h2>
+<p>One of the most recurrent applications of Artificial Intelligence in healthcare consists of automatically identifying clinical phenotypes. In recent decades, clustering algorithms have been used to identify subpopulations of patients with similar physiological characteristics, allowing a better understanding of the heterogeneity of various diseases.</p>
+<p>However, a common characteristic of most of this literature is observed: the algorithm occupies a central position in the definition of phenotypes. Expressions such as “phenotypes obtained by K-Means,” “phenotypes discovered by HDBSCAN,” or “subgroups identified by Gaussian Mixture Models” implicitly suggest that the phenotype is a direct consequence of the algorithm employed.</p>
+<p>In this theory, a different interpretation is proposed. It is argued that phenotypes are not produced by algorithms. Phenotypes constitute structural properties of the representation space. Algorithms merely estimate these structures. This shift in perspective moves the scientific contribution from the learning stage to the representation stage.</p>
+<h3 id="the-problem-of-algorithmic-dependence">8.1 The Problem of Algorithmic Dependence</h3>
+<p>Consider two distinct algorithms, A₁ and A₂, applied to exactly the same set of patients. Traditionally, one obtains two sets of clusters,</p>
+<p><span class="math display">\[F₁ = A₁(X) and F₂ = A₂(X).\]</span></p>
+<p>In conventional literature, these two solutions are usually interpreted as different phenotypes. However, this interpretation presents an important conceptual limitation. It attributes to the algorithm the responsibility for the existence of the phenotypes.</p>
+<p>In this theory, the opposite hypothesis is adopted. Phenotypes exist in the physiological space independently of the algorithm used. Formally, a set of phenotypes is defined,</p>
+<p><span class="math display">\[F = {F₁, F₂, …, Fₘ},\]</span></p>
+<p>where Fᵢ ⊆ X. Algorithms then play only the role of estimators of these regions.</p>
+<h3 id="formal-definition-of-phenotype">8.2 Formal Definition of Phenotype</h3>
+<p>Let X be the representation space. A phenotype is defined as a physiologically consistent region of this space. Formally,</p>
+<p><span class="math display">\[F ⊆ X.\]</span></p>
+<p>This definition is purposefully simple. It does not depend on any specific algorithm. It states only that there exists a subset of the space whose elements share similar physiological characteristics. Consequently, the scientific problem ceases to be “which algorithm produces the best phenotypes?” and becomes “does the constructed representation allow the phenotypes to naturally emerge?”</p>
+<h3 id="estimation-operators">8.3 Estimation Operators</h3>
+<p>Algorithms are then defined as operators</p>
+<p><span class="math display">\[A : X → F̂,\]</span></p>
+<p>where F̂ represents a computational estimate of the phenotypes. Thus, for any algorithm, one obtains</p>
+<p><span class="math display">\[F̂ = A(X).\]</span></p>
+<p>Note that F̂ does not necessarily correspond to the true phenotype. It represents only an approximation produced by the algorithm. This distinction is fundamental. It brings computational phenotyping closer to other classical problems in science, in which observational models estimate underlying structures that exist independently of the estimation method.</p>
+<h3 id="phenotypic-consistency">8.4 Phenotypic Consistency</h3>
+<p>An important consequence of this definition is the concept of consistency. If the representation adequately preserves physiology, different algorithms should converge to similar structures. Formally, let A₁, A₂, …, A_k be distinct algorithms. It is desired that</p>
+<p><span class="math display">\[A₁(X) ≈ A₂(X) ≈ ⋯ ≈ A_k(X).\]</span></p>
+<p>Note that the goal ceases to be maximizing agreement between algorithms. The goal becomes building a representation sufficiently rich that different algorithms produce compatible results. In this context, disagreement between algorithms comes to be interpreted as evidence of limitations of the representation, not necessarily of the clustering method.</p>
+<h3 id="phenotypic-stability">8.5 Phenotypic Stability</h3>
+<p>Another important property concerns stability. Consider two independent samples, X₁ and X₂, obtained from the same population. A consistent representation must produce similar phenotypes. Formally,</p>
+<p><span class="math display">\[F(X₁) ≈ F(X₂).\]</span></p>
+<p>This property makes it possible to quantitatively evaluate the robustness of the representation. Highly unstable phenotypes suggest that the physiological structure is not yet being adequately preserved.</p>
+<h3 id="clinical-interpretability">8.6 Clinical Interpretability</h3>
+<p>The theory also establishes that phenotypes must possess clinical meaning. An interpretation operator is defined,</p>
+<p><span class="math display">\[I : F → Σ,\]</span></p>
+<p>where Σ represents the set of possible clinical descriptions. Thus, each phenotype Fᵢ must possess a physiological interpretation, for example, respiratory predominance, hypoxic predominance, cardiovascular involvement, elevated sleep fragmentation, or high metabolic burden. Note that interpretation occurs after the regions are discovered, not during their construction.</p>
+<h3 id="longitudinal-phenotypes">8.7 Longitudinal Phenotypes</h3>
+<p>The main advantage of the proposed representation appears when temporality is incorporated. Consider a trajectory Γ : T → X. Each point of the trajectory belongs to some phenotype,</p>
+<p><span class="math display">\[Γ(t) ∈ Fᵢ.\]</span></p>
+<p>Over time, the patient may migrate between different regions of the space. Formally, a sequence is defined,</p>
+<p><span class="math display">\[F_t1 → F_t2 → ⋯ → F_tn.\]</span></p>
+<p>This sequence characterizes the individual’s phenotypic trajectory. Note that, in this formulation, phenotypes cease to be fixed states. They become dynamic states of physiological evolution.</p>
+<h3 id="phenotypic-transition-matrix">8.8 Phenotypic Transition Matrix</h3>
+<p>The dynamics between phenotypes can be described by a transition matrix. Let Fᵢ and Fⱼ. Define</p>
+<p><span class="math display">\[p_ij = P(Fⱼ | Fᵢ),\]</span></p>
+<p>representing the probability that a patient initially belonging to phenotype Fᵢ evolves to Fⱼ. One thus obtains a matrix</p>
+<p><span class="math display">\[P = [p_ij],\]</span></p>
+<p>which describes the entire population dynamics of the phenotypes. This structure allows investigation of disease progression, therapeutic effects, and the natural history of patients.</p>
+<h3 id="phenotyping-as-a-space-operator">8.9 Phenotyping as a Space Operator</h3>
+<p>A direct consequence of the theory is that phenotyping ceases to be considered a clustering problem. It becomes defined as an operation performed on the representation space. Formally,</p>
+<p><span class="math display">\[Φ : X → F,\]</span></p>
+<p>where Φ represents a phenotype-identification operator. Algorithms become mere computational implementations of this operator. Thus, K-Means, Gaussian Mixture Models, HDBSCAN, DBSCAN, Spectral Clustering, or any other method cease to occupy a central position in the theory. They become merely different strategies for approximating Φ.</p>
+<h3 id="experimental-validation">8.10 Experimental Validation</h3>
+<p>This shift in perspective has an important consequence for empirical validation. Traditionally, algorithms are compared with one another. In this theory, the representation becomes the primary object of validation. Consider two representations, R₁ and R₂. The comparison is then carried out according to criteria such as phenotypic stability, clinical interpretability, reproducibility, prognostic capacity, therapeutic response, and agreement between algorithms. Formally, it is desired that</p>
+<p><span class="math display">\[Q(R₂) &gt; Q(R₁),\]</span></p>
+<p>where Q represents a representation-quality function. Note that the algorithm remains constant. The object of comparison becomes the representation. This methodological inversion constitutes one of the main contributions of the proposed theory.</p>
+<p>By shifting attention from clustering to representation, phenotyping ceases to be understood as a machine-learning problem and comes to be understood as an emergent property of the mathematical organization of the physiological space.</p>
+<p>In the following sections, this same structure will be used to show how phenotypic trajectories can be automatically integrated into large longitudinal cohorts, transforming healthcare data into permanent infrastructure for clinical and epidemiological research.</p>
+<h2 id="automatic-construction-of-longitudinal-cohorts">9. Automatic Construction of Longitudinal Cohorts</h2>
+<p>One of the main consequences of the computational representation proposed in this work is the transformation of the very nature of clinical cohorts.</p>
+<p>In traditional epidemiology, a cohort constitutes a set of individuals selected according to specific inclusion criteria and followed over time to investigate clinical outcomes. Although this paradigm has produced much of modern epidemiological knowledge, its construction remains highly dependent on manual processes of data integration, cleaning, and organization.</p>
+<p>Each new study normally requires the construction of a new database. Each new hypothesis requires a new definition of inclusion criteria. Each new analysis frequently implies rebuilding the entire computational pipeline. This approach makes longitudinal studies expensive, slow, and poorly reusable.</p>
+<p>In this work a paradigm shift is proposed. It is argued that a cohort should not be understood as a database built to answer a specific question. It should be understood as a natural consequence of the computational representation of the patient. In other words, once a consistent representation is built, the cohort itself naturally emerges from the longitudinal evolution of the representations.</p>
+<h3 id="from-observation-to-cohort">9.1 From Observation to Cohort</h3>
+<p>Consider a biological system B. Over time, new observations are made,</p>
+<p><span class="math display">\[O(t₁), O(t₂), …, O(tₙ).\]</span></p>
+<p>Each observation updates the semantic domains, which in turn produce a new computational representation. Formally,</p>
+<p><span class="math display">\[R(B, tᵢ) = Rᵢ.\]</span></p>
+<p>One thus obtains an ordered sequence</p>
+<p><span class="math display">\[R₁, R₂, …, Rₙ.\]</span></p>
+<p>This sequence naturally defines a clinical trajectory.</p>
+<h3 id="longitudinal-trajectory">9.2 Longitudinal Trajectory</h3>
+<p>Formally, a patient’s trajectory is defined as</p>
+<p><span class="math display">\[Γ : T → X,\]</span></p>
+<p>where T represents the temporal domain and X the representation space. At each instant,</p>
+<p><span class="math display">\[Γ(t) = R(B, t).\]</span></p>
+<p>Note that the fundamental object ceases to be an exam. It becomes the continuous evolution of the patient’s representation. This distinction has profound methodological consequences. While an exam represents only an isolated observation, a trajectory represents the individual’s complete computational history.</p>
+<h3 id="continuous-update">9.3 Continuous Update</h3>
+<p>A direct consequence of this definition is that new exams no longer generate new patients. They update patients that already exist. Formally, if R_t represents the current representation, the arrival of a new observation produces</p>
+<p><span class="math display">\[R_{t+1} = U(R_t, O_{t+1}),\]</span></p>
+<p>where U represents an update operator. Note that the patient remains the same. What evolves is their representation. This characteristic eliminates the need to completely rebuild the database whenever new clinical information is incorporated.</p>
+<h3 id="cohorts-as-sets-of-trajectories">9.4 Cohorts as Sets of Trajectories</h3>
+<p>A direct consequence of the previous definition is that a cohort ceases to be a collection of individuals. It becomes a collection of trajectories. Formally,</p>
+<p><span class="math display">\[C = {Γ₁, Γ₂, …, Γₙ}.\]</span></p>
+<p>Each element of the cohort represents the complete temporal evolution of a patient. Thus, the temporal dimension becomes an integral part of the epidemiological structure, rather than an additional characteristic of the data.</p>
+<h3 id="dynamic-phenotypes">9.5 Dynamic Phenotypes</h3>
+<p>Since each representation occupies a position in the space X, each instant of the trajectory also belongs to a phenotype. Formally,</p>
+<p><span class="math display">\[Γ(t) ∈ Fᵢ.\]</span></p>
+<p>Over the course of clinical evolution, the patient may migrate between different phenotypes. One thus obtains</p>
+<p><span class="math display">\[F_t1 → F_t2 → ⋯ → F_tn.\]</span></p>
+<p>This sequence characterizes the patient’s phenotypic trajectory. Note that, in this formulation, phenotypes cease to represent static categories. They become transient states of physiological evolution.</p>
+<h3 id="transition-matrices">9.6 Transition Matrices</h3>
+<p>The evolution between phenotypes can be described by transition probabilities. Define</p>
+<p><span class="math display">\[p_ij = P(Fⱼ | Fᵢ),\]</span></p>
+<p>where p_ij represents the probability that a patient initially belonging to phenotype Fᵢ evolves to Fⱼ. One thus obtains the matrix</p>
+<p><span class="math display">\[P = [p_ij],\]</span></p>
+<p>which describes the entire population dynamics of the disease. This structure allows the study of clinical progression, phenotypic stability, therapeutic response, and the natural history of the disease.</p>
+<h3 id="therapeutic-response">9.7 Therapeutic Response</h3>
+<p>Consider a therapeutic intervention τ. Its application modifies the patient’s trajectory. Formally,</p>
+<p><span class="math display">\[Γ_τ = τ(Γ).\]</span></p>
+<p>Therapeutic response ceases to be analyzed only through differences between exams. It comes to be interpreted as a transformation of the trajectory within the representation space. This perspective allows treatments to be compared using the patient’s entire physiological evolution, rather than isolated indicators alone.</p>
+<h3 id="self-updating-cohorts">9.8 Self-Updating Cohorts</h3>
+<p>One of the most important consequences of the theory is that cohorts become living structures. Whenever a new exam is incorporated, there is no need to rebuild the database. It suffices to update the corresponding trajectory. Formally, for a new observation O_new, one executes</p>
+<p><span class="math display">\[Γ′ = U(Γ, O_new).\]</span></p>
+<p>The cohort automatically becomes</p>
+<p><span class="math display">\[C′ = (C − Γ) ∪ Γ′.\]</span></p>
+<p>Note that no patient is recreated. Only their trajectory evolves. This mechanism allows the construction of continuously updated cohorts throughout clinical practice.</p>
+<h3 id="permanent-epidemiological-infrastructure">9.9 Permanent Epidemiological Infrastructure</h3>
+<p>In traditional epidemiology, a cohort is usually built to answer a specific hypothesis. In this theory, the cohort becomes permanent infrastructure. New questions no longer require new databases. It suffices to query the trajectories that already exist. Formally, any epidemiological study can be described by a function</p>
+<p><span class="math display">\[Q : C → Y,\]</span></p>
+<p>where Q represents an epidemiological query and Y the produced result. Note that the cohort remains the same. Only the questions change. This separation brings epidemiology closer to modern data science, in which the infrastructure remains stable while different analytical models are run over it.</p>
+<h3 id="the-case-of-obstructive-sleep-apnea-syndrome">9.10 The Case of Obstructive Sleep Apnea Syndrome</h3>
+<p>The initial implementation of this theory will be carried out using patients with Obstructive Sleep Apnea Syndrome undergoing therapy with a mandibular advancement device. Each polysomnography ceases to represent only a single exam. It comes to automatically update the patient’s position within the representation space. Over the course of clinical follow-up, each individual builds their physiological trajectory, allowing observation of phenotypic migration, clinical stability, treatment response, progression patterns, disease recurrence, and prognostic factors.</p>
+<p>More importantly, with each new patient incorporated, the epidemiological infrastructure itself grows automatically. There is no need to build a new cohort for each study. The cohort already exists. It simply keeps evolving.</p>
+<h3 id="scientific-consequences">9.11 Scientific Consequences</h3>
+<p>This change profoundly alters the relationship between clinical care and research. Data produced during care ceases to serve only as an assistance record. It comes to continuously feed a computational infrastructure capable of sustaining large-scale longitudinal studies.</p>
+<p>In this scenario, cohort construction ceases to be a preparatory step of research. It becomes an emergent property of the computational representation of the patient. The consequence is an unprecedented convergence between clinical practice, computational epidemiology, and precision medicine.</p>
+<p>Each new exam does not represent merely a new observation. It automatically expands the collective knowledge stored in the longitudinal cohort, allowing future hypotheses to be investigated without needing to reconstruct the data infrastructure.</p>
+<p>This may be one of the main practical implications of the proposed theory: transforming routine care data into a permanent basis for clinical research, phenotype discovery, and the continuous development of computational models.</p>
+<h2 id="generalization-to-chronic-diseases">10. Generalization to Chronic Diseases</h2>
+<p>Up to this point, the development of the theory has been presented independently of any specific disease. Although the initial implementation was motivated by Obstructive Sleep Apnea Syndrome (OSAS), the central hypothesis of this work is that the proposed architecture describes a much more general property of computational medicine.</p>
+<p>This hypothesis can be summarized as follows: the computational representation of the patient does not depend on the disease. It depends only on the existence of physiological domains capable of describing a biological system.</p>
+<p>This statement completely shifts the focus of the theory. OSAS ceases to represent the object of the theory. It comes to represent only its first validation case. What remains constant is the meta-model. What changes are only the clinical domains used to build the representation.</p>
+<h3 id="disease-independence">10.1 Disease Independence</h3>
+<p>Consider a set of diseases</p>
+<p><span class="math display">\[Θ = {θ₁, θ₂, …, θₘ}.\]</span></p>
+<p>Each disease possesses a distinct pathophysiology. However, all can be described by a set of clinical domains. Formally, for each disease θᵢ ∈ Θ, define</p>
+<p><span class="math display">\[D_θi = {D₁, D₂, …, D_k}.\]</span></p>
+<p>Note that the domains may vary between diseases, but the structure used to organize them remains exactly the same. Consequently, the representation function continues to be</p>
+<p><span class="math display">\[R : B → X.\]</span></p>
+<p>The only difference lies in the composition of the domains.</p>
+<h3 id="specializations-of-the-representation">10.2 Specializations of the Representation</h3>
+<p>The computational representation ceases to be unique. It comes to admit specializations. Formally, a family of representations is defined,</p>
+<p><span class="math display">\[{R_θ1, R_θ2, …, R_θm},\]</span></p>
+<p>where R_θi represents the specific implementation for a disease. All share exactly the same meta-model, changing only their semantic domains. Thus, for OSAS, one obtains</p>
+<p><span class="math display">\[R_OSAS = (D_Resp, D_Hyp, D_Sleep, D_Cardio, D_Symp, D_Treat).\]</span></p>
+<p>While, for Diabetes Mellitus, one could define</p>
+<p><span class="math display">\[R_DM = (D_Metab, D_Cardio, D_Renal, D_Retina, D_Neurop, D_Treat).\]</span></p>
+<p>Note that the theory remains identical. Only the domains change.</p>
+<h3 id="the-meta-model-as-infrastructure">10.3 The Meta-Model as Infrastructure</h3>
+<p>An important consequence of this formulation is that the meta-model comes to represent a common infrastructure for different medical specialties. Formally,</p>
+<p><span class="math display">\[M = (B, O, D, R, X, G, Γ, F, C),\]</span></p>
+<p>where M is completely independent of the disease studied. Each specialty implements only a particular instance of this meta-model. In computational terms, this means that classes such as Patient, Observation, Domain, Representation, RepresentationSpace, Phenotype, and Cohort do not need to be rewritten for each disease. Only new domains are added.</p>
+<h3 id="examples-of-specialization">10.4 Examples of Specialization</h3>
+<p>In OSAS, the respiratory domain may contain</p>
+<p><span class="math display">\[D_Resp = {AHI, RDI, Flow, Apneas, Hypopneas}.\]</span></p>
+<p>In heart failure, the cardiovascular domain could be</p>
+<p><span class="math display">\[D_Cardio = {Ejection Fraction, BP, Stroke Volume, NYHA Class}.\]</span></p>
+<p>In COPD, the pulmonary domain can be defined as</p>
+<p><span class="math display">\[D_Pulm = {FEV1, FVC, FEV1/FVC, Blood Gas Analysis}.\]</span></p>
+<p>In oncology, a molecular domain could contain</p>
+<p><span class="math display">\[D_Gen = {Gene Expression, Mutations, Biomarkers, Proteomics}.\]</span></p>
+<p>Note that, in all cases, the structure of the representation remains exactly the same.</p>
+<h3 id="computational-reuse">10.5 Computational Reuse</h3>
+<p>The computational consequence of this architecture is extremely important. Instead of developing a different library for each disease, a single infrastructure is defined. Formally, for any disease θ, one obtains</p>
+<p><span class="math display">\[System = (M, R_θ),\]</span></p>
+<p>where M remains constant, and R_θ corresponds only to the clinical specialization. This organization drastically reduces code duplication, increases component reuse, and facilitates multicenter validations.</p>
+<h3 id="knowledge-transfer">10.6 Knowledge Transfer</h3>
+<p>Another important consequence is the possibility of knowledge transfer between diseases. Consider two diseases, θᵢ and θⱼ. If both share certain domains, these components can be reused. Formally, if</p>
+<p><span class="math display">\[D_k ∈ D_θi and D_k ∈ D_θj,\]</span></p>
+<p>then φ_k can be shared between both representations. This property favors the incremental development of the architecture. As new domains are implemented, they come to simultaneously benefit different specialties.</p>
+<h3 id="discovery-of-new-domains">10.7 Discovery of New Domains</h3>
+<p>Another important aspect of the theory is that it admits continuous expansion. New pathophysiological knowledge may give rise to new domains. Formally, if D = {D₁, …, Dₙ}, the discovery of a new physiological mechanism produces</p>
+<p><span class="math display">\[D′ = D ∪ {Dₙ₊₁}.\]</span></p>
+<p>Consequently, the representation becomes</p>
+<p><span class="math display">\[R′ = R ⊕ Rₙ₊₁.\]</span></p>
+<p>Note that the architecture evolves naturally, without needing to reconstruct prior representations.</p>
+<h3 id="representation-based-medicine">10.8 Representation-Based Medicine</h3>
+<p>This generalization produces an important conceptual shift. Traditionally, each disease tends to develop its own computational infrastructure. In this theory, the infrastructure is shared. Diseases become particular implementations of a common representation language. This perspective brings different medical fields closer together, allowing apparently distinct problems to be treated according to unified computational principles.</p>
+<p>Medicine ceases to be organized around algorithms specific to each disease. It becomes organized around a general theory of computational representation.</p>
+<h3 id="osas-as-a-validation-case">10.9 OSAS as a Validation Case</h3>
+<p>It is important to emphasize that the choice of Obstructive Sleep Apnea Syndrome as the first object of study has a methodological nature. OSAS offers characteristics particularly suited for validating the theory. The disease presents multiple physiological domains, great clinical heterogeneity, an abundance of physiological signals, frequent longitudinal follow-up, and different therapeutic responses. These characteristics make it possible to empirically evaluate whether the proposed representation produces phenotypes that are more stable, more interpretable, and more prognostically relevant than traditional representations.</p>
+<p>However, the success of the theory does not depend on OSAS. Its validity will depend on the ability to reproduce the same principles in other chronic diseases.</p>
+<h3 id="scientific-consequences-1">10.10 Scientific Consequences</h3>
+<p>The main consequence of this generalization is that the scientific object ceases to be a specific disease. The true object of the theory becomes the computational representation of biological systems. Sleep medicine represents only the first concrete implementation.</p>
+<p>Just as libraries such as scikit-learn do not know specific problems but offer a general infrastructure for machine learning, the proposed architecture seeks to provide a general infrastructure for the computational representation of patients.</p>
+<p>If this hypothesis is correct, new medical specialties could be incorporated not through the creation of new architectures, but through the definition of new semantic domains on the same meta-model.</p>
+<p>This property brings computational medicine closer to a true science of representation, in which different diseases share a common formal language, allowing knowledge reuse, system interoperability, and the incremental development of physiologically grounded models.</p>
+<h3 id="empirical-validation-metabolic-system">10.11 Empirical Validation: The Metabolic System on Independent Real-World Data</h3>
+<p>The preceding subsections presented disease independence as a hypothesis, to be confirmed by reproducing the same principles outside sleep medicine. This subsection reports that reproduction, completed on two independent, real, public data sources — the National Health and Nutrition Examination Survey (NHANES, a population health survey) and the UCI Diabetes 130-US Hospitals dataset (Strack et al., 2014, administrative hospital records).</p>
+<p>Rather than reusing the sleep domains, a genuinely new representation R_Metab was constructed for the endocrine-metabolic system — GlycemicDomain, AnthropometricDomain, CardiovascularDomain, RenalDomain, ComorbidityDomain, TreatmentDomain — with Diabetes Mellitus Type 2 treated not as the organizing entity of the package, but as one clinical interpretation N applied afterward to an already-constructed representation, formally distinct from R:</p>
+<p><span class="math display">\[B → R(B) → N(R(B)).\]</span></p>
+<p>A second, independent interpretation — metabolic syndrome risk, under an adapted NCEP ATP III criterion — was built over the identical representation, and shown empirically to disagree with the diabetes interpretation exactly where a genuine second clinical lens should disagree (diabetes without metabolic syndrome, metabolic syndrome without diabetes), evidence that the architecture had not merely renamed diabetes as two things.</p>
+<h4 id="a-second-representation-for-a-structurally-different-source">A Second, Structurally Different Representation</h4>
+<p>The UCI hospital records could not be mapped onto R_Metab without inventing data: the source contains no continuous HbA1c or glucose values (only sparse categorical results, 83–95% missing), no anthropometry, no blood pressure, no creatinine. It does contain eight hospital-utilization variables complete in 100% of encounters, and detailed medication data. A second representation, R_UCI, was constructed — HospitalUtilizationDomain, GlycemicTestingDomain, MedicationIntensityDomain — connected to R_Metab only where a genuine mechanistic link exists: GlycemicTestingDomain declares the same physiological process, glucose homeostasis, as the corresponding continuous variables in NHANES, via the PhysiologicalProcess layer (§4, extended below).</p>
+<p>This is itself a confirmation of Contract 5.5 (Extensibility) and 5.6 (Algorithmic Independence) under conditions the original theory did not anticipate: two representations of the same physiological system, built from sources with almost no overlapping variables, remained composable with the identical downstream operators (phenotyping, geometry, causal contracts) without modification.</p>
+<h4 id="findings-nhanes">Findings — NHANES (9,232 adults ≥ 20 years)</h4>
+<p>A laboratory classifier using the American Diabetes Association glycemic criterion (HbA1c ≥ 6.5% or fasting glucose ≥ 126 mg/dL) was compared against self-reported diabetes diagnosis. Sensitivity was 75.0%, specificity 95.0%, overall accuracy 91.8% (n = 7,848 comparable adults) — consistent with the well-documented phenomenon of diabetes underdiagnosis. Among laboratory-classified pre-diabetes cases (n = 3,141), 91.5% carried no self-reported diabetes diagnosis at all, consistent with even more pronounced underdiagnosis of pre-diabetes. <strong>Correction, reported transparently</strong>: an earlier version of this analysis reported 66.6% sensitivity and 95.6% specificity (n = 8,965), based on a real bug in the helper function extracting raw Feature values — for a genuinely missing Feature, it silently fell back to 0.0 rather than returning <code>None</code>, making the "indeterminate" branch of the classifier unreachable and causing 1,140 adults with neither HbA1c nor glucose on record to be classified as "normal" rather than correctly excluded. Fixed and reverified against the real data; the qualitative conclusion (diabetes underdiagnosis) is unaffected, only the exact figure changed.</p>
+<p>A dedicated empirical contract, check_process_coherence, tests whether Features declared under the same PhysiologicalProcess correlate more strongly with each other, across the population, than Features under different processes. In this real cohort, the hypothesis <strong>confirmed</strong> (mean |r| = 0.782 within process vs. 0.151 across processes, Mann-Whitney p = 0.0022). The same test, applied earlier to a synthetic diabetes cohort built for architectural validation rather than clinical realism, had <strong>not</strong> confirmed — traced to the synthetic generator sampling each variable independently within severity class, with no shared latent mechanism. The same tool produced two different, correct answers on two sources with genuinely different properties — evidence that the contract discriminates real structure rather than asserting it.</p>
+<h4 id="findings-uci">Findings — UCI Diabetes 130-US Hospitals (101,766 encounters, 71,518 patients)</h4>
+<p>Of 71,518 patients, 16,773 (23.4%) had multiple hospital encounters — up to 39 for a single patient — producing this project's first genuine multi-point trajectories (as opposed to synthetic or cross-sectional data). Ordering encounters by encounter identifier (a chronological-order proxy, not a real timestamp — the source contains no dates), a DerivedVariable computing the trend of medication count across encounters was evaluated successfully for the first time on real longitudinal data.</p>
+<p>K-Means phenotyping (K = 4, of which 3 partitions were non-empty) over utilization, sparse glycemic testing and medication intensity — deliberately excluding age and diagnosis codes — produced a phenotype (n = 6,091) with nearly double the 30-day readmission rate of the remaining phenotypes (8.75% vs. 3.97–4.64%). Characterization of the three phenotypes showed the highest-risk group was distinguished not by medication intensity (that distinguishes a different, only moderately elevated-risk phenotype, with 100% of members having an insulin dose change) but by substantially higher <em>prior</em> utilization — outpatient, emergency and inpatient visits preceding the index encounter — consistent with the established readmission-prediction literature, in which prior utilization is among the most robust and replicated predictors.</p>
+<p>This finding is not representation-independent, and we tested that directly rather than assert it. Adding a fourth domain — nine binary ICD-9 diagnostic categories (diabetes, circulatory, respiratory, digestive, injury, musculoskeletal, genitourinary, neoplasms, other), grouped by the same scheme used in the original publication of this dataset (Strack et al., 2014), extracted from the three diagnosis fields recorded at each encounter — changes what K-Means finds. With this domain included, the dominant partition no longer organizes around prior utilization: it isolates a small group (n = 212, 0.30% of the cohort) defined by extreme length of stay (13.41 days on average, versus 4.22–4.57 for the remaining phenotypes), and the association with 30-day readmission weakens substantially (ratio 1.49, not the roughly 2.2 reported above). Neither representation is more correct than the other — they surface different real structure in the identical underlying data. This is a live, unplanned instance of the same thesis argued in §10 and in the companion analysis "Representation Before Inference": adding a variable to a representation is not a neutral act, demonstrated here within a single data source under an unchanged algorithm, not only across the independent sources compared elsewhere in this section. Both representations remain available in the implementation — the original finding is exactly reproduced by excluding the diagnostic domain — rather than one superseding the other.</p>
+<h4 id="the-physiologicalprocess-layer">The PhysiologicalProcess Layer</h4>
+<p>The empirical work above required extending the meta-model with one additional, strictly optional entity: PhysiologicalProcess, a named biological mechanism that an Observable measures, independent of which SemanticDomain consumes it. An Observable's declared process is <span class="math display">\[\text{None}\]</span> by default; every domain written before this layer existed — including the entire sleep plugin — continues to behave identically, verified by regression test. Two consequential, testable properties follow: (i) Representation.features_by_process(vector) aggregates Features across domain boundaries when they share a declared process, tested with a decisive case where two different domains declare the same process and are shown to be grouped together; (ii) check_process_coherence, described above, tests whether that shared-process label reflects genuine statistical structure rather than an arbitrary tag — the discriminating test that produced the NHANES/synthetic contrast reported above.</p>
+<h4 id="implementation-errors-exposed-only-by-real-data">Implementation Errors Exposed Only by Real Data</h4>
+<p>Two implementation errors in the NHANES loader were discovered only when processing the actual files, not earlier, with synthetic data structurally identical to the real files used to test the loading logic. The first was an incorrect parameter to the SAS/XPT file reader; the second was assuming the file names and variable names of an isolated 2017–2018 NHANES cycle when the files supplied were from a broader, differently structured cycle (2017–March 2020), with an updated blood pressure measurement methodology. Neither error would have been caught by tests that mock the file-reading step — a limitation of the testing strategy used before real data arrived, corrected afterward with a dedicated test exercising the real file reader.</p>
+<p>This episode is reported for the same reason the <code>as_of</code> bug is reported in §5.7: a theory of representation is only as trustworthy as the tests that could have falsified it, and a test suite validated exclusively on synthetic data — however carefully constructed — does not substitute for validation on real data when the question depends on structure a synthetic generator was never asked to reproduce.</p>
+<h2 id="multimodal-integration">11. Multimodal Integration</h2>
+<p>The previous sections established a theory for computational representation based on physiological domains. However, a fundamental characteristic of biological systems still needs to be considered: no single observation modality is sufficient to fully describe an organism.</p>
+<p>Modern clinical practice simultaneously uses laboratory tests, continuous physiological signals, medical imaging, wearable devices, textual records, genetic data, and countless other sources of information. Each of these modalities captures only a partial perspective of the biological system.</p>
+<p>Consequently, a general theory of the computational representation of the patient must be capable of integrating different modalities without losing conceptual coherence.</p>
+<p>In this work, it is argued that this integration should not occur directly between the data, but between semantic representations built upon different physiological domains. This distinction constitutes one of the main differences between the proposed architecture and traditional data-fusion approaches.</p>
+<h3 id="the-problem-of-heterogeneity">11.1 The Problem of Heterogeneity</h3>
+<p>Consider a patient undergoing the following diagnostic procedures: polysomnography, electrocardiogram, laboratory tests, computed tomography, clinical questionnaires, and wearable-device monitoring. Each procedure produces information belonging to distinct mathematical spaces. Formally, modality Mᵢ generates observations belonging to</p>
+<p><span class="math display">\[Oᵢ ∈ 𝒪ᵢ.\]</span></p>
+<p>In general,</p>
+<p><span class="math display">\[Oᵢ ≠ Oⱼ, for i ≠ j.\]</span></p>
+<p>There is, therefore, no single observational space capable of simultaneously representing all these modalities. This heterogeneity constitutes one of the main challenges of contemporary computational medicine.</p>
+<h3 id="the-limitation-of-direct-integration">11.2 The Limitation of Direct Integration</h3>
+<p>Most current approaches attempt to solve this problem by concatenating attributes from different sources. Formally, one obtains</p>
+<p><span class="math display">\[X = X_Lab ⊕ X_Image ⊕ X_Text ⊕ X_Sensor,\]</span></p>
+<p>where ⊕ represents a simple concatenation of attributes. Although this strategy is simple, it presents important limitations. First, data from different modalities have completely different scales. Second, each modality has its own mathematical structure. Third, concatenation completely ignores the physiological semantics of the data. As a consequence, the resulting vector frequently represents a collection of attributes, not a biological organism.</p>
+<h3 id="domain-based-integration">11.3 Domain-Based Integration</h3>
+<p>In this theory, integration occurs at a higher level of abstraction. Each modality feeds one or more semantic domains. Formally, an association operator is defined,</p>
+<p><span class="math display">\[Ω : O → D,\]</span></p>
+<p>where Ω(Oᵢ) = Dⱼ. Note that different observations may simultaneously feed the same domain. For example, the cardiovascular domain may incorporate information from electrocardiogram, echocardiogram, blood pressure, heart rate, and heart-rate variability. Likewise, a single laboratory test may contribute to multiple physiological domains. Integration ceases to occur between variables. It comes to occur between clinical concepts.</p>
+<h3 id="multimodal-representations">11.4 Multimodal Representations</h3>
+<p>Once domains are defined, each produces its own representation. Formally,</p>
+<p><span class="math display">\[φᵢ : Dᵢ → Xᵢ.\]</span></p>
+<p>The global representation remains</p>
+<p><span class="math display">\[R(B) = (φ₁(D₁), φ₂(D₂), …, φₙ(Dₙ)).\]</span></p>
+<p>Note that the origin of the data becomes irrelevant. What matters is the representation produced by each domain. This property completely decouples the architecture from the observational modalities.</p>
+<h3 id="integration-of-new-modalities">11.5 Integration of New Modalities</h3>
+<p>An important consequence of this architecture is that new modalities can be incorporated without modifying the overall structure of the system. Consider a new modality M_new. It produces observations O_new. These observations feed a set of domains {Dᵢ, Dⱼ, D_k}. The global representation becomes</p>
+<p><span class="math display">\[R′ = R ⊕ φ(O_new).\]</span></p>
+<p>Note that no change occurs in the other components of the architecture. Expansion becomes incremental.</p>
+<h3 id="examples-of-modalities">11.6 Examples of Modalities</h3>
+<p>The architecture naturally admits different types of data. Continuous physiological signals, such as respiratory flow, can be represented as</p>
+<p><span class="math display">\[s(t) ∈ S.\]</span></p>
+<p>Medical images belong to</p>
+<p><span class="math display">\[I ∈ 𝓘.\]</span></p>
+<p>Laboratory tests can be written as</p>
+<p><span class="math display">\[L ∈ ℝᵐ.\]</span></p>
+<p>Clinical text belongs to the space</p>
+<p><span class="math display">\[T ∈ 𝓛.\]</span></p>
+<p>Genomic data can be represented by</p>
+<p><span class="math display">\[G ∈ 𝒢.\]</span></p>
+<p>Wearable devices produce time series</p>
+<p><span class="math display">\[W(t) ∈ 𝒲.\]</span></p>
+<p>Note that each modality preserves its own mathematical structure. The theory does not require its conversion into a single vector.</p>
+<h3 id="shared-domains">11.7 Shared Domains</h3>
+<p>Another important consequence is that different modalities can simultaneously contribute to the same domain. Formally, define</p>
+<p><span class="math display">\[Dᵢ = f(O₁, O₂, …, O_k).\]</span></p>
+<p>This means that a physiological domain represents a computational synthesis built from multiple observations. For example, the hypoxia domain can simultaneously integrate peripheral saturation, hypoxic burden, arterial blood gas analysis, heart rate, and desaturation index. None of these variables alone defines the domain. The domain emerges from the semantic integration among them.</p>
+<h3 id="latent-domains-1">11.8 Latent Domains</h3>
+<p>Multimodal integration makes it possible to infer physiological states that cannot be directly observed. Consider a latent domain D_L. There is no direct observation for D_L. However, it can be inferred from multiple modalities. Formally,</p>
+<p><span class="math display">\[D_L = f(O_Lab, O_Image, O_Sensor, O_Text).\]</span></p>
+<p>Examples include systemic inflammation, physiological reserve, frailty, autonomic burden, and metabolic stability. These states cease to depend on a single exam. They come to represent emergent properties of multimodal integration.</p>
+<h3 id="continuous-evolution-of-the-representation">11.9 Continuous Evolution of the Representation</h3>
+<p>An important characteristic of the proposed architecture is that new modalities may emerge over time. Consider a sequence M₁, M₂, …, Mₙ. Each modality adds new observations but does not alter the fundamental structure of the meta-model. Formally, one obtains</p>
+<p><span class="math display">\[Rₙ₊₁ = Rₙ ⊕ φ(M_new).\]</span></p>
+<p>The representation evolves continuously, preserving compatibility with prior versions. This property makes the architecture naturally prepared for future diagnostic technologies.</p>
+<h3 id="an-architecture-for-multimodal-medicine">11.10 An Architecture for Multimodal Medicine</h3>
+<p>The main consequence of the multimodal integration proposed in this work is that the patient ceases to be described by a set of variables from different exams. The patient comes to be described by an organized collection of physiological domains, each fed by multiple observational modalities.</p>
+<p>This change has important implications. First, new technologies can be incorporated without rebuilding the architecture. Second, the representation remains semantically consistent regardless of the origin of the data. Third, algorithms cease to depend on the original observational structure, coming instead to operate on physiologically grounded representations.</p>
+<p>Finally, multimodal integration ceases to be a feature-engineering problem. It becomes a natural consequence of the meta-model of computational patient representation itself.</p>
+<p>This characteristic brings the proposed architecture closer to a general infrastructure for computational medicine, capable of continuously integrating new diagnostic modalities while preserving the mathematical and semantic coherence of the representation.</p>
+<h2 id="a-general-theory-of-computational-precision-medicine">12. A General Theory of Computational Precision Medicine</h2>
+<p>The previous sections presented the mathematical foundations of a theory of the computational representation of the patient. First, a meta-model was defined capable of explicitly separating biological system, observations, semantic domains, computational representation, geometry, trajectories, and phenotypes. Next, it was shown how this structure allows the automatic construction of longitudinal cohorts and the integration of different data modalities while preserving their semantic coherence.</p>
+<p>However, all these contributions converge toward an even broader consequence. The proposed theory does not represent merely a new way of organizing clinical data. It proposes a new way of understanding computational medicine itself.</p>
+<p>Traditionally, artificial intelligence applied to healthcare has been organized around algorithms. Neural networks, decision trees, probabilistic methods, and deep-learning techniques occupy a central position in the scientific literature. Patient representation remains, for the most part, implicit, built during feature-engineering steps and rarely treated as an independent object of investigation.</p>
+<p>In this work, it is proposed to completely invert this perspective. The central hypothesis is that the true object of computational medicine is not the algorithm. It is the mathematical representation of the biological system.</p>
+<p>Formally, every computational application in healthcare can be described as a composition of functions</p>
+<p><span class="math display">\[A ∘ R : B → Y,\]</span></p>
+<p>where R : B → X represents the representation function, and A : X → Y represents any inference algorithm. Traditionally, scientific development has concentrated almost exclusively on improving A. However, it is argued that R constitutes an equally fundamental layer, capable of determining the limits of any subsequently applied algorithm.</p>
+<p>This change profoundly alters the architecture of computational medicine.</p>
+<h3 id="the-centrality-of-representation">12.1 The Centrality of Representation</h3>
+<p>In this theory, computational representation comes to occupy a central position. Every clinical application ceases to operate directly on observations. It comes to operate on a representation space. Formally, the computational flow becomes</p>
+<p><span class="math display">\[B → O → D → R → X → A → Y.\]</span></p>
+<p>Note that the algorithm ceases to receive clinical data. It receives only representations belonging to the space X. This separation produces an important consequence. Representation and inference become independent scientific problems.</p>
+<h3 id="algorithms-as-operators">12.2 Algorithms as Operators</h3>
+<p>A direct consequence of the theory is that algorithms cease to occupy a privileged position. Any algorithm comes to be interpreted merely as an operator defined over the representation space. Formally,</p>
+<p><span class="math display">\[A : X → Y.\]</span></p>
+<p>Nothing in the theory requires that A correspond to a specific method. It may represent classification, regression, phenotype discovery, causal inference, expert systems, therapeutic optimization, probabilistic models, or deep neural networks. All become particular implementations of the same abstract concept. This algorithmic independence constitutes one of the main objectives of the meta-model.</p>
+<h3 id="medicine-as-navigation-in-representation-spaces">12.3 Medicine as Navigation in Representation Spaces</h3>
+<p>An even deeper consequence emerges when one considers the geometry of the computational space. If each patient occupies a position in X, then clinical practice can be reinterpreted as a navigation problem within this space. Diagnosis, prognosis, risk stratification, and therapeutic response cease to be independent problems. All come to represent operations performed on trajectories. Formally, a clinical trajectory is defined by</p>
+<p><span class="math display">\[Γ : T → X.\]</span></p>
+<p>The goal of medicine becomes understanding, predicting, and modifying this trajectory. Under this perspective, treatment can be interpreted as an operator</p>
+<p><span class="math display">\[τ : X → X,\]</span></p>
+<p>capable of altering the patient’s evolution. One thus obtains</p>
+<p><span class="math display">\[Γ′ = τ(Γ),\]</span></p>
+<p>where Γ′ represents the trajectory after the therapeutic intervention. This formulation naturally brings together computational medicine, optimal control, dynamical systems, and causal inference.</p>
+<h3 id="representation-based-precision-medicine">12.4 Representation-Based Precision Medicine</h3>
+<p>Personalized medicine then assumes a completely different interpretation. Traditionally, precision medicine seeks to identify the best treatment for a given patient. In this theory, the problem becomes identifying which transformation τ produces the most favorable trajectory within the space X. Formally, one seeks</p>
+<p><span class="math display">\[τ* = arg min_τ L(Γ_τ),\]</span></p>
+<p>where L represents a clinical loss function, such as risk of death, hospitalization, disease progression, or therapeutic failure. Note that treatment ceases to be merely a clinical intervention. It comes to represent a geometric transformation of the physiological state.</p>
+<h3 id="integration-between-research-and-care">12.5 Integration Between Research and Care</h3>
+<p>Another important consequence of the theory is the convergence between scientific research and clinical practice. Since each new observation automatically updates the representation, every clinical encounter produces computational knowledge. Formally, each new observation O_new generates</p>
+<p><span class="math display">\[R_new = U(R, O_new),\]</span></p>
+<p>where U represents the update operator. At the same time, the patient’s trajectory also evolves,</p>
+<p><span class="math display">\[Γ′ = U(Γ, O_new).\]</span></p>
+<p>Consequently, the epidemiological infrastructure grows continuously, without the need for manual construction of new cohorts. Care and research cease to represent separate activities. Both come to share the same representation infrastructure.</p>
+<h3 id="a-general-infrastructure-for-computational-medicine">12.6 A General Infrastructure for Computational Medicine</h3>
+<p>Under this perspective, the meta-model ceases to be merely an architecture for patient representation. It comes to define a general infrastructure for computational medicine. Formally, any clinical application can be described by a composition of operators over X. For example, diagnosis</p>
+<p><span class="math display">\[D : X → Y_D,\]</span></p>
+<p>prognosis</p>
+<p><span class="math display">\[P : X → Y_P,\]</span></p>
+<p>phenotyping</p>
+<p><span class="math display">\[Φ : X → F,\]</span></p>
+<p>therapeutic prediction</p>
+<p><span class="math display">\[T : X → Y_T,\]</span></p>
+<p>and causal inference</p>
+<p><span class="math display">\[C : X → Y_C.\]</span></p>
+<p>All these operators share exactly the same representation. This reuse reduces model duplication, facilitates comparisons, and significantly increases interoperability between different applications.</p>
+<h3 id="a-new-perspective-for-artificial-intelligence-in-healthcare">12.7 A New Perspective for Artificial Intelligence in Healthcare</h3>
+<p>Perhaps the main conceptual consequence of this theory is the redefinition of the role of Artificial Intelligence. Instead of understanding AI as a set of algorithms capable of learning directly from clinical data, it is proposed to understand it as a set of operators capable of exploring a physiologically grounded representation space.</p>
+<p>In this scenario, the quality of the inferences ceases to depend exclusively on the sophistication of the algorithms. It comes to depend also on the quality of the constructed representation. This shift brings computational medicine closer to other areas of computer science, in which representation and inference are treated as independent problems.</p>
+<h3 id="concluding-remarks">12.8 Concluding Remarks</h3>
+<p>The objective of this work was not to propose a new machine-learning algorithm, a new clustering technique, or a new clinical-prediction method. Its main contribution consists of formalizing a theory of the computational representation of the patient, establishing a meta-model capable of separating observation, representation, geometry, and inference.</p>
+<p>This separation allows biological systems to be understood as mathematical objects organized within representation spaces, on which different computational operators can act in a consistent, reproducible, and disease-independent manner.</p>
+<p>If this hypothesis is correct, the impact of the theory extends beyond sleep medicine, which represents only its first validation case. It offers a formal language for computationally organizing any biological system, establishing the foundations for a computational medicine truly oriented toward representations.</p>
+<p>In this new paradigm, algorithms cease to occupy the center of the architecture. The fundamental element becomes the mathematical representation of the patient. Computational medicine ceases to be defined by the models it uses to infer knowledge and comes to be defined by the way it represents the object of study itself.</p>
+<p>This may be the main change proposed by this work: before asking which algorithm learns best, it is necessary to answer how a biological system should be mathematically represented. It is this representation, not the algorithm, that constitutes the true foundation of computational precision medicine.</p>
+<h2 id="discussion">13. Discussion</h2>
+<p>The theory presented in this work proposes a shift in perspective on how computational systems in healthcare are conceived. Rather than focusing attention on developing new machine-learning algorithms, it is proposed that the main scientific object of computational medicine be the mathematical representation of the patient itself. This shift may seem subtle, but it carries profound conceptual implications.</p>
+<p>Much of the contemporary literature on Artificial Intelligence applied to healthcare is devoted to developing increasingly sophisticated inference methods. Deep neural networks, probabilistic models, Bayesian methods, foundation models, and multimodal architectures represent important advances for the analysis of clinical data. However, virtually all share a common characteristic: they implicitly assume that the patient has already been adequately represented.</p>
+<p>This hypothesis is rarely questioned. In practice, the representation tends to arise during preprocessing, normalization, and feature-engineering steps, and is frequently determined by the limitations of the algorithms used or by data availability. Consequently, two studies may use exactly the same algorithm and obtain completely different results simply because they started from different representations of the patient.</p>
+<p>This observation shifts the scientific discussion to a more fundamental level. Before asking which algorithm performs best, one must ask whether the algorithms are learning about the same mathematical object.</p>
+<p>The proposed theory seeks to answer precisely this question. By explicitly separating biological system, observations, semantic domains, representation, representation space, geometry, and inference, a layered architecture is established in which each component has clearly defined responsibilities. This separation reduces coupling between data acquisition, physiological modeling, and computational learning, allowing each of these layers to evolve independently.</p>
+<p>An important consequence of this organization is algorithmic independence. In the traditional paradigm, different algorithms often require different data representations. Linear algorithms tend to favor normalized vector representations; time-series models use sequences; deep neural networks frequently operate on tensors or embeddings. As a result, representation becomes subordinate to the algorithm.</p>
+<p>In the proposed architecture, exactly the opposite occurs. First, a physiologically consistent representation of the patient is built. Only afterward is the algorithm that best exploits this representation chosen. This inversion profoundly changes the role of machine learning. Algorithms cease to define the patient’s computational structure. They come to merely explore a previously constructed space.</p>
+<p>This distinction also changes the interpretation of computational phenotyping. In the current literature, it is common to find expressions such as “phenotypes obtained by K-Means,” “phenotypes discovered by HDBSCAN,” or “subgroups found by Gaussian Mixture Models.” These expressions implicitly attribute the existence of phenotypes to the algorithm.</p>
+<p>In this work, a different hypothesis is adopted. Phenotypes are understood as structural properties of the representation space. Algorithms merely estimate these structures. This shift brings computational phenotyping closer to classical problems in physics and statistics, in which observational models seek to reconstruct structures that exist independently of the estimation method used.</p>
+<p>Another important consequence concerns longitudinality. In most current systems, successive exams are treated as independent records. This hinders the construction of longitudinal studies and requires repeated database integrations for each new research project.</p>
+<p>In the proposed theory, each new observation only updates the patient’s position within the representation space. The patient ceases to be a collection of exams. They come to be described by a trajectory. Consequently, longitudinal cohorts become a natural property of the architecture. This characteristic brings clinical care and epidemiological research closer together. Each new exam performed during clinical care automatically comes to expand the infrastructure available for future scientific investigations.</p>
+<p>Another important contribution is the separation between observational modalities and physiological domains. Most multimodal architectures directly integrate different types of data, concatenating vectors from images, physiological signals, laboratory tests, and clinical text. Although this approach is operationally simple, it ignores the physiological semantics of the observations.</p>
+<p>In this work, a different strategy is proposed. Modalities feed clinical domains. Domains produce representations. Only then does integration occur. This organization preserves the physiological coherence of the representation and allows new modalities to be incorporated without rebuilding the entire computational infrastructure.</p>
+<p>From a Software Engineering standpoint, the proposed architecture also presents important advantages. The meta-model defines formal contracts independent of implementations. Just as the relational model made it possible to separate databases from specific applications, and UML separated modeling from implementation, the proposed meta-model separates computational representation from inference algorithms.</p>
+<p>This separation favors code reuse, interoperability between applications, incremental evolution of the architecture, and independent validation of each component.</p>
+<p>However, some limitations must be acknowledged. The first concerns the definition of semantic domains. Although the meta-model establishes how these domains relate to one another, identifying the most appropriate physiological domains for each disease remains an open scientific problem. Different medical specialties may propose distinct decompositions of the same biological system, requiring empirical studies to evaluate their representational capacity.</p>
+<p>Another limitation concerns the geometry of the representation space. Throughout this work, it was deliberately decided not to fix a specific geometric structure. This decision preserves the generality of the theory but transfers to future implementations the responsibility of investigating which geometries produce greater phenotypic stability, better clinical interpretability, and greater prognostic capacity.</p>
+<p>Similarly, the theory does not impose specific mathematical structures for representing each domain. Vector spaces, time series, graphs, tensors, differentiable manifolds, or neural embeddings remain equally compatible with the meta-model, provided they satisfy the contracts defined earlier. This flexibility significantly broadens the scope of the theory but requires future investigation into the limits and advantages of each approach.</p>
+<p>Another aspect that deserves future investigation is the modeling of latent domains. Many relevant physiological processes, such as systemic inflammation, functional reserve, or autonomic stability, cannot be directly observed. Their representation will depend on inverse problems, probabilistic models, or causal-inference methods, constituting an important extension of this theory.</p>
+<p>Experimental validation also represents an essential step. In this work, Obstructive Sleep Apnea Syndrome was chosen as the first application case due to its high physiological heterogeneity, availability of multimodal signals, and possibility of longitudinal follow-up during treatment with mandibular advancement devices.</p>
+<p>However, the theory can only be considered truly general if it produces consistent results in other chronic diseases, such as diabetes mellitus, heart failure, COPD, neurodegenerative diseases, oncology, and psychiatry.</p>
+<p>Finally, the main contribution of this work is perhaps not a new computational architecture, a software library, or a learning algorithm. Its main contribution consists of proposing that the computational representation of the patient be recognized as a scientific object in its own right.</p>
+<p>This shift in perspective moves computational medicine from a science centered on algorithms to a science centered on representations. In this new paradigm, algorithms become interchangeable operators. Data become observations. Patients become biological systems. And mathematical representation comes to constitute the true central element upon which all computational intelligence in healthcare is built.</p>
+<p>This conceptual inversion may represent the main implication of this theory. If correct, the future of computational medicine will depend less on discovering increasingly sophisticated algorithms and more on building computational representations that are increasingly faithful to the complexity of the biological systems they seek to describe.</p>
+<h2 id="conclusion">14. Conclusion</h2>
+<p>Contemporary medicine faces an unprecedented transformation. The exponential growth in the availability of clinical data, physiological signals, medical imaging, wearable devices, electronic health records, and omics information has significantly expanded the capacity to observe biological systems. In parallel, advances in machine learning have produced increasingly sophisticated algorithms for exploiting this data.</p>
+<p>However, throughout this work it has been argued that there is a conceptual gap that precedes machine learning itself. Although algorithms are continuously refined, little attention has been devoted to the mathematical object on which these algorithms actually operate.</p>
+<p>Computers do not observe patients. They observe representations.</p>
+<p>This observation motivated the central hypothesis of this thesis: the computational representation of the patient constitutes a scientific problem independent of inference algorithms and must be formalized as its own layer of computational medicine.</p>
+<p>To investigate this hypothesis, a meta-model was developed, organized across different levels of abstraction, explicitly separating biological system, observations, semantic domains, computational representation, representation space, geometry, trajectories, phenotypes, and cohorts.</p>
+<p>This organization made it possible, for the first time in an explicit manner, to distinguish three problems frequently treated as a single process: observing a biological system; representing it computationally; and inferring knowledge from that representation.</p>
+<p>By separating these layers, it becomes possible to study properties of the representation independently of the algorithms subsequently used. This may be the main conceptual contribution of this work.</p>
+<p>Throughout the text it was also argued that patients should not simply be described as attribute vectors. Vectors represent only one possible implementation. The proposed theory allows different physiological domains to be represented by distinct mathematical structures — vector spaces, time series, graphs, tensors, embeddings, or functional spaces — preserving the specific nature of each clinical modality. This characteristic makes the representation significantly more flexible and naturally extensible.</p>
+<p>Another important contribution consists of the redefinition of the concept of computational phenotype. Traditionally, phenotypes are often treated as results produced by clustering algorithms. In this work, a different interpretation was proposed. Phenotypes come to be understood as emergent properties of the representation space. Algorithms cease to “create” phenotypes. They come merely to estimate regions that already exist structurally within that space. This change shifts the scientific focus from the choice of algorithm to the quality of the constructed representation.</p>
+<p>Likewise, it was shown that clinical trajectories and longitudinal cohorts can naturally emerge from the proposed architecture. Each new exam ceases to represent merely a new care record. It comes to automatically update the patient’s representation, changing their position in the representation space and their physiological trajectory. As a consequence, cohorts cease to be databases built specifically for a research project. They come to constitute permanent representation infrastructures capable of continuously growing during clinical practice.</p>
+<p>The theory also demonstrated that multimodal integration can be reinterpreted as a semantic-representation problem. Rather than concatenating attributes from different diagnostic modalities, it is proposed that physiological signals, laboratory tests, medical imaging, wearable devices, and clinical text feed common physiological domains, preserving the biological coherence of the representation. This approach reduces coupling between observational modalities and facilitates the incorporation of new diagnostic technologies without requiring reconstruction of the architecture.</p>
+<p>Although the initial motivation for this research arose from Obstructive Sleep Apnea Syndrome, the theory was deliberately constructed to not depend on any specific disease. OSAS represents only the first validation scenario. The true scientific object of this proposal is the computational representation of biological systems.</p>
+<p>Under this perspective, distinct chronic diseases come to share the same conceptual infrastructure, differing only in the physiological domains used to build their representations. This characteristic opens the way for a unified infrastructure for computational medicine, reusable across different medical specialties.</p>
+<p>Naturally, several questions remain open. The optimal definition of physiological domains, the choice of the most appropriate geometries for the representation space, the modeling of latent states, the incorporation of causal mechanisms, and the multicenter validation of the theory constitute important challenges for future research.</p>
+<p>Likewise, the computational implementation of this meta-model as an independent software library represents a natural next step toward turning the concepts presented here into a reusable infrastructure for research and clinical practice.</p>
+<p>These limitations, however, do not diminish the main contribution of this work. On the contrary. They indicate that the proposed theory establishes a new research agenda. Instead of concentrating efforts exclusively on building more sophisticated algorithms, it becomes possible to systematically investigate how biological systems should be computationally represented before any algorithm is applied.</p>
+<p>This shift brings computational medicine closer to other established areas of Computer Science. Just as the relational model formalized the organization of data before the construction of modern databases, and UML established a common language for system modeling before implementation, the proposed meta-model seeks to provide a formal language for representing patients and other biological systems in a manner that is consistent, extensible, and independent of the inference techniques subsequently employed.</p>
+<p>Ultimately, this work proposes a paradigm shift. Artificial Intelligence in healthcare ceases to be understood as a discipline centered on algorithms. It comes to be understood as a discipline centered on representations. Algorithms continue to play an essential role. However, they cease to occupy the core of the architecture. The central element becomes the mathematical representation of the biological system.</p>
+<p>If this hypothesis is correct, the advancement of computational medicine over the coming decades will depend not only on increasingly powerful algorithms, but principally on the construction of computational representations capable of preserving, with growing fidelity, the physiological complexity of the organisms they seek to describe.</p>
+<p>More than proposing a new machine-learning method, this thesis proposes a new scientific object: a formal theory of the computational representation of the patient.</p>
+<p>And perhaps it is precisely in this shift in perspective — from inference to representation — that the next great step of computational precision medicine lies.</p>
+
+  </article>
+</div>
+
+<footer class="border-t border-line px-6 lg:px-10 py-10 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-ink2">
+  <p>BioSpace — mathematical core, pluggable geometries, validation plugin in Sleep Medicine.</p>
+  <a href="index.html" class="font-medium text-teal hover:text-ink transition-colors">← Back to biospace overview</a>
+</footer>
+
+</body>
+</html>

@@ -32,6 +32,7 @@ os tiver localmente.
 | Coerência de Processo | `check_process_coherence` — confirma em população real (p=0,0022), diferente do gerador sintético usado em outras partes do projeto |
 | Paciente | Busca individual, vetor de representação completo |
 | Estabilidade e Curvatura | Varredura de estabilidade fenotípica com/sem idade, curvatura estrutural — mesma metodologia de SAOS |
+| Fator Latente | Análise Fatorial (carga metabólica) — dominada por adiposidade, correlaciona com status de diabetes sem usá-lo no ajuste |
 
 ## Achado novo: o oposto exato de SAOS na estabilidade fenotípica
 

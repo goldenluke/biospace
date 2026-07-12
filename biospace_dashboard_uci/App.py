@@ -94,6 +94,8 @@ else:
 - **Dinâmica** — `MeanRevertingEvolutionOperator` na trajetória real, diagnóstico de robustez
 - **Sobrevivência** — Kaplan-Meier/Cox, predição prospectiva por fenótipo de baseline
 - **Alerta Precoce** — critical slowing down, achado negativo real
+- **Predição e Explicabilidade** — RandomForest/LogReg + SHAP, triangulação com Sobrevivência
+- **Coortes Geométricas** — coorte por proximidade a um centroide vs. cluster K-Means
 - **Paciente** — busca individual
         """
     )

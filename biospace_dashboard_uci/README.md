@@ -33,6 +33,8 @@ encontros) para exploração rápida.
 | Dinâmica | `MeanRevertingEvolutionOperator` na trajetória real multi-encontro, diagnóstico de robustez |
 | Sobrevivência | Kaplan-Meier/Cox — predição prospectiva por fenótipo de baseline, nuancia o achado transversal publicado |
 | Alerta Precoce | Critical slowing down — achado negativo real, com interpretação honesta do limite de dado |
+| Predição e Explicabilidade | RandomForest/LogisticRegression + SHAP — triangula com a página de Sobrevivência |
+| Coortes Geométricas | Coorte por proximidade a um centroide de fenótipo vs. cluster K-Means original |
 
 ## Achado novo: dinâmica estável, sem artefato de outlier
 
