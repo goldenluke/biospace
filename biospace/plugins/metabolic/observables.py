@@ -22,6 +22,7 @@ __all__ = [
     "GlicemiaJejumObservable",
     "HbA1cObservable",
     "IdadeObservable",
+    "SexoObservable",
     "ImcObservable",
     "CircunferenciaAbdominalObservable",
     "PressaoSistolicaObservable",
@@ -29,6 +30,9 @@ __all__ = [
     "FrequenciaCardiacaObservable",
     "CreatininaObservable",
     "TaxaFiltracaoGlomerularObservable",
+    "ColesterolTotalObservable",
+    "HdlObservable",
+    "TrigliceridiosObservable",
 ]
 
 
@@ -53,6 +57,12 @@ class IdadeObservable(Observable):
     # fisiológico específico -- deixar sem processo é a escolha correta
     # aqui, não uma omissão (ver docstring de PhysiologicalProcess: a
     # camada é opcional por Observable, não obrigatória).
+
+
+class SexoObservable(Observable):
+    key = "sexo"
+    description = "Sexo biológico -- codificação NHANES (1.0=masculino, 2.0=feminino), necessário para critérios clínicos sexo-específicos (ex.: síndrome metabólica completa) e para o cálculo de eGFR."
+    # Sem `process`: covariável demográfica, não medida de mecanismo fisiológico -- mesmo raciocínio de IdadeObservable.
 
 
 class ImcObservable(Observable):
@@ -97,3 +107,23 @@ class TaxaFiltracaoGlomerularObservable(Observable):
     unit = "mL/min/1.73m²"
     description = "eGFR — quanto MENOR, pior a função renal (sinal invertido no domínio)"
     process = "renal_filtration"
+
+
+class ColesterolTotalObservable(Observable):
+    key = "colesterol_total_mg_dl"
+    unit = "mg/dL"
+    process = "lipid_metabolism"
+
+
+class HdlObservable(Observable):
+    key = "hdl_mg_dl"
+    unit = "mg/dL"
+    description = "HDL ('colesterol bom') — quanto MAIOR, melhor (sinal invertido no domínio)"
+    process = "lipid_metabolism"
+
+
+class TrigliceridiosObservable(Observable):
+    key = "trigliceridios_mg_dl"
+    unit = "mg/dL"
+    description = "Triglicerídeos — só medido em subamostra em jejum (NHANES: ~30-42% da coorte, ausência alta por desenho)"
+    process = "lipid_metabolism"

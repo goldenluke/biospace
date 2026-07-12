@@ -16,7 +16,7 @@ from typing import Optional
 
 from biospace.core import Representation
 
-from .domains import AnthropometricDomain, CardiovascularDomain, ComorbidityDomain, GlycemicDomain, RenalDomain, TreatmentDomain
+from .domains import AnthropometricDomain, CardiovascularDomain, ComorbidityDomain, GlycemicDomain, LipidDomain, RenalDomain, TreatmentDomain
 from .reference import Reference
 
 __all__ = ["MetabolicRepresentation"]
@@ -30,6 +30,7 @@ class MetabolicRepresentation(Representation):
                 AnthropometricDomain(reference),
                 CardiovascularDomain(reference),
                 RenalDomain(reference),
+                LipidDomain(reference),
                 ComorbidityDomain(),
                 TreatmentDomain(),
             ]

@@ -49,9 +49,19 @@ def _linha_paciente(cohort: Cohort, space: RepresentationSpace, labels: dict, si
     }
 
 
-def run_pipeline(csv_path: str, max_rows: int | None = None, n_clusters: int = 4) -> Pipeline:
-    """Carrega o CSV real, agrupa por paciente (multi-encontro quando aplicável), roda representação e fenotipagem."""
-    cohort, representation = load_uci_diabetes_cohort(csv_path, max_rows=max_rows)
+def run_pipeline(csv_path: str, max_rows: int | None = None, n_clusters: int = 4, include_diagnosis_category: bool = True) -> Pipeline:
+    """
+    Carrega o CSV real, agrupa por paciente, roda representação e fenotipagem.
+
+    `include_diagnosis_category`: ACHADO REAL -- incluir esse domínio
+    (default True, igual ao loader) muda o que K-Means encontra como
+    fenótipo dominante -- de um organizado por utilização PRÉVIA
+    (associação forte com readmissão, ~2,2x) para um organizado mais
+    por tempo de internação extremo (associação mais fraca, ~1,5x). Ver
+    a página 'Fenótipos e Readmissão', que expõe as duas representações
+    lado a lado em vez de esconder a diferença.
+    """
+    cohort, representation = load_uci_diabetes_cohort(csv_path, max_rows=max_rows, include_diagnosis_category=include_diagnosis_category)
     space = cohort.snapshot()
     order = representation.domain_names()
 

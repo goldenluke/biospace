@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from biospace.core import PhysiologicalProcess
 
-__all__ = ["GLUCOSE_HOMEOSTASIS", "BODY_COMPOSITION", "CARDIOVASCULAR_REGULATION", "RENAL_FILTRATION", "ALL_PROCESSES"]
+__all__ = ["GLUCOSE_HOMEOSTASIS", "BODY_COMPOSITION", "CARDIOVASCULAR_REGULATION", "RENAL_FILTRATION", "LIPID_METABOLISM", "ALL_PROCESSES"]
 
 GLUCOSE_HOMEOSTASIS = PhysiologicalProcess(
     name="glucose_homeostasis",
@@ -35,4 +35,9 @@ RENAL_FILTRATION = PhysiologicalProcess(
     description="Capacidade de filtração glomerular dos rins — creatinina sérica (elevação indica pior função) e eGFR (queda indica pior função; direção invertida em relação à creatinina).",
 )
 
-ALL_PROCESSES = [GLUCOSE_HOMEOSTASIS, BODY_COMPOSITION, CARDIOVASCULAR_REGULATION, RENAL_FILTRATION]
+LIPID_METABOLISM = PhysiologicalProcess(
+    name="lipid_metabolism",
+    description="Metabolismo de lipoproteínas — colesterol total, HDL (proteção cardiovascular, direção invertida) e triglicerídeos (medido só em subamostra em jejum).",
+)
+
+ALL_PROCESSES = [GLUCOSE_HOMEOSTASIS, BODY_COMPOSITION, CARDIOVASCULAR_REGULATION, RENAL_FILTRATION, LIPID_METABOLISM]

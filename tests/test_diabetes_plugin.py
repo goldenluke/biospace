@@ -50,9 +50,10 @@ def test_loader_groups_by_patient_not_by_row(diabetes_cohort):
     assert cohort.loader_report["n_patients"] == len(cohort)
 
 
-def test_all_six_domains_present(diabetes_cohort):
+def test_all_seven_domains_present(diabetes_cohort):
+    """Renomeado de 'seis' para 'sete' domínios -- LipidDomain adicionado quando NHANES ganhou colesterol/HDL/triglicerídeos reais."""
     cohort, representation, _ = diabetes_cohort
-    assert representation.domain_names() == ["glycemic", "anthropometric", "cardiovascular", "renal", "comorbidity", "treatment"]
+    assert representation.domain_names() == ["glycemic", "anthropometric", "cardiovascular", "renal", "lipid", "comorbidity", "treatment"]
 
 
 def test_egfr_sign_is_inverted_consistently():

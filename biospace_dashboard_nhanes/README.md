@@ -25,7 +25,7 @@ os tiver localmente.
 | Página | O que mostra |
 |---|---|
 | Visão Geral | Distribuições demográficas e laboratoriais |
-| Diagnóstico | Classificação laboratorial (critério ADA) x autorrelato — sensibilidade 66,6%, especificidade 95,6% |
+| Diagnóstico | Classificação laboratorial (critério ADA) x autorrelato — sensibilidade 75,0%, especificidade 95,0% |
 | Síndrome Metabólica | Critério adaptado NCEP ATP III (2 de 4 critérios disponíveis) |
 | Coerência de Processo | `check_process_coherence` — confirma em população real (p=0,0022), diferente do gerador sintético usado em outras partes do projeto |
 | Paciente | Busca individual, vetor de representação completo |
@@ -46,8 +46,9 @@ quando o fenótipo já é bem separado.
 
 ## Achados documentados nesta coorte
 
-- Subdiagnóstico de diabetes: sensibilidade 66,6%, especificidade
-  95,6% do critério laboratorial contra autorrelato.
+- Subdiagnóstico de diabetes: sensibilidade 75,0%, especificidade
+  95,0% do critério laboratorial contra autorrelato (corrigido de um bug
+  real em `_raw_value()` — ver `METABOLISM_FINDINGS.md`).
 - Subdiagnóstico de pré-diabetes ainda mais acentuado: 91,5% dos casos
   classificados como pré-diabetes não têm autorrelato de diabetes.
 - Coerência de processo fisiológico (HbA1c e glicemia correlacionam

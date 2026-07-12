@@ -42,7 +42,7 @@ diagnóstico de robustez que expôs um artefato de outlier em SAOS —
 aqui a conclusão é robusta, consistente com o fenômeno real de
 "frequent flyers" em uso de emergência, não um artefato de amostra.
 
-## Achado mais forte do projeto
+## Achado mais forte do projeto — e uma qualificação real, testada
 
 Fenotipagem K-Means sobre utilização hospitalar + testagem glicêmica
 esparsa + intensidade de medicação — **sem idade, sem diagnóstico** —
@@ -52,6 +52,19 @@ o de maior intensidade de tratamento farmacológico — é o de maior
 utilização hospitalar **prévia** (visitas ambulatoriais, de emergência
 e internações anteriores ao encontro atual), consistente com a
 literatura estabelecida de predição de readmissão hospitalar.
+
+**Isso não é a história inteira, e testamos isso, não só afirmamos.**
+Adicionando um quarto domínio — categorias diagnósticas ICD-9,
+extraídas de `diag_1`/`diag_2`/`diag_3` — o fenótipo dominante muda:
+passa a isolar um grupo minúsculo (212 pacientes, 0,3%) de internação
+extremamente longa, e a associação com readmissão fica bem mais fraca
+(~1,5x, não mais ~2,2x). **A página "Fenótipos e Readmissão" agora
+mostra qual das duas representações está ativa** e explica a
+diferença — a tela inicial tem um seletor para alternar entre elas e
+comparar você mesmo. Nenhuma das duas está errada; capturam estruturas
+diferentes do mesmo dado real — a mesma tese do artigo "Representation
+Before Inference", agora numa instância real dentro de uma única fonte
+de dados.
 
 Ver `biospace/METABOLISM_FINDINGS.md` para o documento consolidado com
 todos os achados do processo, e o artigo "Achados Empíricos sobre

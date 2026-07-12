@@ -35,12 +35,24 @@ caminho = st.text_input("Caminho do arquivo CSV", value="/mnt/user-data/uploads/
 modo = st.radio("Tamanho", ["Amostra rápida (5.000 encontros)", "Base completa (101.766 encontros, ~1-2 min)"], horizontal=False)
 max_rows = 5000 if modo.startswith("Amostra") else None
 n_clusters = st.slider("Nº de fenótipos (K-Means)", 2, 6, value=4)
+incluir_diagnostico = st.radio(
+    "Representação",
+    ["Com diagnóstico ICD-9 (4 domínios, o default atual)", "Sem diagnóstico (3 domínios, o achado original de readmissão ~2x)"],
+    horizontal=False,
+)
+include_diagnosis_category = incluir_diagnostico.startswith("Com")
+st.caption(
+    "🔬 **Achado real**: incluir o domínio de diagnóstico muda o que K-Means encontra como fenótipo dominante — "
+    "de um organizado por utilização prévia (associação forte com readmissão) para um organizado mais por tempo "
+    "de internação extremo (associação mais fraca). Nenhuma das duas está errada — capturam estruturas diferentes "
+    "do mesmo dado real. Ver a página 'Fenótipos e Readmissão'."
+)
 
 if st.button("Carregar UCI Diabetes", type="primary"):
-    cache_key = f"uci::{modo}::{n_clusters}"
+    cache_key = f"uci::{modo}::{n_clusters}::{include_diagnosis_category}"
     with st.spinner("Carregando CSV, construindo trajetórias por paciente, fenotipando... (pode levar minutos na base completa)"):
         try:
-            pipeline = run_pipeline(caminho, max_rows=max_rows, n_clusters=n_clusters)
+            pipeline = run_pipeline(caminho, max_rows=max_rows, n_clusters=n_clusters, include_diagnosis_category=include_diagnosis_category)
         except FileNotFoundError as e:
             st.error(str(e))
             st.stop()

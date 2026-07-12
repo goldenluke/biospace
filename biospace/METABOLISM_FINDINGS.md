@@ -93,9 +93,16 @@ inteira):
 **Achados clínicos reais** (n=9.232 adultos ≥20 anos):
 
 - `classify_diabetes_status` (critério ADA) vs. diagnóstico
-  autorreferido: sensibilidade 66,6%, especificidade 95,6%, acurácia
-  91,0% — consistente com subdiagnóstico de diabetes, fenômeno
-  documentado na literatura.
+  autorreferido: sensibilidade 75,0%, especificidade 95,0%, acurácia
+  91,8% (n=7.848 comparáveis) — consistente com subdiagnóstico de
+  diabetes, fenômeno documentado na literatura. **Correção
+  registrada**: valor original (66,6%/95,6%/91,0%, n=8.965) continha
+  um bug real — `_raw_value()` caía silenciosamente em 0.0 em vez de
+  `None` para Feature ausente, tornando o ramo "indeterminado"
+  inalcançável; 1.140 adultos sem HbA1c nem glicemia eram
+  classificados como "normal" em vez de excluídos corretamente.
+  Corrigido, artigo e testes atualizados (`test_raw_value_correctly_returns_none_for_missing_feature_not_zero`,
+  `test_diabetes_sensitivity_corrected_after_raw_value_bugfix`).
 - 91,5% dos casos classificados como pré-diabetes por laboratório NÃO
   têm autorrelato de diabetes — subdiagnóstico de pré-diabetes ainda
   mais acentuado.
@@ -143,6 +150,29 @@ risco intermediário) — é o grupo com utilização PRÉVIA alta
 internação prévia 1,85 vs. 0,30-0,48) — consistente com a literatura
 de predição de readmissão, onde utilização prévia é um dos preditores
 mais fortes conhecidos.
+
+**Esse achado não é absoluto — depende da representação, e isso foi
+testado, não só afirmado.** Adicionamos um quarto domínio,
+`DiagnosisCategoryDomain` — 9 categorias ICD-9 (diabetes, circulatório,
+respiratório, digestivo, lesão, musculoesquelético, geniturinário,
+neoplasias, outro), agrupamento padrão usado pelo próprio artigo
+original da base (Strack et al., 2014), extraído de `diag_1`/`diag_2`/
+`diag_3`. Com esse domínio incluído (`include_diagnosis_category=True`,
+agora o default de `load_uci_diabetes_cohort`), a fenotipagem K-Means
+muda de estrutura: em vez de organizar principalmente por utilização
+prévia, passa a isolar um grupo minúsculo (212 pacientes, 0,30% da
+coorte) de internação extremamente longa (13,41 dias médios vs.
+4,22-4,57 dos demais) — e a associação com readmissão em 30 dias fica
+bem mais fraca (razão 1,49x, não mais ~2,2x).
+
+Nenhuma das duas representações está "errada" — capturam estruturas
+diferentes do mesmo dado real. É a mesma tese central do artigo
+"Representation Before Inference" (adicionar uma variável à
+representação não é neutro), agora numa instância real e não
+planejada, dentro de uma única fonte de dados, não entre duas fontes
+diferentes. As duas representações continuam disponíveis lado a lado
+(`include_diagnosis_category=False` reproduz exatamente o achado
+original) — nenhuma foi descartada em favor da outra.
 
 ## 6. Estabilidade, curvatura, dinâmica, representação e GNN: a mesma metodologia de SAOS, aplicada às duas fontes novas
 
@@ -287,15 +317,13 @@ arquivos por-fonte já existentes, não um arquivo consolidado à parte.
   — deliberadamente evitada; a Seção 5 explica por que isso seria
   metodologicamente impróprio dado o quanto as duas fontes diferem
   estruturalmente.
-- **Dado real ainda não extraído**: códigos de diagnóstico ICD-9 na
-  UCI (`diag_1`/`diag_2`/`diag_3`, hoje completamente ignorados);
-  creatinina real do NHANES (arquivo `BIOPRO_J`, fecharia o
-  `RenalDomain` com dado de verdade); perfil lipídico do NHANES
-  (`TCHOL_J`/`HDL_J`/`TRIGLY_J`, fecharia os 5 critérios completos de
-  síndrome metabólica); medicação de diabetes do próprio `P_DIQ.xpt`
-  já baixado (`DIQ050`/`DIQ070`, abriria uma pergunta causal real de
-  efeito de insulina sobre controle glicêmico); raça/gênero da UCI
+- **Dado real ainda não extraído**: creatinina real do NHANES (arquivo
+  `BIOPRO_J`, fecharia o `RenalDomain` com dado de verdade); perfil
+  lipídico do NHANES (`TCHOL_J`/`HDL_J`/`TRIGLY_J`, fecharia os 5
+  critérios completos de síndrome metabólica); raça/gênero da UCI
   (análise de equidade — o fenótipo de alto risco de readmissão
-  distribui igual entre grupos demográficos?).
+  distribui igual entre grupos demográficos?). Códigos de diagnóstico
+  ICD-9 da UCI e medicação de diabetes do NHANES (`DIQ050`/insulina)
+  foram extraídos e analisados — ver Seção 10.
 - **Autoencoder vs. PCA e GNN semi-supervisionado** nas duas fontes
   novas — testados em SAOS, ainda não em NHANES/UCI.

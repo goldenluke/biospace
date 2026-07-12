@@ -20,31 +20,46 @@ metodologia de medição mudou, e as variáveis são `BPXOSY1`/`BPXODI1`
 colunas reais dos arquivos enviados antes de assumir que o mapeamento
 antigo (baseado em documentação do ciclo 2017-2018 isolado) bateria.
 
-Nomes de variável CONFIRMADOS diretamente nos 6 arquivos reais
-enviados (`pd.read_sas(..., format="xport").columns`), não apenas
-contra documentação:
+Nomes de variável CONFIRMADOS diretamente nos arquivos reais enviados
+(`pd.read_sas(..., format="xport").columns`) e contra a documentação
+oficial do CDC via busca (não assumidos de memória):
 
 | Arquivo    | Variável NHANES | Nome no BioSpace              |
 |------------|------------------|--------------------------------|
 | P_DEMO     | SEQN             | paciente (chave de junção)    |
 | P_DEMO     | RIDAGEYR         | idade                          |
+| P_DEMO     | RIAGENDR         | sexo (1.0=masculino, 2.0=feminino, codificação NHANES padrão) |
 | P_GHB      | LBXGH            | hba1c_pct                      |
-| P_GLU      | LBXGLU           | glicemia_jejum_mg_dl           |
+| P_GLU      | LBXGLU            | glicemia_jejum_mg_dl           |
 | P_BMX      | BMXBMI           | imc                             |
 | P_BMX      | BMXWAIST         | circunferencia_abdominal_cm    |
 | P_BPXO     | BPXOSY1          | pressao_sistolica_mmhg         |
 | P_BPXO     | BPXODI1          | pressao_diastolica_mmhg        |
 | P_DIQ      | DIQ010           | diabetes_autorreferido (1=Sim, 2=Não, 3=Borderline, 7/9=Recusa/NSei) |
 | P_DIQ      | DIQ050           | insulina (recodificado 1=Sim/2=Não→1.0/0.0; só perguntado a quem respondeu Sim em DIQ010 — ~93% ausente por desenho do questionário, não erro) |
+| P_BIOPRO   | LBXSCR           | creatinina_mg_dl (LBXSCH/LBXSTR do mesmo arquivo NÃO usados — documentação do CDC recomenda explicitamente os arquivos de referência TCHOL/TRIGLY em vez do painel bioquímico padrão para colesterol/triglicerídeos) |
+| P_TCHOL    | LBXTC            | colesterol_total_mg_dl         |
+| P_HDL      | LBDHDD           | hdl_mg_dl                       |
+| P_TRIGLY   | LBXTR            | trigliceridios_mg_dl (só medido em subamostra EM JEJUM — n muito menor que os demais arquivos, ~42% da coorte, não erro de carregamento) |
 
-NÃO incluído (fora do conjunto de arquivos baixados): creatinina, eGFR,
-frequência cardíaca de repouso (`P_BPXO` tem pulso — `BPXOPLS1` — mas
-não foi mapeado ainda), perfil lipídico, hipoglicemiante oral (DIQ070
+`taxa_filtracao_glomerular` (eGFR) é CALCULADA, não observada diretamente —
+fórmula CKD-EPI 2021 sem raça (Inker et al., N Engl J Med 2021;
+κ=0,7♀/0,9♂, α=-0,241♀/-0,302♂, confirmados contra a National Kidney
+Foundation e múltiplas fontes independentes antes de implementar,
+não a versão de 2009 com coeficientes diferentes) — requer
+creatinina + idade + sexo simultaneamente; ausente se qualquer um
+dos três estiver ausente.
+
+NÃO incluído: frequência cardíaca de repouso (`P_BPXO` tem pulso —
+`BPXOPLS1` — mas não foi mapeado ainda), hipoglicemiante oral (DIQ070
 existe no arquivo mas mede "qualquer agente oral", não metformina
 especificamente — não mapeado para não forçar uma equivalência
-imprecisa), comorbidades além de diabetes autorreferido. Essas Features
-do `MetabolicRepresentation` ficarão ausentes — imputadas por
-completude (mecanismo já existente no
+imprecisa), comorbidades além de diabetes autorreferido, LDL (as 3
+variantes de cálculo — Friedewald/Martin-Hopkins/NIH — existem no
+arquivo TRIGLY mas não são necessárias para os 5 critérios de síndrome
+metabólica NCEP ATP III, que usam triglicerídeos e HDL diretamente,
+não LDL). Essas Features do `MetabolicRepresentation` ficarão
+ausentes — imputadas por completude (mecanismo já existente no
 núcleo), não um erro.
 
 NHANES é TRANSVERSAL, não longitudinal por desenho: cada SEQN aparece
@@ -69,15 +84,23 @@ NHANES_PREPANDEMIC_FILES = {
     "bmx": "P_BMX.xpt",
     "bpxo": "P_BPXO.xpt",
     "diq": "P_DIQ.xpt",
+    "biopro": "P_BIOPRO.xpt",
+    "tchol": "P_TCHOL.xpt",
+    "hdl": "P_HDL.xpt",
+    "triglycerides": "P_TRIGLY.xpt",
 }
 
 _COLUMN_MAP: dict[str, dict[str, str]] = {
-    "demo": {"RIDAGEYR": "idade"},
+    "demo": {"RIDAGEYR": "idade", "RIAGENDR": "sexo"},
     "ghb": {"LBXGH": "hba1c_pct"},
     "glu": {"LBXGLU": "glicemia_jejum_mg_dl"},
     "bmx": {"BMXBMI": "imc", "BMXWAIST": "circunferencia_abdominal_cm"},
     "bpxo": {"BPXOSY1": "pressao_sistolica_mmhg", "BPXODI1": "pressao_diastolica_mmhg"},
     "diq": {"DIQ010": "diabetes_autorreferido", "DIQ050": "insulina_bruta"},
+    "biopro": {"LBXSCR": "creatinina_mg_dl"},
+    "tchol": {"LBXTC": "colesterol_total_mg_dl"},
+    "hdl": {"LBDHDD": "hdl_mg_dl"},
+    "triglycerides": {"LBXTR": "trigliceridios_mg_dl"},
 }
 
 # DIQ050 (uso de insulina) só é perguntado a quem já respondeu "Sim" para
@@ -88,7 +111,44 @@ _COLUMN_MAP: dict[str, dict[str, str]] = {
 # ausente, não um terceiro valor arbitrário.
 _SIM_NAO_NHANES = {1.0: 1.0, 2.0: 0.0}
 
-_ORDEM_JUNCAO = ["ghb", "glu", "bmx", "bpxo", "diq"]
+_ORDEM_JUNCAO = ["ghb", "glu", "bmx", "bpxo", "diq", "biopro", "tchol", "hdl", "triglycerides"]
+
+
+def _calcular_egfr_ckd_epi_2021(creatinina_mg_dl: float, idade: float, sexo: float) -> Optional[float]:
+    """
+    CKD-EPI 2021 sem coeficiente de raça (Inker et al., New Creatinine-
+    and Cystatin C-Based Equations to Estimate GFR without Race, N Engl
+    J Med 2021;385:1737-1749) -- κ e α CONFIRMADOS contra a National
+    Kidney Foundation e múltiplas fontes independentes antes de
+    implementar (não a versão de 2009, que tem α diferente: -0,329♀/-0,411♂).
+
+    eGFR = 142 × min(Scr/κ, 1)^α × max(Scr/κ, 1)^(-1,200) × 0,9938^idade × (1,012 se feminino)
+    κ = 0,7 (feminino) / 0,9 (masculino); α = -0,241 (feminino) / -0,302 (masculino).
+
+    `sexo`: codificação NHANES (1.0=masculino, 2.0=feminino) -- devolve
+    None se `sexo` não for 1.0 nem 2.0 (ausente ou código de recusa),
+    nunca assume um sexo por default.
+    """
+    import math
+
+    if creatinina_mg_dl is None or idade is None or sexo is None:
+        return None
+    if (isinstance(creatinina_mg_dl, float) and math.isnan(creatinina_mg_dl)) or (isinstance(idade, float) and math.isnan(idade)):
+        return None
+    if creatinina_mg_dl <= 0 or idade <= 0:
+        return None
+    if sexo == 2.0:
+        kappa, alpha, mult_feminino = 0.7, -0.241, 1.012
+    elif sexo == 1.0:
+        kappa, alpha, mult_feminino = 0.9, -0.302, 1.0
+    else:
+        return None
+
+    razao = creatinina_mg_dl / kappa
+    termo_min = min(razao, 1.0) ** alpha
+    termo_max = max(razao, 1.0) ** (-1.200)
+    egfr = 142.0 * termo_min * termo_max * (0.9938**idade) * mult_feminino
+    return float(egfr)
 
 
 def _read_xpt(path: Path) -> pd.DataFrame:
@@ -128,6 +188,9 @@ def _merge_nhanes_frames(frames: dict[str, pd.DataFrame]) -> pd.DataFrame:
     merged["data_exame"] = pd.Timestamp("2018-09-01")  # ciclo combinado ago/2017-mar/2020, sem data exata por participante -- ponto medio aproximado
     merged["insulina"] = merged["insulina_bruta"].map(_SIM_NAO_NHANES)  # 9.0 (Nao sabe) e NaN (nao perguntado) viram NaN aqui, tratados como ausencia pelo TreatmentDomain
     merged = merged.drop(columns=["insulina_bruta"])
+    merged["taxa_filtracao_glomerular"] = merged.apply(
+        lambda linha: _calcular_egfr_ckd_epi_2021(linha.get("creatinina_mg_dl"), linha.get("idade"), linha.get("sexo")), axis=1
+    )
     return merged
 
 

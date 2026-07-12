@@ -123,4 +123,4 @@ def test_point_representation_works_identically_without_any_derived_variable():
     trajetoria = _build_trajectory([6.0, 6.5, 7.0])
     vetor = trajetoria.latest()
     assert "derived" not in vetor.components
-    assert set(vetor.components.keys()) == {"glycemic", "anthropometric", "cardiovascular", "renal", "comorbidity", "treatment"}
+    assert set(vetor.components.keys()) == {"glycemic", "anthropometric", "cardiovascular", "renal", "lipid", "comorbidity", "treatment"}

@@ -130,13 +130,14 @@ def test_sleep_plugin_has_no_processes_declared_proving_layer_is_optional():
     assert representation.processes() == set(), "O plugin sleep nao deveria ter nenhum processo declarado -- ele nunca foi alterado por esta camada."
 
 
-def test_metabolic_plugin_declares_four_real_processes():
+def test_metabolic_plugin_declares_five_real_processes():
+    """Renomeado de 'quatro' para 'cinco' -- lipid_metabolism adicionado quando NHANES ganhou colesterol/HDL/triglicerídeos reais."""
     from biospace.plugins.metabolic import ALL_PROCESSES, MetabolicRepresentation
 
     representation = MetabolicRepresentation()
     nomes_esperados = {p.name for p in ALL_PROCESSES}
     assert representation.processes() == nomes_esperados
-    assert representation.processes() == {"glucose_homeostasis", "body_composition", "cardiovascular_regulation", "renal_filtration"}
+    assert representation.processes() == {"glucose_homeostasis", "body_composition", "cardiovascular_regulation", "renal_filtration", "lipid_metabolism"}
 
 
 def test_metabolic_plugin_features_by_process_groups_correctly():

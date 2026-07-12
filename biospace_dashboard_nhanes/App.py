@@ -25,13 +25,14 @@ st.caption(
 st.info(
     "🌐 Dados públicos, de-identificados pelo CDC. Enviados manualmente pelo usuário (o ambiente não "
     "tem acesso de rede a cdc.gov). Arquivos esperados em `/mnt/user-data/uploads`: P_DEMO.xpt, "
-    "P_GHB.xpt, P_GLU.xpt, P_BMX.xpt, P_BPXO.xpt, P_DIQ.xpt."
+    "P_GHB.xpt, P_GLU.xpt, P_BMX.xpt, P_BPXO.xpt, P_DIQ.xpt, P_BIOPRO.xpt, P_TCHOL.xpt, P_HDL.xpt, P_TRIGLY.xpt "
+    "(10 arquivos — os 4 últimos habilitam creatinina/eGFR e perfil lipídico completo)."
 )
 
 st.divider()
 
 st.subheader("Carregar coorte")
-caminho = st.text_input("Pasta com os 6 arquivos .XPT", value="/mnt/user-data/uploads")
+caminho = st.text_input("Pasta com os 10 arquivos .XPT", value="/mnt/user-data/uploads")
 idade_minima = st.slider("Idade mínima (filtra para adultos — critério ADA de diabetes não se aplica a crianças)", 0, 40, value=20)
 
 if st.button("Carregar NHANES", type="primary"):

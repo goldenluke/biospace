@@ -39,9 +39,19 @@ _LIMIAR_GLICEMIA_PRE_DIABETES = 100.0
 
 
 def _raw_value(vector: "RepresentationVector", domain_name: str, feature_name: str) -> Optional[float]:
+    """
+    BUG REAL CORRIGIDO: a versão anterior fazia
+    `f.raw_value if f.raw_value is not None else f.value` -- para uma
+    Feature AUSENTE (`is_missing=True`), `f.value` vale 0.0 (não None,
+    ver `zscore_features`), então essa função nunca devolvia None de
+    verdade para ausência real, sempre 0.0 silenciosamente. Isso tornava
+    o ramo "indeterminado" de `classify_diabetes_status` inalcançável
+    (pacientes sem HbA1c NEM glicemia caíam em "normal" em vez de
+    "indeterminado") -- corrigido checando `is_missing` explicitamente.
+    """
     for f in vector.components.get(domain_name, []):
         if f.name == feature_name:
-            return f.raw_value if f.raw_value is not None else f.value
+            return None if f.is_missing else f.raw_value
     return None
 
 
@@ -105,4 +115,62 @@ def classify_metabolic_syndrome_risk(vector: "RepresentationVector") -> dict:
         "n_criterios_presentes": n_criterios,
         "risco_elevado": n_criterios >= 2,  # limiar ajustado (4 criterios disponiveis, nao 5 -- ver docstring)
         "adaptacao_reconhecida": "Critério adaptado do NCEP ATP III -- sem triglicerídeos/HDL, usa IMC como proxy adicional.",
+    }
+
+
+def classify_metabolic_syndrome_risk_full(vector: "RepresentationVector") -> dict:
+    """
+    Critério NCEP ATP III COMPLETO (>=3 de 5), sexo-específico onde o
+    critério clínico original exige -- diferente de
+    `classify_metabolic_syndrome_risk` (a versão adaptada de 4
+    critérios, sem lipídios). Requer LipidDomain (colesterol, HDL,
+    triglicerídeos) e `sexo` em AnthropometricDomain, ambos só
+    disponíveis a partir dos arquivos NHANES P_BIOPRO/P_TCHOL/P_HDL/
+    P_TRIGLY -- se ausentes, o critério correspondente fica indefinido
+    (não conta nem a favor nem contra), nunca assumido.
+
+    5 critérios (Grundy et al., 2005 — AHA/NHLBI): circunferência
+    abdominal >102cm(M)/>88cm(F); triglicerídeos >=150mg/dL; HDL
+    <40mg/dL(M)/<50mg/dL(F); pressão >=130/85mmHg; glicemia de jejum
+    >=100mg/dL. Retorna dict auditável, igual à versão adaptada.
+    """
+    circunferencia = _raw_value(vector, "anthropometric", "circunferencia_abdominal_cm")
+    sexo = _raw_value(vector, "anthropometric", "sexo")  # NHANES: 1.0=masculino, 2.0=feminino
+    sistolica = _raw_value(vector, "cardiovascular", "pressao_sistolica_mmhg")
+    diastolica = _raw_value(vector, "cardiovascular", "pressao_diastolica_mmhg")
+    glicemia = _raw_value(vector, "glycemic", "glicemia_jejum_mg_dl")
+    trigliceridios = _raw_value(vector, "lipid", "trigliceridios_mg_dl")
+    hdl = _raw_value(vector, "lipid", "hdl_mg_dl")
+
+    limiar_cintura = None
+    if sexo == 1.0:
+        limiar_cintura = 102.0
+    elif sexo == 2.0:
+        limiar_cintura = 88.0
+
+    limiar_hdl = None
+    if sexo == 1.0:
+        limiar_hdl = 40.0
+    elif sexo == 2.0:
+        limiar_hdl = 50.0
+
+    criterios = {
+        "adiposidade_central": None if (circunferencia is None or limiar_cintura is None) else circunferencia >= limiar_cintura,
+        "trigliceridios_elevados": None if trigliceridios is None else trigliceridios >= 150.0,
+        "hdl_baixo": None if (hdl is None or limiar_hdl is None) else hdl < limiar_hdl,
+        "pressao_elevada": None
+        if (sistolica is None and diastolica is None)
+        else ((sistolica is not None and sistolica >= 130.0) or (diastolica is not None and diastolica >= 85.0)),
+        "glicemia_elevada": None if glicemia is None else glicemia >= 100.0,
+    }
+    criterios_avaliaveis = {k: v for k, v in criterios.items() if v is not None}
+    n_criterios = sum(1 for v in criterios_avaliaveis.values() if v)
+
+    return {
+        "criterios": criterios,
+        "n_criterios_avaliaveis": len(criterios_avaliaveis),
+        "n_criterios_presentes": n_criterios,
+        "risco_elevado": None if len(criterios_avaliaveis) < 3 else n_criterios >= 3,
+        "sexo_disponivel": sexo is not None,
+        "nota": "Critério NCEP ATP III completo (Grundy et al., 2005) -- não uma adaptação. Critérios com dado ausente ficam None, não contam a favor nem contra.",
     }

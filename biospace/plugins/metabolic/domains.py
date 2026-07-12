@@ -21,15 +21,19 @@ from biospace.core import Feature, Measurement, Observable, SemanticDomain
 
 from .observables import (
     CircunferenciaAbdominalObservable,
+    ColesterolTotalObservable,
     CreatininaObservable,
     FrequenciaCardiacaObservable,
     GlicemiaJejumObservable,
     HbA1cObservable,
+    HdlObservable,
     IdadeObservable,
     ImcObservable,
     PressaoDiastolicaObservable,
     PressaoSistolicaObservable,
+    SexoObservable,
     TaxaFiltracaoGlomerularObservable,
+    TrigliceridiosObservable,
 )
 from .reference import Reference, zscore_features
 
@@ -38,6 +42,7 @@ __all__ = [
     "AnthropometricDomain",
     "CardiovascularDomain",
     "RenalDomain",
+    "LipidDomain",
     "ComorbidityDomain",
     "TreatmentDomain",
 ]
@@ -81,11 +86,11 @@ class GlycemicDomain(_ReferenceDomain):
 
 class AnthropometricDomain(_ReferenceDomain):
     name = "anthropometric"
-    description = "Idade, IMC, circunferência abdominal (adiposidade central)"
-    _keys = ["idade", "imc", "circunferencia_abdominal_cm"]
+    description = "Idade, sexo, IMC, circunferência abdominal (adiposidade central)"
+    _keys = ["idade", "sexo", "imc", "circunferencia_abdominal_cm"]
 
     def _make_observables(self):
-        return [IdadeObservable(), ImcObservable(), CircunferenciaAbdominalObservable()]
+        return [IdadeObservable(), SexoObservable(), ImcObservable(), CircunferenciaAbdominalObservable()]
 
 
 class CardiovascularDomain(_ReferenceDomain):
@@ -105,6 +110,18 @@ class RenalDomain(_ReferenceDomain):
 
     def _make_observables(self):
         return [CreatininaObservable(), TaxaFiltracaoGlomerularObservable()]
+
+
+class LipidDomain(_ReferenceDomain):
+    """Perfil lipídico — colesterol total, HDL (maior=melhor, invertido) e triglicerídeos. Triglicerídeos esparso por desenho (só subamostra em jejum no NHANES), tratado como qualquer outra ausência via peso de completude."""
+
+    name = "lipid"
+    description = "Perfil lipídico — colesterol total, HDL (invertido) e triglicerídeos"
+    _keys = ["colesterol_total_mg_dl", "hdl_mg_dl", "trigliceridios_mg_dl"]
+    _invert = {"hdl_mg_dl"}
+
+    def _make_observables(self):
+        return [ColesterolTotalObservable(), HdlObservable(), TrigliceridiosObservable()]
 
 
 class ComorbidityDomain(SemanticDomain):
