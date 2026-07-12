@@ -1,6 +1,7 @@
 from biospace.core import TrajectoryGeometry
 
 from .base import Geometry
+from .cohort_query import GeometricCohort, cohort_around
 from .cosine import Cosine
 from .curvature import MetastabilityReport, Well, detect_metastability, estimate_density_curvature
 from .dtw import DTW
@@ -34,4 +35,6 @@ __all__ = [
     "Well",
     "ollivier_ricci_curvature",
     "graph_curvature_summary",
+    "GeometricCohort",
+    "cohort_around",
 ]

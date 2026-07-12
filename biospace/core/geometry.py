@@ -63,6 +63,22 @@ class Geometry(ABC):
             if sid != system_id and self.distance(ref, space.get(sid).as_vector(order)) <= radius
         ]
 
+    def k_nearest(self, space: RepresentationSpace, system_id: str, k: int) -> list[str]:
+        """
+        Os `k` pontos mais próximos de `system_id` em X (excluindo o
+        próprio), ordenados por distância crescente. Complementar a
+        `neighborhood()`: raio fixo pode devolver 0 ou N vizinhos
+        dependendo da densidade local; k fixo sempre devolve exatamente
+        k (ou menos, se |X|-1 < k), à custa de não ter um raio
+        interpretável fixo.
+        """
+        order = space.order()
+        ref = space.get(system_id).as_vector(order)
+        distancias = sorted(
+            (self.distance(ref, space.get(sid).as_vector(order)), sid) for sid in space.ids() if sid != system_id
+        )
+        return [sid for _, sid in distancias[:k]]
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 

@@ -38,7 +38,7 @@ from .observation import Observable, Observation
 from .operator import LongitudinalOperator, Operator
 from .phenotype import Phenotype
 from .plugin import Plugin
-from .process import PhysiologicalProcess, ProcessCoherenceReport, check_process_coherence
+from .process import PhysiologicalProcess, ProcessCoherenceReport, check_process_coherence, project_to_process_space
 from .representation import Representation, RepresentationVector
 from .representation_space import RepresentationSpace
 from .trajectory import Trajectory
@@ -64,6 +64,7 @@ __all__ = [
     "PhysiologicalProcess",
     "ProcessCoherenceReport",
     "check_process_coherence",
+    "project_to_process_space",
     "DerivedVariable",
     "augment_with_derived_variables",
     "Representation",

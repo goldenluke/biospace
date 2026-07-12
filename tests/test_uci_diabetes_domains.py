@@ -138,3 +138,50 @@ def test_diagnosis_category_domain_handles_missing_diagnosis_slots():
 def test_uci_representation_now_has_four_domains():
     representation = UCIHospitalRepresentation()
     assert set(representation.domain_names()) == {"utilization", "glycemic_testing", "medication_intensity", "diagnosis_category"}
+
+
+def test_demographics_extraction_uses_first_non_missing_value(tmp_path):
+    """
+    TESTE DECISIVO da extração de demografia: paciente 1 tem race="?"
+    no primeiro encontro e um valor real no segundo -- deve usar o
+    valor real (primeiro NÃO ausente), não "?" nem uma string vazia.
+    Paciente 2 tem gender="Unknown/Invalid" -- deve virar None, não uma
+    terceira categoria.
+    """
+    import csv as csv_module
+
+    from biospace.datasets.uci_diabetes import load_uci_diabetes_cohort
+
+    colunas_base = {
+        "weight": "?", "admission_type_id": 1, "discharge_disposition_id": 1, "admission_source_id": 1,
+        "time_in_hospital": 2, "payer_code": "?", "medical_specialty": "?", "num_lab_procedures": 30,
+        "num_procedures": 1, "num_medications": 10, "number_outpatient": 0, "number_emergency": 0,
+        "number_inpatient": 0, "diag_1": "428", "diag_2": "?", "diag_3": "?", "number_diagnoses": 1,
+        "max_glu_serum": "None", "A1Cresult": "None", "metformin": "No", "repaglinide": "No",
+        "nateglinide": "No", "chlorpropamide": "No", "glimepiride": "No", "acetohexamide": "No",
+        "glipizide": "No", "glyburide": "No", "tolbutamide": "No", "pioglitazone": "No",
+        "rosiglitazone": "No", "acarbose": "No", "miglitol": "No", "troglitazone": "No",
+        "tolazamide": "No", "examide": "No", "citoglipton": "No", "insulin": "No",
+        "glyburide-metformin": "No", "glipizide-metformin": "No", "glimepiride-pioglitazone": "No",
+        "metformin-rosiglitazone": "No", "metformin-pioglitazone": "No", "change": "No",
+        "diabetesMed": "No", "readmitted": "NO",
+    }
+    linhas = [
+        {"encounter_id": 1, "patient_nbr": 100, "race": "?", "gender": "Female", "age": "[40-50)", **colunas_base},
+        {"encounter_id": 2, "patient_nbr": 100, "race": "Caucasian", "gender": "Female", "age": "[40-50)", **colunas_base},
+        {"encounter_id": 3, "patient_nbr": 200, "race": "AfricanAmerican", "gender": "Unknown/Invalid", "age": "[60-70)", **colunas_base},
+    ]
+    caminho_csv = tmp_path / "fabricado.csv"
+    with open(caminho_csv, "w", newline="") as f:
+        writer = csv_module.DictWriter(f, fieldnames=list(linhas[0].keys()))
+        writer.writeheader()
+        writer.writerows(linhas)
+
+    cohort, representation = load_uci_diabetes_cohort(str(caminho_csv), include_demographics=True)
+
+    sistema_100 = cohort.systems["uci_100"]
+    assert sistema_100.metadata["race"] == "Caucasian", "Deveria usar o primeiro valor NAO ausente ('?' do 1o encontro ignorado)."
+
+    sistema_200 = cohort.systems["uci_200"]
+    assert sistema_200.metadata["gender"] is None, "'Unknown/Invalid' deveria virar None, nao uma terceira categoria."
+    assert sistema_200.metadata["race"] == "AfricanAmerican"

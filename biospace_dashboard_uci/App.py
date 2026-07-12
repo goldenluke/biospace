@@ -92,6 +92,8 @@ else:
 - **Fenótipos e Readmissão** — a associação mais forte encontrada no projeto
 - **Trajetórias** — pacientes com múltiplos encontros, variável derivada
 - **Dinâmica** — `MeanRevertingEvolutionOperator` na trajetória real, diagnóstico de robustez
+- **Sobrevivência** — Kaplan-Meier/Cox, predição prospectiva por fenótipo de baseline
+- **Alerta Precoce** — critical slowing down, achado negativo real
 - **Paciente** — busca individual
         """
     )

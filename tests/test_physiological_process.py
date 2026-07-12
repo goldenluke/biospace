@@ -122,12 +122,28 @@ def test_features_without_declared_process_are_absent_not_null_key():
     assert "com_processo" in todos_nomes
 
 
-def test_sleep_plugin_has_no_processes_declared_proving_layer_is_optional():
-    """O plugin sleep (real, validado) nunca foi tocado por esta mudanca -- prova de que a camada e' genuinamente opcional, nao uma migracao obrigatoria."""
+def test_sleep_plugin_processes_are_minimal_and_deliberate():
+    """
+    ATUALIZADO: o plugin sleep NÃO é mais totalmente livre de processos
+    -- os 3 observables de frequência cardíaca (fc_minima/media/maxima_bpm)
+    foram deliberadamente marcados com process="cardiovascular_regulation"
+    (o MESMO nome usado por plugins.metabolic) para habilitar comparação
+    cross-disease via projeção em espaço de processo (ver
+    test_cross_disease_functor.py). A opcionalidade da camada continua
+    provada de outro jeito: 7 dos 8 domínios do sleep (todos exceto
+    cardiovascular) continuam sem NENHUM processo declarado -- a
+    mudança foi cirúrgica e deliberada, não uma migração completa.
+    """
     from biospace.plugins.sleep import SleepRepresentation
 
     representation = SleepRepresentation()
-    assert representation.processes() == set(), "O plugin sleep nao deveria ter nenhum processo declarado -- ele nunca foi alterado por esta camada."
+    assert representation.processes() == {"cardiovascular_regulation"}, (
+        "Esperava exatamente 1 processo declarado no sleep (achado documentado, mudança deliberada para o functor cross-disease)."
+    )
+
+    dominios_sem_processo = [d for d in representation.domains if d.name != "cardiovascular"]
+    for dominio in dominios_sem_processo:
+        assert dominio.processes() == set(), f"Domínio '{dominio.name}' não deveria ter processo declarado -- só cardiovascular foi tocado."
 
 
 def test_metabolic_plugin_declares_five_real_processes():

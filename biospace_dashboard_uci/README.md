@@ -31,6 +31,8 @@ encontros) para exploração rápida.
 | Trajetórias | Pacientes com múltiplos encontros (23,4% da coorte), variável derivada (slope) |
 | Paciente | Busca individual, vetor de representação completo |
 | Dinâmica | `MeanRevertingEvolutionOperator` na trajetória real multi-encontro, diagnóstico de robustez |
+| Sobrevivência | Kaplan-Meier/Cox — predição prospectiva por fenótipo de baseline, nuancia o achado transversal publicado |
+| Alerta Precoce | Critical slowing down — achado negativo real, com interpretação honesta do limite de dado |
 
 ## Achado novo: dinâmica estável, sem artefato de outlier
 

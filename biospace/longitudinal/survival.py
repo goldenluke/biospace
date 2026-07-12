@@ -13,6 +13,25 @@ tratamento estatístico padrão de dados de sobrevivência, não um dado
 Implementação própria do estimador de Kaplan-Meier (sem dependência de
 `lifelines`), suficiente para curvas univariadas — consistente com a
 filosofia do projeto de manter o núcleo autocontido.
+
+DISTINÇÃO DE DESIGN vs. `biospace.survival` (registrada explicitamente
+numa auditoria do projeto — os dois módulos coexistem de propósito, não
+por duplicação não resolvida):
+
+- **Este módulo**: tempo = DIAS DE CALENDÁRIO reais (`timestamp` de
+  cada `Observation`). Certo quando os timestamps são genuinamente
+  significativos como intervalo — o caso do plugin sleep. Sem Cox
+  (só Kaplan-Meier univariado), sem dependência externa.
+- **`biospace.survival`** (`build_discrete_time_to_event` +
+  `kaplan_meier_by_group`/`fit_cox_model`, usa `lifelines`): tempo =
+  ÍNDICE ORDINAL (posição na sequência), suporta Cox com covariáveis.
+  Certo quando o timestamp NÃO representa um intervalo real — o caso
+  da UCI Diabetes 130-US Hospitals, onde `encounter_id` é só proxy de
+  ordem cronológica, não data verdadeira. Usar este módulo (o de
+  calendário real) na UCI produziria durações artificiais a partir de
+  datas sintéticas (1 dia por encontro, por construção do loader) —
+  um erro metodológico real que `biospace.survival` foi desenhado
+  para evitar.
 """
 
 from __future__ import annotations

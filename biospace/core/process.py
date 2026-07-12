@@ -33,10 +33,10 @@ from typing import TYPE_CHECKING, Optional, Sequence
 import numpy as np
 
 if TYPE_CHECKING:
-    from .representation import Representation
+    from .representation import Representation, RepresentationVector
     from .representation_space import RepresentationSpace
 
-__all__ = ["PhysiologicalProcess", "ProcessCoherenceReport", "check_process_coherence"]
+__all__ = ["PhysiologicalProcess", "ProcessCoherenceReport", "check_process_coherence", "project_to_process_space"]
 
 
 @dataclass(frozen=True)
@@ -169,3 +169,45 @@ def check_process_coherence(
         )
         report.mannwhitney_p = float(p)
     return report
+
+
+def project_to_process_space(representation: "Representation", vector: "RepresentationVector") -> dict[str, float]:
+    """
+    O MAPEAMENTO DE OBJETOS de um functor de projeção em espaço de
+    processo: leva uma representação — de QUALQUER doença, plugin ou
+    fonte de dados — para um dicionário {nome_do_processo: valor
+    agregado}, agregando por MÉDIA dos z-scores (`Feature.value`, não
+    `raw_value` — precisa estar na mesma escala entre Features de
+    unidades diferentes dentro do mesmo processo, ex.: bpm e mmHg sob
+    "cardiovascular_regulation") das Features não-ausentes de cada
+    processo declarado.
+
+    Processos sem NENHUMA Feature não-ausente não aparecem no
+    resultado — nunca uma chave com valor arbitrário (0.0 ou similar).
+
+    ESCOPO HONESTO: esta função implementa o mapeamento de OBJETOS de
+    um functor categórico (§4.17 do manuscrito) — leva objetos de duas
+    categorias fonte (ex.: representações sleep, representações
+    metabolic) para objetos de uma categoria alvo compartilhada
+    (vetores indexados por processo). NÃO verifica aqui, de forma
+    exaustiva, que TODO morfismo admissível nas categorias fonte tem
+    uma imagem correspondente na categoria alvo que preserva
+    identidade e composição — a propriedade categórica completa de
+    "functor" exige isso para TODOS os morfismos, não apenas o
+    mapeamento de objetos. O que É testado e verificado (ver
+    `tests/test_cross_disease_functor.py`): (1) o mapeamento de objetos
+    é bem definido e determinístico nas duas fontes; (2) uma
+    propriedade do tipo naturalidade — atualizar um domínio NÃO
+    relacionado a um processo não muda a projeção desse processo,
+    ecoando `check_domain_update_independence`; (3) uma demonstração
+    real de comparação cross-disease usando pacientes reais de sleep e
+    NHANES projetados no mesmo processo compartilhado
+    (`cardiovascular_regulation`).
+    """
+    agrupado = representation.features_by_process(vector)
+    resultado: dict[str, float] = {}
+    for processo, features in agrupado.items():
+        valores = [f.value for f in features if not f.is_missing]
+        if valores:
+            resultado[processo] = float(np.mean(valores))
+    return resultado

@@ -75,6 +75,7 @@
       <a href="#principles" class="hover:text-ink transition-colors" data-i18n="nav.principles">Principles</a>
       <a href="#architecture" class="hover:text-ink transition-colors" data-i18n="nav.architecture">Architecture</a>
       <a href="#validation" class="hover:text-ink transition-colors" data-i18n="nav.validation">Validation</a>
+      <a href="#triangulation" class="hover:text-ink transition-colors" data-i18n="nav.triangulation">Triangulation</a>
       <a href="#code" class="hover:text-ink transition-colors" data-i18n="nav.code">Code</a>
     </nav>
     <div class="flex items-center gap-2 sm:gap-3">
@@ -406,24 +407,21 @@ for phenotype in phenotypes:
   <div class="grid lg:grid-cols-2 gap-10">
     <pre class="card rounded-xl p-6 text-[13px] leading-loose overflow-x-auto scrollbar-thin"><code>biospace/
 ├── core/            <span class="text-ink2" data-i18n="arch.tree.core"># mathematical core of the theory</span>
-│   ├── biological_system.py
-│   ├── observation.py
-│   ├── measurement.py
-│   ├── feature.py
-│   ├── domain.py
-│   ├── representation.py
-│   ├── representation_space.py
-│   ├── geometry.py
-│   ├── trajectory.py
-│   ├── phenotype.py
-│   ├── cohort.py
-│   ├── operator.py
-│   └── plugin.py
-├── geometry/        <span class="text-ink2" data-i18n="arch.tree.geo"># Euclidean · Mahalanobis · Wasserstein · Info.</span>
+├── geometry/        <span class="text-ink2" data-i18n="arch.tree.geo"># Euclidean · DTW · Riemannian · geometric cohorts</span>
 ├── phenotyping/     <span class="text-ink2" data-i18n="arch.tree.pheno"># K-Means · HDBSCAN · GMM · Spectral</span>
+├── dynamics/        <span class="text-ink2" data-i18n="arch.tree.dyn"># mean-reverting evolution, stability</span>
+├── early_warning/   <span class="text-ink2" data-i18n="arch.tree.ew"># critical slowing down (Dakos et al. 2012)</span>
+├── survival/        <span class="text-ink2" data-i18n="arch.tree.surv"># Kaplan-Meier · Cox · log-rank</span>
+├── causal/          <span class="text-ink2" data-i18n="arch.tree.causal"># baseline balance · propensity · digital twin</span>
+├── gnn/              <span class="text-ink2" data-i18n="arch.tree.gnn"># graph convolutional networks</span>
+├── representation_learning/ <span class="text-ink2" data-i18n="arch.tree.repl"># autoencoders vs. PCA</span>
+├── prediction/      <span class="text-ink2" data-i18n="arch.tree.pred"># any sklearn-compatible classifier</span>
+├── explainability/  <span class="text-ink2" data-i18n="arch.tree.expl"># SHAP over any trained predictor</span>
+├── risk/ · latent/  <span class="text-ink2" data-i18n="arch.tree.risklatent"># transparent scores · factor analysis</span>
 ├── ontology/        <span class="text-ink2" data-i18n="arch.tree.ont"># auto-generated ontology</span>
-├── longitudinal/    <span class="text-ink2" data-i18n="arch.tree.long"># trajectories, transitions, survival</span>
-└── plugins/         <span class="text-ink2" data-i18n="arch.tree.plug"># per-disease implementations — e.g. sleep</span></code></pre>
+├── longitudinal/    <span class="text-ink2" data-i18n="arch.tree.long"># trajectories, transitions, updates</span>
+├── datasets/        <span class="text-ink2" data-i18n="arch.tree.data"># NHANES · UCI Diabetes loaders</span>
+└── plugins/         <span class="text-ink2" data-i18n="arch.tree.plug"># per-disease implementations — sleep, metabolic</span></code></pre>
     <div class="space-y-6">
       <div>
         <h3 class="font-display font-semibold" data-i18n="arch.1.title">core knows no diseases</h3>
@@ -510,17 +508,37 @@ phenotypes = phenotyper.fit(space)
     <div class="card rounded-xl p-6">
       <p class="eyebrow text-teal text-xs mb-2" data-i18n="valid.nhanes.eyebrow">NHANES · 9,232 adults</p>
       <h3 class="font-display font-semibold text-lg" data-i18n="valid.nhanes.title">Lab-based diagnosis vs. self-report</h3>
-      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="valid.nhanes.body">A laboratory classifier (ADA glycemic criteria) agrees with self-reported diabetes diagnosis at 66.6% sensitivity and 95.6% specificity — consistent with well-documented underdiagnosis. 91.5% of lab-classified pre-diabetes cases carry no self-reported diagnosis at all.</p>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="valid.nhanes.body">A laboratory classifier (ADA glycemic criteria) agrees with self-reported diabetes diagnosis at 75.0% sensitivity and 95.0% specificity — consistent with well-documented underdiagnosis. 91.5% of lab-classified pre-diabetes cases carry no self-reported diagnosis at all.</p>
       <p class="text-sm text-ink2 mt-3 leading-relaxed" data-i18n="valid.nhanes.body2">Physiological process coherence — the hypothesis that HbA1c and glucose correlate more with each other than with unrelated variables — <strong class="text-ink">confirms</strong> in this real population (p = 0.0022), the exact opposite of the same test applied earlier to a synthetic cohort.</p>
     </div>
     <div class="card rounded-xl p-6">
       <p class="eyebrow text-amber text-xs mb-2" data-i18n="valid.uci.eyebrow">UCI Diabetes 130-US Hospitals · 71,518 patients</p>
       <h3 class="font-display font-semibold text-lg" data-i18n="valid.uci.title">Utilization, not medication, predicts readmission</h3>
       <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="valid.uci.body">A phenotype built without age or diagnosis codes — only hospital utilization, sparse glycemic testing and medication intensity — shows nearly double the 30-day readmission rate of the others (8.75% vs. 3.97–4.64%).</p>
-      <p class="text-sm text-ink2 mt-3 leading-relaxed" data-i18n="valid.uci.body2">The highest-risk phenotype is <em>not</em> the one with the most intensive medication regimen — it's the one with the highest <strong class="text-ink">prior</strong> utilization, consistent with established readmission-prediction literature. 23.4% of patients had multiple encounters, producing this project's first real multi-point trajectories.</p>
+      <p class="text-sm text-ink2 mt-3 leading-relaxed" data-i18n="valid.uci.body2">The highest-risk phenotype is <em>not</em> the one with the most intensive medication regimen — it's the one with the highest <strong class="text-ink">prior</strong> utilization, consistent with established readmission-prediction literature. 23.4% of patients had multiple encounters, producing this project's first real multi-point trajectories. Adding a diagnosis-code domain changes this finding — see the manuscript, §10.11 — a live demonstration that representation choice is not neutral, tested within a single data source.</p>
     </div>
   </div>
   <p class="text-xs text-ink2/70 mt-6 font-mono" data-i18n="valid.footnote">Full tables and confusion matrices: see the manuscript, §10.11, and the dedicated paper "Empirical Findings on Type 2 Diabetes Mellitus in Two Independent Real-World Data Sources."</p>
+</section>
+
+<!-- METHOD TRIANGULATION -->
+<section id="triangulation" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="tri.eyebrow">representation, not one algorithm</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="tri.title">Four independent methods, the same honest answer</h2>
+  <p class="text-ink2 max-w-2xl mb-10" data-i18n="tri.subtitle">Because BioSpace is a representation layer, not a model, the same real question can be handed to genuinely different techniques — and when they agree, that agreement means something a single model's score never could.</p>
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card rounded-xl p-6">
+      <p class="eyebrow text-teal text-xs mb-2" data-i18n="tri.question.eyebrow">the question</p>
+      <h3 class="font-display font-semibold text-lg" data-i18n="tri.question.title">Does a patient's first hospital visit predict a future early readmission?</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="tri.question.body">Tested on the UCI Diabetes 130-US Hospitals cohort — baseline-only features (Contract 5.7: never look at a patient's future to build a covariate), four unrelated methods: Cox regression on phenotype, Random Forest, Logistic Regression, and SHAP explainability on the trained forest.</p>
+    </div>
+    <div class="card rounded-xl p-6">
+      <p class="eyebrow text-amber text-xs mb-2" data-i18n="tri.answer.eyebrow">the answer, from all four</p>
+      <h3 class="font-display font-semibold text-lg" data-i18n="tri.answer.title">Near chance — and SHAP shows why</h3>
+      <p class="text-sm text-ink2 mt-2 leading-relaxed" data-i18n="tri.answer.body">Cox concordance and both classifiers' AUC cluster at 0.50–0.53, cross-validated. SHAP resolves the remaining question a bare metric can't: is there a strong signal in one feature the model just isn't exploiting? No — importance is diffuse across all 13 baseline features, never one dominating by more than 20×, unlike a synthetic control where a truly informative feature dominates by 5× or more.</p>
+    </div>
+  </div>
+  <p class="text-xs text-ink2/70 mt-6 font-mono" data-i18n="tri.footnote">Reported with the same weight as any positive finding — a null result four independent methods agree on is still a result. Full numbers: METABOLISM_FINDINGS.md, §10–12 and §16.</p>
 </section>
 
 <!-- CTA / FOOTER -->
@@ -560,7 +578,7 @@ phenotypes = phenotyper.fit(space)
     en: {}, // uses the default textContent already in the HTML
     pt: {
       "nav.meta":"Meta-modelo","nav.domains":"Domínios","nav.geometries":"Geometria","nav.principles":"Princípios",
-      "nav.architecture":"Arquitetura","nav.validation":"Validação","nav.code":"Código","nav.manuscript":"Manuscrito","nav.repo":"Repositório",
+      "nav.architecture":"Arquitetura","nav.validation":"Validação","nav.triangulation":"Triangulação","nav.code":"Código","nav.manuscript":"Manuscrito","nav.repo":"Repositório",
       "hero.eyebrow":"infraestrutura de representação · não uma biblioteca de ML",
       "hero.title":"Um paciente<br> não é um vetor.",
       "hero.body":"Algoritmos nunca observam um paciente. Eles observam uma representação construída a partir de exames, sinais e observações. O BioSpace trata essa representação como um problema científico independente — e a torna executável.",
@@ -609,9 +627,14 @@ phenotypes = phenotyper.fit(space)
       "princ.5.title":"Extensibilidade","princ.5.body":"Novos domínios fisiológicos entram sem modificar a infraestrutura existente.",
       "princ.6.title":"Reutilização","princ.6.body":"A mesma infraestrutura serve a qualquer doença que possa ser observada.",
       "arch.eyebrow":"implementação","arch.title":"Arquitetura do pacote",
-      "arch.tree.core":"# núcleo matemático da teoria","arch.tree.geo":"# Euclidean · Mahalanobis · Wasserstein · Info.",
+      "arch.tree.core":"# núcleo matemático da teoria","arch.tree.geo":"# Euclidean · DTW · Riemanniana · coortes geométricas",
       "arch.tree.pheno":"# K-Means · HDBSCAN · GMM · Spectral","arch.tree.ont":"# ontologia gerada automaticamente",
-      "arch.tree.long":"# trajetórias, transições, sobrevivência","arch.tree.plug":"# implementações por doença — ex.: sleep",
+      "arch.tree.dyn":"# evolução com reversão à média, estabilidade","arch.tree.ew":"# critical slowing down (Dakos et al. 2012)",
+      "arch.tree.surv":"# Kaplan-Meier · Cox · log-rank","arch.tree.causal":"# balanceamento · propensão · gêmeo digital",
+      "arch.tree.gnn":"# redes neurais em grafo","arch.tree.repl":"# autoencoders vs. PCA",
+      "arch.tree.pred":"# qualquer classificador compatível com sklearn","arch.tree.expl":"# SHAP sobre qualquer preditor treinado",
+      "arch.tree.risklatent":"# scores transparentes · análise fatorial","arch.tree.data":"# carregadores de NHANES · UCI Diabetes",
+      "arch.tree.long":"# trajetórias, transições, atualizações","arch.tree.plug":"# implementações por doença — sleep, metabolic",
       "arch.1.title":"core não conhece doenças","arch.1.body":"Todo conhecimento clínico específico vive nos plugins. O núcleo matemático permanece o mesmo para sono, cardiologia ou oncologia.",
       "arch.2.title":"geometry é plugável","arch.2.body":"Como a geometria é independente da representação, trocar de métrica nunca exige reconstruir pacientes.",
       "arch.3.title":"ontology é documentação executável","arch.3.body":"Os domínios semânticos geram automaticamente a ontologia do sistema — a documentação nunca fica desatualizada.",
@@ -628,13 +651,23 @@ phenotypes = phenotyper.fit(space)
       "valid.subtitle":'A mesma <code class="text-sm bg-paper2 rounded px-1.5 py-0.5">MetabolicRepresentation</code> foi testada contra duas fontes independentes, reais e públicas — NHANES (inquérito de saúde nacional) e UCI Diabetes 130-US Hospitals (registros administrativos hospitalares) — com estruturas diferentes o bastante para exigir dois conjuntos de domínios genuinamente distintos, conectados só onde um mecanismo fisiológico real justificava.',
       "valid.nhanes.eyebrow":"NHANES · 9.232 adultos",
       "valid.nhanes.title":"Diagnóstico laboratorial x autorrelato",
-      "valid.nhanes.body":"Um classificador laboratorial (critério glicêmico ADA) concorda com o diagnóstico autorreferido com sensibilidade de 66,6% e especificidade de 95,6% — consistente com subdiagnóstico bem documentado. 91,5% dos casos de pré-diabetes classificados por laboratório não têm nenhum diagnóstico autorreferido.",
+      "valid.nhanes.body":"Um classificador laboratorial (critério glicêmico ADA) concorda com o diagnóstico autorreferido com sensibilidade de 75,0% e especificidade de 95,0% — consistente com subdiagnóstico bem documentado. 91,5% dos casos de pré-diabetes classificados por laboratório não têm nenhum diagnóstico autorreferido.",
       "valid.nhanes.body2":"Coerência de processo fisiológico — a hipótese de que HbA1c e glicemia correlacionam mais entre si que com variáveis não relacionadas — <strong class=\"text-ink\">se confirma</strong> nesta população real (p = 0,0022), o oposto exato do mesmo teste aplicado antes a uma coorte sintética.",
       "valid.uci.eyebrow":"UCI Diabetes 130-US Hospitals · 71.518 pacientes",
       "valid.uci.title":"Utilização, não medicação, prevê readmissão",
       "valid.uci.body":"Um fenótipo construído sem idade nem código de diagnóstico — só utilização hospitalar, testagem glicêmica esparsa e intensidade de medicação — mostra quase o dobro da taxa de readmissão em 30 dias dos demais (8,75% vs. 3,97–4,64%).",
-      "valid.uci.body2":"O fenótipo de maior risco <em>não</em> é o de regime medicamentoso mais intenso — é o de maior utilização <strong class=\"text-ink\">prévia</strong>, consistente com a literatura estabelecida de predição de readmissão. 23,4% dos pacientes tiveram múltiplos encontros, produzindo as primeiras trajetórias reais multi-ponto deste projeto.",
+      "valid.uci.body2":"O fenótipo de maior risco <em>não</em> é o de regime medicamentoso mais intenso — é o de maior utilização <strong class=\"text-ink\">prévia</strong>, consistente com a literatura estabelecida de predição de readmissão. 23,4% dos pacientes tiveram múltiplos encontros, produzindo as primeiras trajetórias reais multi-ponto deste projeto. Adicionar um domínio de código de diagnóstico muda esse achado — ver o manuscrito, §10.11 — uma demonstração ao vivo de que a escolha de representação não é neutra, testada dentro de uma única fonte de dados.",
       "valid.footnote":'Tabelas completas e matrizes de confusão: ver o manuscrito, §10.11, e o artigo dedicado "Achados Empíricos sobre Diabetes Mellitus Tipo 2 em Duas Fontes de Dados Reais e Independentes."',
+      "tri.eyebrow":"representação, não um algoritmo só",
+      "tri.title":"Quatro métodos independentes, a mesma resposta honesta",
+      "tri.subtitle":"Como o BioSpace é uma camada de representação, não um modelo, a mesma pergunta real pode ser entregue a técnicas genuinamente diferentes — e quando elas concordam, essa concordância significa algo que o escore de um único modelo nunca poderia.",
+      "tri.question.eyebrow":"a pergunta",
+      "tri.question.title":"O primeiro encontro hospitalar de um paciente prediz uma readmissão precoce futura?",
+      "tri.question.body":"Testado na coorte UCI Diabetes 130-US Hospitals — só Features de baseline (Contrato 5.7: nunca olhar pro futuro do paciente pra construir uma covariável), quatro métodos sem relação entre si: regressão de Cox por fenótipo, Random Forest, Regressão Logística, e explicabilidade SHAP sobre a floresta treinada.",
+      "tri.answer.eyebrow":"a resposta, dos quatro",
+      "tri.answer.title":"Perto do acaso — e o SHAP mostra por quê",
+      "tri.answer.body":"A concordância de Cox e o AUC dos dois classificadores ficam entre 0,50–0,53, validados por validação cruzada. O SHAP resolve a pergunta que uma métrica sozinha não responde: existe sinal forte numa Feature que o modelo só não está explorando bem? Não — a importância fica difusa entre as 13 Features de baseline, nunca uma dominando as outras por mais de 20×, diferente de um controle sintético onde uma Feature genuinamente informativa domina por 5× ou mais.",
+      "tri.footnote":"Reportado com o mesmo peso que qualquer achado positivo — um resultado nulo que quatro métodos independentes concordam ainda é um resultado. Números completos: METABOLISM_FINDINGS.md, §10–12 e §16.",
       "code.eyebrow":"de ponta a ponta","code.title":"Exemplo completo",
       "apps.eyebrow":"além do sono","apps.title":"Uma infraestrutura, qualquer especialidade",
       "apps.subtitle":"Cada especialidade implementa apenas seus próprios domínios semânticos. Toda a infraestrutura — core, geometria, fenotipagem, longitudinal — permanece inalterada.",

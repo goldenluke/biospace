@@ -156,16 +156,25 @@ class EficienciaDoSono(Observable):
 class FcMinimaBpm(Observable):
     key = "fc_minima_bpm"
     unit = "bpm"
+    # process="cardiovascular_regulation" -- MESMO nome usado por
+    # plugins.metabolic (pressao_sistolica/diastolica, fc_repouso_bpm):
+    # frequência cardíaca é o mesmo mecanismo fisiológico de regulação
+    # autonômica, medido aqui durante o sono, lá em repouso vígil. Esta
+    # é a conexão real, não arbitrária, que habilita comparação
+    # cross-disease via `project_to_process_space` (ver core/process.py).
+    process = "cardiovascular_regulation"
 
 
 class FcMediaBpm(Observable):
     key = "fc_media_bpm"
     unit = "bpm"
+    process = "cardiovascular_regulation"
 
 
 class FcMaximaBpm(Observable):
     key = "fc_maxima_bpm"
     unit = "bpm"
+    process = "cardiovascular_regulation"
 
 
 # --- Texto livre estruturado -------------------------------------------------------------

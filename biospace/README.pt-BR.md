@@ -42,9 +42,9 @@ Retrocompatibilidade testada, não apenas assumida: o plugin sleep
 (real, validado) nunca foi tocado por esta mudança —
 `SleepRepresentation().processes()` continua vazio
 (`tests/test_physiological_process.py::test_sleep_plugin_has_no_processes_declared_proving_layer_is_optional`).
-O plugin metabolic anota 4 processos reais como exemplo concreto
+O plugin metabolic anota 5 processos reais como exemplo concreto
 (`glucose_homeostasis`, `body_composition`, `cardiovascular_regulation`,
-`renal_filtration`), e o teste decisivo
+`renal_filtration`, `lipid_metabolism`), e o teste decisivo
 (`test_features_by_process_crosses_domain_boundary`) prova que a
 agregação funciona cruzando fronteira de domínio de verdade — duas
 Features de domínios DIFERENTES declarando o mesmo processo aparecem
@@ -144,7 +144,7 @@ funciona) — o valor é DETECTAR REGRESSÃO futura, não corrigir bug
 conhecido hoje. Teste decisivo: confirma tanto que domínios não
 relacionados ficam intocados quanto que o domínio DE FATO afetado muda
 — provando que o contrato discrimina de verdade, e uma varredura
-sistemática tocando cada um dos 6 domínios do plugin metabolic, um de
+sistemática tocando cada um dos 7 domínios do plugin metabolic, um de
 cada vez.
 
 **Ainda deliberadamente não implementado**: `DomainPackage` como
@@ -367,7 +367,7 @@ biospace/
     │   └── representation.py, system.py, builders.py, clinical_maps.py
     │
     └── diabetes/    plugin de doença #2 — Tipo 2, inteiramente sintético (rigor arquitetural, não clínico)
-        ├── domains.py                6 domínios (Glycemic, Anthropometric, Cardiovascular, Renal, Comorbidity, Treatment)
+        ├── domains.py                7 domínios (Glycemic, Anthropometric, Cardiovascular, Renal, Lipid, Comorbidity, Treatment) -- reexportados de metabolic, Lipid adicionado depois da refatoração
         ├── latent.py                  InsulinResistanceProxyDomain
         ├── synthetic.py                gerador longitudinal (declínio renal por exposição glicêmica acumulada)
         └── loader.py, representation.py, system.py, builders.py, reference.py
@@ -926,7 +926,7 @@ organiza domínios por significado fisiológico, não por doença
 nomeado e estruturado em torno de "diabetes" como conceito
 organizador, o que contradizia o próprio princípio.
 
-**`plugins/metabolic/`** — mesmos 6 domínios, mesmo domínio latente
+**`plugins/metabolic/`** — mesmos 7 domínios (6 na refatoração original, Lipid adicionado depois), mesmo domínio latente
 (`InsulinResistanceProxyDomain`), mesmo `loader.py`, agora com nomes
 disease-agnostic: `MetabolicSystem`, `MetabolicRepresentation`. Nada
 aqui pergunta ou assume qual doença o paciente tem.

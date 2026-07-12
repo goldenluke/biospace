@@ -13,10 +13,12 @@ pip install -r requirements.txt
 streamlit run App.py
 ```
 
-Requer os 6 arquivos `.XPT` do ciclo Pre-pandemic em
+Requer os 10 arquivos `.XPT` do ciclo Pre-pandemic em
 `/mnt/user-data/uploads` (ou outro caminho informado na tela inicial):
 `P_DEMO.xpt`, `P_GHB.xpt`, `P_GLU.xpt`, `P_BMX.xpt`, `P_BPXO.xpt`,
-`P_DIQ.xpt`. São dados públicos do CDC — baixe em
+`P_DIQ.xpt`, `P_BIOPRO.xpt`, `P_TCHOL.xpt`, `P_HDL.xpt`, `P_TRIGLY.xpt`.
+Os 4 últimos habilitam creatinina/eGFR e perfil lipídico completo
+(síndrome metabólica de 5 critérios). São dados públicos do CDC — baixe em
 https://wwwn.cdc.gov/nchs/nhanes/tutorials/PreliminaryData.aspx se não
 os tiver localmente.
 

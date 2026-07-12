@@ -275,7 +275,9 @@ def _row_to_values(row: pd.Series) -> dict:
     return {k: v for k, v in valores.items() if v is not None and not (isinstance(v, float) and pd.isna(v))}
 
 
-def load_uci_diabetes_cohort(csv_path: str, max_rows: Optional[int] = None, include_diagnosis_category: bool = True) -> tuple[Cohort, UCIHospitalRepresentation]:
+def load_uci_diabetes_cohort(
+    csv_path: str, max_rows: Optional[int] = None, include_diagnosis_category: bool = True, include_demographics: bool = False
+) -> tuple[Cohort, UCIHospitalRepresentation]:
     """
     Agrupa por `patient_nbr` (não `encounter_id`), ordena por
     `encounter_id` dentro de cada paciente (proxy de ordem cronológica),
@@ -287,6 +289,19 @@ def load_uci_diabetes_cohort(csv_path: str, max_rows: Optional[int] = None, incl
 
     `include_diagnosis_category`: ver docstring de `UCIHospitalRepresentation`
     — muda o que a fenotipagem encontra como estrutura dominante.
+
+    `include_demographics`: adiciona `race`, `gender`, `age_range` a
+    `system.metadata` (NÃO como Feature do domínio — deliberado: uma
+    análise de equidade deve perguntar se o fenótipo JÁ CALCULADO por
+    utilização/medicação distribui diferente por grupo demográfico, não
+    misturar demografia na própria fenotipagem, o que apenas
+    re-rotularia a disparidade em vez de revelá-la). `race="?"`
+    (marcador de ausência real do dataset, não NaN) e
+    `gender="Unknown/Invalid"` viram `None`. Usa o PRIMEIRO valor
+    não-ausente de cada paciente -- 1,5% dos pacientes multi-encontro
+    têm `race` inconsistente entre encontros (dado real, provavelmente
+    erro de digitação/reclassificação), desprezível em `gender`
+    (3 de 16.773).
     """
     df = pd.read_csv(csv_path)
     if max_rows is not None:
@@ -300,6 +315,12 @@ def load_uci_diabetes_cohort(csv_path: str, max_rows: Optional[int] = None, incl
     for patient_nbr, grupo in grupos:
         system = UCIHospitalSystem(identifier=f"uci_{patient_nbr}")
         system.metadata = {"paciente_original": str(patient_nbr), "n_encontros": len(grupo)}
+        if include_demographics:
+            racas_validas = [r for r in grupo["race"] if r != "?"]
+            generos_validos = [g for g in grupo["gender"] if g != "Unknown/Invalid"]
+            system.metadata["race"] = racas_validas[0] if racas_validas else None
+            system.metadata["gender"] = generos_validos[0] if generos_validos else None
+            system.metadata["age_range"] = grupo["age"].iloc[0]
         data_base = datetime(2020, 1, 1)
         for i, (_, row) in enumerate(grupo.iterrows()):
             ts = data_base + timedelta(days=i)

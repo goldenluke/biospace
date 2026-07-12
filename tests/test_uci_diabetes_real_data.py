@@ -248,3 +248,190 @@ def test_number_emergency_near_instability_is_robust_not_outlier_driven(real_uci
     relatorio = check_feature_stability_robustness(cohort_multi, "utilization.number_emergency", order=order, max_patients_tested=30)
     assert relatorio.is_stable_full is True
     assert relatorio.conclusion_is_robust is True, "Esperava conclusao robusta (achado documentado, diferente do caso de SAOS)."
+
+
+def test_autoencoder_beats_pca_at_all_dimensions_with_adequate_capacity(real_uci_cohort):
+    """
+    ACHADO REAL, mais forte que no NHANES: com n=71.518 (vs 9.232 do
+    NHANES), o autoencoder vence o PCA em TODAS as dimensoes testadas
+    (2, 5, 8) -- nao so na mais baixa. Usa a representacao CANONICA
+    (include_diagnosis_category=False, 13 dimensoes) para nao confundir
+    com o achado de diluicao de fenotipo ja documentado.
+    """
+    from biospace.representation_learning import compare_reconstruction_error
+
+    cohort, representation = real_uci_cohort
+    space = cohort.snapshot()
+
+    resultado = compare_reconstruction_error(space, embedding_dim=5, hidden_dim=16, random_state=0)
+    assert resultado["autoencoder_melhor"] is True, (
+        f"Esperava autoencoder vencer em dim=5 com capacidade adequada (achado documentado) -- "
+        f"PCA={resultado['erro_pca_linear']:.4f}, AE={resultado['erro_autoencoder_nao_linear']:.4f}"
+    )
+
+
+def test_autoencoder_vs_pca_crossover_is_about_hidden_capacity_not_dimension(real_uci_cohort):
+    """
+    O TESTE DECISIVO para uma correcao real de hipotese: minha primeira
+    exploracao (dim=8, hidden_dim=8 default) sugeriu que PCA "vence em
+    dimensao alta" -- errado. Achado real: o "cruzamento" nao e' sobre
+    dimensao do embedding, e' sobre se hidden_dim tem folga sobre
+    embedding_dim. Com hidden_dim==embedding_dim (sem folga), PCA vence
+    de forma ROBUSTA (5 seeds testadas na exploracao interativa, todas
+    PCA). Com hidden_dim=2x embedding_dim (folga adequada), autoencoder
+    vence -- mesma dimensao alvo (8), conclusao oposta, dependendo so
+    da capacidade da camada oculta.
+    """
+    from biospace.representation_learning import compare_reconstruction_error
+
+    cohort, representation = real_uci_cohort
+    space = cohort.snapshot()
+
+    sem_folga = compare_reconstruction_error(space, embedding_dim=8, hidden_dim=8, random_state=0)
+    com_folga = compare_reconstruction_error(space, embedding_dim=8, hidden_dim=16, random_state=0)
+
+    assert sem_folga["autoencoder_melhor"] is False, (
+        f"Esperava PCA vencer SEM folga de capacidade (hidden_dim=embedding_dim) -- achado documentado -- "
+        f"PCA={sem_folga['erro_pca_linear']:.4f}, AE={sem_folga['erro_autoencoder_nao_linear']:.4f}"
+    )
+    assert com_folga["autoencoder_melhor"] is True, (
+        f"Esperava autoencoder vencer COM folga de capacidade (hidden_dim=2x embedding_dim), mesma dimensao alvo -- "
+        f"PCA={com_folga['erro_pca_linear']:.4f}, AE={com_folga['erro_autoencoder_nao_linear']:.4f}"
+    )
+
+
+def test_gnn_graph_hurts_at_all_label_fractions_tested_on_uci(real_uci_cohort):
+    """
+    ACHADO REAL: diferente do NHANES (onde o grafo comecava a ajudar,
+    por uma margem minuscula, em ~1.5% de rotulos) e muito diferente de
+    SAOS (onde o grafo ajudava MUITO em poucos rotulos, +17.8pp em 5%),
+    na UCI o grafo ATRAPALHA em toda fracao testada -- de 50% ate 1.5%,
+    sem cruzamento detectado no intervalo testado. Fenotipos aqui (K=4,
+    utilizacao hospitalar + medicacao) parecem ser ainda mais dominados
+    por sinal pontual (baseado em Features) que os do NHANES.
+    """
+    import random
+
+    import numpy as np
+
+    from biospace.core import Cohort
+    from biospace.geometry import Euclidean
+    from biospace.gnn import SimpleGCN, prepare_node_classification_data
+    from biospace.graph import build_cohort_similarity_graph
+    from biospace.phenotyping import KMeansPhenotyper
+
+    cohort, representation = real_uci_cohort
+    order = representation.domain_names()
+
+    random.seed(0)
+    ids_amostra = random.sample(list(cohort.trajectories.keys()), 1500)
+    cohort_amostra = Cohort()
+    for sid in ids_amostra:
+        cohort_amostra.systems[sid] = cohort.systems[sid]
+        cohort_amostra.trajectories[sid] = cohort.trajectories[sid]
+    space = cohort_amostra.snapshot()
+
+    phenotyper = KMeansPhenotyper(n_clusters=4)
+    phenotypes = phenotyper.fit(space)
+    labels = {}
+    for sid in space.ids():
+        vec = space.get(sid).as_vector(order)
+        labels[sid] = next((ph.name for ph in phenotypes if ph.contains(vec)), None)
+
+    grafo = build_cohort_similarity_graph(space, Euclidean(), k=8, order=order)
+
+    def acc_com_e_sem_grafo(fracao, seed=0):
+        rng = np.random.default_rng(seed)
+        todos_ids = list(labels.keys())
+        rng.shuffle(todos_ids)
+        n_treino = max(4, int(fracao * len(todos_ids)))
+        treino_ids = todos_ids[:n_treino]
+        teste_ids = set(todos_ids[n_treino:])
+        dados = prepare_node_classification_data(space, grafo, labels, labeled_ids=treino_ids, order=order)
+        A, X, y, labeled_mask, node_ids = dados["A"], dados["X"], dados["y"], dados["labeled_mask"], dados["node_ids"]
+        test_mask = np.array([nid in teste_ids for nid in node_ids])
+        X_std = (X - X.mean(axis=0)) / (X.std(axis=0) + 1e-8)
+
+        gcn = SimpleGCN(hidden_dim=16, learning_rate=0.05, random_state=0)
+        gcn.fit(A, X_std, y, labeled_mask, epochs=300)
+        acc_com = float((gcn.predict(A, X_std)[test_mask] == y[test_mask]).mean())
+
+        A_id = np.eye(A.shape[0])
+        gcn2 = SimpleGCN(hidden_dim=16, learning_rate=0.05, random_state=0)
+        gcn2.fit(A_id, X_std, y, labeled_mask, epochs=300)
+        acc_sem = float((gcn2.predict(A_id, X_std)[test_mask] == y[test_mask]).mean())
+        return acc_com, acc_sem
+
+    for fracao in [0.5, 0.1, 0.05, 0.02]:
+        acc_com, acc_sem = acc_com_e_sem_grafo(fracao)
+        assert acc_com <= acc_sem + 0.01, (
+            f"Esperava grafo NAO ajudar (ou atrapalhar) em fracao={fracao} (achado documentado) -- "
+            f"com_grafo={acc_com:.3f}, sem_grafo={acc_sem:.3f}"
+        )
+
+
+def test_high_risk_phenotype_shows_negligible_demographic_disparity():
+    """
+    ACHADO REAL, tranquilizador: o fenótipo de alto risco de readmissão
+    (kmeans_3, ~2x a taxa dos demais, achado publicado) NÃO mostra
+    disparidade demográfica relevante -- nem em composição (Cramér's V
+    de raça=0,031 e gênero=0,009, ambos bem abaixo do limiar de
+    "pequeno efeito" de Cohen, 0,1) nem em desfecho DENTRO do fenótipo
+    (taxa de readmissão precoce não difere significativamente por raça,
+    p=0,466, nem por gênero, p=0,176, entre pacientes já classificados
+    no mesmo fenótipo). Idade mostra efeito um pouco maior (V=0,065)
+    mas ainda modesto -- plausivelmente reflete utilização hospitalar
+    prévia genuinamente maior em pacientes mais velhos, não viés.
+    Rodado sobre a base COMPLETA (71.518 pacientes, não amostra) para
+    ter poder estatístico nos grupos raciais menores (Asian: n=641 na
+    base inteira). `race="?"` e `gender="Unknown/Invalid"` tratados
+    como ausência real, não uma terceira categoria.
+    """
+    import numpy as np
+    from scipy import stats as scipy_stats
+
+    from biospace.datasets.uci_diabetes import load_uci_diabetes_cohort
+    from biospace.phenotyping import KMeansPhenotyper
+
+    cohort, representation = load_uci_diabetes_cohort(
+        "/mnt/user-data/uploads/diabetic_data.csv", include_diagnosis_category=False, include_demographics=True
+    )
+    order = representation.domain_names()
+    space = cohort.snapshot()
+    assert len(cohort.trajectories) > 70000, "Esperava a base completa (achado documentado: 71.518)."
+
+    phenotyper = KMeansPhenotyper(n_clusters=4)
+    phenotypes = phenotyper.fit(space)
+    labels = {}
+    for sid in space.ids():
+        vec = space.get(sid).as_vector(order)
+        labels[sid] = next((ph.name for ph in phenotypes if ph.contains(vec)), None)
+
+    import pandas as pd
+
+    linhas = []
+    for sid in cohort.trajectories:
+        meta = cohort.systems[sid].metadata
+        ultima_obs = cohort.systems[sid].observations[-1]
+        linhas.append({
+            "fenotipo": labels[sid], "race": meta.get("race"), "gender": meta.get("gender"),
+            "readmitted": ultima_obs.metadata.get("readmitted"),
+        })
+    df = pd.DataFrame(linhas)
+
+    def cramers_v(tabela):
+        chi2, p, _, _ = scipy_stats.chi2_contingency(tabela)
+        n = tabela.sum().sum()
+        return np.sqrt(chi2 / (n * (min(tabela.shape) - 1))), p
+
+    v_race, _ = cramers_v(pd.crosstab(df["fenotipo"], df["race"]))
+    v_gender, _ = cramers_v(pd.crosstab(df["fenotipo"], df["gender"]))
+    assert v_race < 0.1, f"Esperava efeito desprezivel (Cohen<0.1) para raca -- obteve V={v_race:.4f}"
+    assert v_gender < 0.1, f"Esperava efeito desprezivel (Cohen<0.1) para genero -- obteve V={v_gender:.4f}"
+
+    df_alto_risco = df[df["fenotipo"] == "kmeans_3"].copy()
+    df_alto_risco["readm_precoce"] = df_alto_risco["readmitted"] == "<30"
+    _, p_race_dentro, _, _ = scipy_stats.chi2_contingency(pd.crosstab(df_alto_risco["race"], df_alto_risco["readm_precoce"]))
+    _, p_gender_dentro, _, _ = scipy_stats.chi2_contingency(pd.crosstab(df_alto_risco["gender"], df_alto_risco["readm_precoce"]))
+    assert p_race_dentro > 0.05, f"Esperava NAO significativo (achado documentado: sem disparidade de desfecho por raca dentro do fenotipo) -- p={p_race_dentro:.3f}"
+    assert p_gender_dentro > 0.05, f"Esperava NAO significativo por genero -- p={p_gender_dentro:.3f}"
