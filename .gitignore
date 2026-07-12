@@ -12,7 +12,7 @@ tudo.py
 codigo_completo.txt
 
 # BLOQUEIO DE DADOS (O que causa o erro de upload)
-*.csv
+
 *.parquet
 *.shp
 *.shx
