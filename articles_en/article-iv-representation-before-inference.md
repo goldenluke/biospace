@@ -1,0 +1,98 @@
+---
+title: "Representation Before Inference"
+subtitle: "Why Building Computational Representation Spaces Deserves Its Own Theory — a Reading of Marquand et al. (2019)"
+author: "Computational analysis — BioSpace framework"
+date: "July 2026"
+lang: en
+geometry: margin=2.5cm
+fontsize: 11pt
+linestretch: 1.15
+toc: true
+toc-depth: 2
+numbersections: true
+colorlinks: true
+---
+
+# Abstract
+
+Computational medicine today studies, almost exclusively, inference over representations: which algorithm clusters best, which model predicts best, which normative method best maps an individual's deviation. This article argues that representation itself — the function that transforms an observed biological system into a vector or mathematical space over which these algorithms operate — should become, in its own right, an explicit object of scientific investigation, at the same level of methodological seriousness currently reserved for the algorithm. We use as a case study the normative modeling of Marquand et al. (2019, *Molecular Psychiatry*), not because the method is wrong — it is, on the contrary, an unusually careful example of separating sources of uncertainty that most of the literature collapses —, but because even that care begins after a vector x already exists in a space X, without the article asking where that vector comes from. We show that this omission is not a failure of Marquand et al.; it is an assumption shared equally by clustering, survival analysis, deep learning, causal inference, and digital twins, and we generalize a direct consequence of it: if the output of any computational-medicine pipeline is Y = A(R(B)) — an algorithm A applied to a representation R of a biological system B —, then every benchmark comparing A₁(R₁(B)) against A₂(R₂(B)) is comparing representation times algorithm, not the algorithm alone, unless R is explicitly fixed and reported as identical across conditions.
+
+We operationalize this thesis in a framework, BioSpace, and empirically test one instance of the consequence above on two independent real public data sources: NHANES (a national metabolic health survey) and the UCI Diabetes 130-US Hospitals dataset (administrative hospital admission records). On NHANES, holding the representation fixed and swapping only the geometric diagnostic applied to it — from cluster stability (K-Means, Euclidean distance) to structural curvature of the similarity graph —, the same population and the same sample produce opposite answers: highly stable structure by one criterion (ARI=0.957 at K=2) and structure not corroborated by the other (p=0.36), until the representation, not the geometry, is modified. On UCI, holding the representation fixed and swapping only the geometric grouping mechanism — from K-Means partition among multiple simultaneous centroids to a proximity query against a single reference point —, two substantially different populations emerge from the same representation and the same base Euclidean metric (Jaccard index≈0.11 overlap). The same unexamined degree of freedom — geometry, a choice about the representation, not about the algorithm — also governs Marquand et al.'s normative modeling, most applications of which use Gaussian Process Regression, a method entirely defined by a kernel choice never varied in the original article.
+
+# 1. Introduction
+
+Three other computing disciplines went through a transition similar to the one this article proposes for computational medicine. Databases developed relational theory — relational algebra, normal forms, functional dependencies — before speculatively optimizing database engines; the theory came first, and each engine was judged by how faithfully it implemented already-formalized guarantees. Programming languages developed formal semantics — lambda calculus, type systems, operational semantics — before most modern compilers existed; a compiler is, in a sense, a proof that a semantics can be correctly implemented. Computer graphics developed scene-representation theory — meshes, textures, transformation hierarchies — before optimizing rendering algorithms over them.
+
+Computational medicine, as far as we can tell, has largely developed the opposite: a profusion of inference algorithms — clustering, normative modeling, deep learning, causal inference — applied over representations built ad hoc, once per study, rarely formalized or compared as an object in their own right. This article argues that this order should be inverted, or at least balanced: the computational representation of a biological system deserves the same explicit theory, provable properties, and validation criteria that these other disciplines already require of their own representation layers.
+
+We use Marquand et al.'s (2019) normative modeling as a case study because it illustrates this with unusual clarity. The method is, in the stage it chooses to examine, rigorous: the authors insist on not collapsing random variance and epistemic variance into a single number, a distinction most of the subtyping literature ignores. And yet, the entire analysis begins at the point where each individual is already a vector x in a space X. This is not a flaw in the article — it is consistent with the scope normative modeling sets out to have. That is precisely why it serves as a case study: if even work careful enough to separate two sources of uncertainty does not formalize where the object it operates on comes from, that gap is not accidental. It is structural to how computational medicine, today, delimits what counts as part of the analysis.
+
+# 2. Representation as an Independent Degree of Freedom
+
+Usual practice treats building a feature vector as an engineering step — decisions about units, normalization, missing-data handling, variable selection — that precedes "the real analysis" and is rarely reported in the same detail as the subsequent algorithm. We propose treating representation, geometry, and algorithm as three logically independent methodological choices, each capable of changing the final result on its own, even holding the other two identical:
+
+```text
+Representation
+      |
+  Geometry
+      |
+  Inference
+```
+
+Each arrow is a choice, not an automatic consequence of the one before it. The same representation admits multiple, a priori equally valid geometries; the same geometry admits multiple algorithms. The computational subtyping literature routinely varies the algorithm — comparing k-means against Gaussian mixtures, for example — while holding representation and geometry fixed and unexamined, as if they were properties of the problem rather than choices made by the researcher.
+
+Extending this chain to include the observation step that precedes representation itself, the output of any computational-medicine pipeline can be written as
+
+F = A(G(R(O(B))))
+
+where B is the biological system, O is the observation process, R is the representation function, G is the geometry imposed on the resulting space, and A is the inference algorithm — normative, clustering, survival, causal, or any other. None of these algorithms is, in itself, a theory of how the space it operates on should be built. This holds equally for clustering, normative modeling, deep learning, survival analysis, causal inference, and digital twins — and it precisely delimits the problem this article proposes to treat as scientific in its own right.
+
+# 3. The Larger Argument: Every Computational-Medicine Benchmark Compares Representation Times Algorithm
+
+This section generalizes a consequence that follows directly from Section 2, and that is worth isolating because its scope is broader than anything specific to Marquand et al. or to clustering.
+
+If the output of a pipeline is Y = A(R(B)) — an algorithm applied to a representation of a biological system —, then a benchmark comparing
+
+A₁(R₁(B)) against A₂(R₂(B))
+
+does not isolate the algorithm's effect. It compares the product representation × algorithm. Isolating A's effect would require R₁ = R₂, fixed and explicitly reported — a condition the overwhelming majority of comparative studies in medical artificial intelligence neither satisfies nor mentions: each study typically re-engineers its own variables, its own normalization, its own missing-data handling, while comparing different algorithms over that particular set. The result — "algorithm X outperforms algorithm Y on this task" — is, with a frequency the literature rarely acknowledges, a claim about a specific combination of representation and algorithm, not about the algorithm alone. Changing only the representation, holding the algorithm fixed, could reverse the conclusion — and Section 8 demonstrates exactly that, on two independent data sources, changing only the geometry or the geometric mechanism imposed on an identical representation.
+
+This is not an observation restricted to normative modeling, clustering, or computational psychiatry. The same decomposition — observation, representation, geometry, algorithm — equally describes pipelines in computational cardiology, precision oncology, radiomics, genomics, critical care medicine, computational epidemiology, and systems physiology. In none of these fields is representation typically treated as a controlled experimental variable; in all of them, comparative benchmarks between algorithms run the same risk of confounding representation with algorithm.
+
+# 4. A Parallel with Marquand et al.'s Own Method
+
+There is a similarity of principle, not merely of conclusion, between this argument and a central methodological choice in Marquand et al.'s article: the authors refuse to collapse random variance (real, between individuals) and epistemic variance (uncertainty about the model) into a single number, because treating them as one thing produces inferences more confident than they should be. It is the same refusal, in spirit, defended here: not collapsing observation, representation, geometry, and algorithm — four conceptually distinct decisions — into a single, implicit pipeline. The two works, by independent paths, arrive at the same principle: an object composed of distinct parts should not be treated as if it were atomic. We consider this the most sophisticated conceptual connection between the two frameworks.
+
+# 5. An Observation, Not a Theorem
+
+Section 3 is an almost immediate consequence of writing F as a composition of functions — it is worth naming this modesty explicitly, because it is part of the argument, not an incidental caveat. We do not call this a theorem, nor a proposition in the sense mathematics reserves for a result requiring non-trivial proof. It is an observation: if F = A(G(R(O(B)))), a difference observed in F between two conditions is necessarily attributable to a difference in at least one of the four components; comparing only A without fixing and reporting O, R, and G as identical does not uniquely identify the source of the difference. This becomes obvious as soon as the decomposition is written down — and it is precisely because it is obvious, once made explicit, that its systematic absence from method-comparison practice is notable, not trivial.
+
+# 6. Geometry as an Instance: the Same Gap Within Marquand et al.'s Own Method
+
+Geometry is not a property exclusive to clustering algorithms; it is a property of the representation space, and therefore affects any algorithm built over it — including normative modeling. Most of the applications reviewed in Marquand et al.'s article use Gaussian Process Regression, entirely defined by a covariance function — the kernel. The kernel choice is a geometry choice: a specific notion of how "similar" two covariate points are, before any data is observed. An RBF kernel, a linear kernel, and a periodic kernel imply radically different notions of similarity over the same space — exactly as a cluster-stability diagnostic and a structural-curvature diagnostic imply radically different notions of "structure" over the same representation, in our empirical case (Section 8). Marquand et al.'s article does not vary or test this kernel choice. We do not know, and the article does not test, whether a normative model's usefulness depends on it the same way we found detectable structure to depend on the diagnostic or geometric mechanism used — we name this as a direct, testable extension, not as an already-demonstrated result.
+
+# 7. BioSpace: an Implementation of This Thesis
+
+The arguments in Sections 2–6 are independent of any specific framework. BioSpace is the implementation we use to make them testable: a system that formalizes B, O, and R as explicit computational entities — a biological system accumulates dated observations, with traceable provenance and uncertainty; a representation groups these observations into named semantic domains (not interchangeable columns of a table) and normalizes them explicitly and auditably — and that treats geometry (G) as a first-class, interchangeable object over the resulting space, rather than an implicit, never-mentioned Euclidean distance. It is against this implementation that the empirical results below were obtained.
+
+# 8. Empirical Evidence: Fixing Representation, Varying Only Geometry, on Two Independent Sources
+
+We tested the thesis of Sections 2–3 directly, on two real public data sources that are structurally very different from each other — which makes any finding that holds across both more defensible than a finding isolated to a single cohort: NHANES (a cross-sectional metabolic health survey, adults ≥20 years) and the UCI Diabetes 130-US Hospitals dataset (longitudinal administrative hospitalization records, with no real calendar date). In both, we held observation and representation identical across the compared conditions, varying only the geometry or the geometric mechanism.
+
+**NHANES: same representation, two geometric diagnostics, opposite answers — until the representation changes.** Under the standard geometry (Euclidean distance, K-Means), NHANES's metabolic representation produces highly stable clusters: ARI=0.957 at K=2, remaining above the conventional stability threshold (0.7) through K=7 — structure, by this criterion, is far from absent. We applied, over the SAME representation and the same sample, a second geometric diagnostic: Ollivier-Ricci structural curvature of the similarity graph at phenotype boundaries — a stricter criterion than stability, sensitive to local structural tension that a globally stable partition may not reflect. This second diagnostic initially **does not corroborate** the structure the first one found (p=0.36, null, K=2). The disagreement only resolved once we enriched the representation — not the geometry — with an additional physiologically motivated domain (full lipid profile); repeating the identical curvature comparison over the same population and the same graph geometry, the finding reversed to significant (p=0.0012). Same population, same diagnostic geometry across both measurements — only the representation changed between a null and a significant result.
+
+**UCI: same representation, two geometric grouping mechanisms, substantially different populations.** A high-risk phenotype for hospital readmission was identified by K-Means (K=4) over UCI's canonical representation — 6,091 patients. We built a second geometric operationalization of "patients similar to this group," over the SAME representation and the same Euclidean metric underlying K-Means: a k-nearest-neighbor query to that same phenotype's centroid, with identical k. If the two operationalizations captured the same geometric notion of proximity, we would expect high overlap. The observed overlap was low — Jaccard index≈0.11, about 20% — despite identical representation and metric: K-Means partitions by Voronoi cells among the four centroids simultaneously, while the neighborhood query considers only distance to a single reference point, ignoring the others. Two genuinely different geometric mechanisms for defining "similar group," on identical data.
+
+In neither source did the representation, on its own, determine the answer. The same observation, the same representation, the same population: only the geometry — the diagnostic applied to it, on NHANES; the grouping mechanism, on UCI — changes between one condition and another with genuinely different structure. This is Section 3 demonstrated, not merely stated, and demonstrated twice, on sources that share no population, design, or granularity.
+
+# 9. A Precision Correction, and a Proposal for Synthesis
+
+An earlier version of this text proposed using "normative deviation as representation" — imprecise in a way that collapses exactly the distinction this article defends. Normative deviation is not the representation; it is a transformation applied over it:
+
+B → R(B) → N(R(B))
+
+where R is the representation function and N is the normative operator — a function that takes an already-represented point and returns an individual deviation against a reference. N occupies the position of A in this chain, not that of R. Preserving this distinction is what makes the synthesis question testable: if R(B) is built with explicit formal rigor and N is applied over that R(B) instead of over an ad hoc feature vector, does the resulting deviation become more stable, more interpretable, or a stronger predictor? And, returning to Section 6: does the effect of switching geometry (or the geometric diagnostic) documented in Section 8 for clustering repeat when the algorithm is normative modeling? Neither article, alone, answers these questions — but both are the natural test for combining the two frameworks rather than comparing them.
+
+# 10. Conclusion
+
+Computational medicine today studies inference over representations. This article argued that representation itself should become an object of scientific investigation — and generalized why: if the output of any pipeline is a function of representation and algorithm, benchmarks that vary only the algorithm do not isolate what they claim to isolate, equally in cardiology, oncology, genomics, or computational psychiatry. Normative modeling, clustering, survival analysis, deep learning, causal inference, and digital twins are each, in themselves, a theory of inference. **None of them is, in itself, a theory of how the representation space it operates on should be built.** We demonstrated, on two independent real data sources, that this gap is not rhetorical: holding population, observation, and representation identical, and varying only the geometry — or the geometric mechanism — imposed on the space the representation builds, the same scientific question receives different answers, and in neither case would the difference be visible in a comparison that varies only the inference algorithm.

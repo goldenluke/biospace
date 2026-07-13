@@ -1,542 +1,131 @@
 # BioSpace
 
-**A computational representation framework for biological systems**
+**A computational representation layer for biological systems — not an algorithm, not a disease-specific tool.**
 
-BioSpace is an open-source framework for modeling biological systems as explicit computational representations rather than collections of independent variables.
+BioSpace formalizes the idea that a patient's computational representation deserves the same scientific scrutiny as the inference algorithm applied to it. Representation, geometry, and inference are treated as three independent methodological degrees of freedom (`F = A(G(R(B)))`), each testable on its own, each capable of changing the final result while the other two stay fixed.
 
-Instead of treating patients as rows in a table, BioSpace organizes observations into biological domains, producing structured representations that can be explored using machine learning, artificial intelligence, graph algorithms, topology, geometry, and systems medicine.
+This isn't a slogan applied after the fact. It's tested directly, on three real data sources that share no population, design, or granularity — a clinical sleep-apnea cohort, the NHANES national metabolic health survey, and the UCI Diabetes 130-US Hospitals administrative dataset — and the tests include real negative and mixed results, reported with the same weight as the positive ones.
 
-The project separates four fundamental concepts:
+## Start here
 
-- Biological system
-- Computational representation
-- Representation geometry
-- Inference algorithms
+- **[`manuscript.html`](manuscript.html)** — the full formal theory: meta-model, axioms, contracts, geometry, categorical structure, and every empirical validation, in one document.
+- **[`index.html`](index.html)** — a shorter, visual tour of the same material, with a live triangulation demo and links to the article series.
+- **The article series** (5 short papers, English, no references section by request) — from foundations to a single applied methodological question:
+  1. Mathematical Foundations — the meta-model, five axioms, and two functor demonstrations
+  2. Geometry as a Missing Axis — representation held fixed, geometry varied, on two independent real sources
+  3. Generalization Across Diseases — Type 2 diabetes on two structurally incompatible real sources
+  4. Representation Before Inference — a position paper engaging with normative modeling (Marquand et al., 2019)
+  5. Convergence Between Independent Methods as Evidence — the triangulation methodology paper
+- **[`biospace/METABOLISM_FINDINGS.md`](biospace/METABOLISM_FINDINGS.md)** — an 18-section, chronological log of every real finding (positive, negative, and reversed) produced against real data this project.
+- **[`biospace/HISTORY.md`](biospace/HISTORY.md)** — the module-by-module implementation log, phase by phase.
 
-This separation allows the same biological representation to be analyzed using different computational methods without changing the underlying model.
+## Installation
 
----
+```bash
+pip install -r requirements-dev.txt --break-system-packages
+```
 
-# Motivation
+The dashboards each have their own `requirements.txt` (Streamlit + Plotly + the shared scientific stack); install those separately if you only want to run a dashboard, not the full test suite.
 
-Most biomedical AI pipelines follow the same architecture:
+## Quickstart
+
+```python
+from biospace.plugins.metabolic import MetabolicSystem, MetabolicRepresentation, classify_diabetes_status
+from biospace.core import Observation
+from datetime import datetime
+
+system = MetabolicSystem(identifier="patient_001")
+system.observe(Observation(
+    timestamp=datetime(2024, 1, 15), source="lab",
+    values={"hba1c": 7.2, "glicemia_jejum": 145, "idade": 58, "imc": 31.2},
+))
+
+representation = MetabolicRepresentation()
+vector = representation.transform(system, at=datetime(2024, 1, 15))
+
+status = classify_diabetes_status(vector)   # a clinical interpretation, not part of the representation
+print(status)  # "diabetes"
+```
+
+The point of this example: `classify_diabetes_status` never touches raw measurements. It reads `vector`, a representation already built by domain code that has never heard of diabetes. Swap it for `classify_metabolic_syndrome_risk_full` and nothing about `representation` or `system` changes.
+
+## Package structure
 
 ```text
-Clinical Data
-      ↓
-Feature Matrix
-      ↓
-Machine Learning
-      ↓
-Prediction
+biospace/
+├── core/                    # meta-model: BiologicalSystem, Observation, Feature, Representation,
+│                             # RepresentationSpace, Geometry, Trajectory, Phenotype, Cohort, Operator
+├── geometry/                 # Euclidean · DTW · Gromov-Wasserstein · approximate Riemannian ·
+│                             # learned metric (NCA) · relational graph · geometric cohort queries
+├── phenotyping/              # K-Means · HDBSCAN · GMM · Spectral
+├── dynamics/                 # mean-reverting evolution operator, stability, semigroup law
+├── early_warning/            # critical slowing down (Dakos et al. 2012 methodology)
+├── survival/                 # Kaplan-Meier · Cox · log-rank, ordinal-time (no calendar dates)
+├── causal/                   # baseline balance, propensity, digital-twin counterfactuals
+├── gnn/                      # graph convolutional network, pure NumPy
+├── graph/                    # patient similarity graph construction
+├── representation_learning/  # autoencoders vs. PCA, honestly compared
+├── foundation/                # architectural prototype for a shared multi-domain foundation model
+├── prediction/                # any sklearn-compatible classifier over a RepresentationSpace
+├── explainability/            # SHAP over any trained predictor
+├── risk/                      # transparent linear risk scores
+├── latent/                    # genuine factor analysis, not an arbitrary weighted index
+├── anomaly/                   # Isolation Forest · LOF · One-Class SVM
+├── topology/                  # Mapper · persistent homology (Betti numbers, persistence diagrams)
+├── intervention/              # what-if / counterfactual queries over a fitted digital twin
+├── longitudinal/              # trajectory updates, transition analysis, survival (calendar-time)
+├── ontology/                  # auto-generated ontology from domain/observable declarations
+├── datasets/                  # NHANES and UCI Diabetes 130-US Hospitals real-data loaders
+└── plugins/
+    ├── metabolic/             # the real representation: 7 physiological domains, disease-agnostic
+    ├── diabetes/               # a thin re-export layer over metabolic/ — see below
+    └── sleep/                  # the original OSA representation (8 domains, real clinical cohort)
 ```
 
-Although highly successful, this approach usually leaves one important question unanswered:
+Every module has at least one dedicated test file under `tests/`. There is no module in this package with zero test coverage.
 
-> **What exactly is being represented before machine learning begins?**
+### Why `plugins/diabetes/` is nearly empty
 
-BioSpace proposes that computational representation should become an explicit scientific object.
+This is the clearest illustration of the project's central claim. `plugins/metabolic/` represents the endocrine-metabolic system with no reference to diabetes anywhere — seven domains (glycemic, anthropometric, cardiovascular, renal, lipid, comorbidity, treatment), each named by physiological meaning. `plugins/diabetes/` re-exports that representation under old names (`DiabetesSystem is MetabolicSystem`, verified by object identity) and contributes only what is genuinely diabetes-specific: the ADA glycemic classification criterion, and a synthetic generator that simulates a diabetes scenario. Diabetes is a **clinical interpretation** applied over the representation — `B → R(B) → N(R(B))` — never a property of the representation itself. The same representation supports a second, independent interpretation (`classify_metabolic_syndrome_risk_full`, the full NCEP ATP III criterion) with zero modification.
 
-Instead of beginning with algorithms, BioSpace begins by representing biological systems.
+## Data sources
 
-```text
-Biological System
-        ↓
-Computational Representation
-        ↓
-Representation Space
-        ↓
-Geometry
-        ↓
-Inference
-```
+| Source | Kind | Size | Notes |
+|---|---|---|---|
+| SAOS (sleep apnea) | Real clinical cohort | 355 patients, 1,556 exams | The original application case; longitudinal, real calendar dates |
+| NHANES | Real public survey | 9,232 adults ≥20y | Cross-sectional, dense continuous lab variables |
+| UCI Diabetes 130-US Hospitals | Real public administrative records | 71,518 patients, 101,766 encounters | Longitudinal by encounter order (no real dates); none of NHANES's continuous variables |
+| Synthetic diabetes generator | Fabricated, known ground truth | Configurable | Used to validate contracts before any real-data claim |
 
-This architecture allows representation to evolve independently from prediction algorithms.
+No finding in this project is reported from a single source without at least being framed against what a second, structurally different source would need to look like to replicate it.
 
----
+## Formal contracts
 
-# Core Philosophy
+Eleven contracts, each with a dedicated empirical test (not just a formal declaration): Traceability, Semantic Preservation, Compositionality, Continuity, Extensibility, Algorithmic Independence, Temporality, Reproducibility, Versionability, Interoperability, and Population Injectivity. Only representations satisfying all eleven are considered scientifically admissible — a representation that fails even one contract is outside the theory's domain, regardless of whether the code still produces output for it. Full definitions and test references: `manuscript.html`, §5, and `biospace/README.md`.
 
-BioSpace is built around one central idea:
+## Dashboards
 
-> **Representation comes before inference.**
+Four Streamlit dashboards, 49 pages total, each with an automated per-page smoke-test script under `scripts/`:
 
-Machine learning should operate on biologically meaningful representations rather than directly on heterogeneous clinical tables.
+| Dashboard | Pages | Source |
+|---|---|---|
+| `biospace_dashboard/` | 19 | SAOS (real clinical cohort) |
+| `biospace_dashboard_diabetes/` | 12 | Synthetic diabetes generator |
+| `biospace_dashboard_nhanes/` | 8 | NHANES (real) |
+| `biospace_dashboard_uci/` | 10 | UCI Diabetes 130-US Hospitals (real) |
 
-The framework therefore models:
+Run any of them with `streamlit run App.py` from inside the corresponding directory. Verify a dashboard's pages load and its buttons don't throw with `python3 scripts/check_dashboard<_name>.py` before assuming a change works — several real bugs in this project were only caught by clicking a button in a test, not by the page loading successfully.
 
-- biological systems
-- physiological domains
-- observations
-- measurements
-- computational representations
-- cohorts
-- trajectories
-- phenotypes
+## Tests
 
-as first-class computational objects.
+361 tests, `pytest tests/`. A handful require real uploaded data files (NHANES `.XPT` files, the UCI `diabetic_data.csv`) and are skipped automatically if those files aren't present — see `tests/test_uci_diabetes_real_data.py`, `tests/test_nhanes_real_data.py`, `tests/test_survival.py`, and `tests/test_critical_slowing_down.py`. Every module built this project was validated first against synthetic data with known ground truth, then — where a real source existed — against real data, with the real-data result reported honestly whether or not it confirmed the synthetic expectation.
 
----
+## Known limitations
 
-# Biological Systems
+- No real long-term mortality or cardiovascular-event outcome in any of the three real sources — UCI's readmission is the closest thing to a hard outcome, and it's short-term.
+- Temporal-discretization invariance for the evolution operator's φ does **not** hold — confirmed by direct test, not assumed. Comparing φ fitted at different observation frequencies is not, today, a valid operation.
+- DTW, as implemented here, violates the triangle inequality — confirmed against a published counterexample (Tralie et al., 2022), not merely cited from the general literature. Treated as a dissimilarity, not a metric, throughout.
+- The relational-geometry (graph) advantage found on SAOS did **not** replicate in the same direction on NHANES or UCI — reported as a genuinely mixed result in Article II, not smoothed over.
+- Roughly half of the AI-technique taxonomy this project has been checked against (deep learning proper, knowledge-graph embeddings, RNN/LSTM forecasting, reinforcement learning, federated learning, few-shot, multimodal, foundation models, formal ontology linkage) remains unimplemented — mostly because the data this project has doesn't support them yet (no sequential treatment decisions, no multi-institution data, no imaging/text/genomics), not because they were forgotten.
 
-A biological system is the primary object of the framework.
-
-Instead of representing patients as data frames,
-
-```python
-X = patient_features
-```
-
-BioSpace represents an actual biological entity.
-
-```python
-patient = BiologicalSystem("P001")
-```
-
-The biological system becomes responsible for organizing observations collected throughout time.
-
----
-
-# Physiological Domains
-
-Observations are grouped according to physiology rather than spreadsheet columns.
-
-Example:
-
-```text
-Patient
-
-├── Metabolism
-│      ├── Glucose
-│      ├── HbA1c
-│      └── Insulin
-│
-├── Cardiovascular
-│      ├── Blood Pressure
-│      └── Heart Rate
-│
-├── Respiratory
-│      ├── ODI
-│      ├── AHI
-│      └── SpO₂
-│
-└── Anthropometry
-       ├── BMI
-       ├── Weight
-       └── Waist Circumference
-```
-
-Domains can be independently developed and combined into complete biological representations.
-
----
-
-# Computational Representation
-
-Each biological system is transformed into an explicit computational representation.
-
-```python
-representation = BioSpace.encode(patient)
-```
-
-The representation becomes the primary object consumed by downstream algorithms.
-
-Algorithms no longer define the representation.
-
-They operate on it.
-
----
-
-# Representation Space
-
-Every encoded biological system occupies a position inside a common representation space.
-
-```text
-          ● Patient A
-
-     ● Patient B
-
-               ● Patient C
-
- ● Patient D
-```
-
-Distances inside this space represent biological similarity rather than merely numerical similarity.
-
----
-
-# Cohorts
-
-BioSpace treats cohorts as mathematical objects.
-
-Traditional approach:
-
-```sql
-SELECT *
-FROM patients
-WHERE HbA1c > 6.5
-```
-
-BioSpace:
-
-```python
-cohort = space.region(
-    center=metabolic_cluster,
-    radius=0.8
-)
-```
-
-A cohort becomes a region of the representation space.
-
----
-
-# Computational Phenotypes
-
-Phenotypes emerge from the representation.
-
-```python
-phenotypes = space.discover_phenotypes()
-```
-
-Different clustering algorithms may explore the same representation.
-
-For example:
-
-- HDBSCAN
-- K-Means
-- Spectral Clustering
-- Gaussian Mixture Models
-- Graph Community Detection
-
-The representation remains unchanged.
-
-Only the inference operator changes.
-
----
-
-# Temporal Representation
-
-BioSpace natively supports longitudinal biological systems.
-
-Instead of representing a patient as a single point,
-
-the framework represents trajectories.
-
-```python
-patient.observe(
-    date="2022",
-    glucose=110
-)
-
-patient.observe(
-    date="2023",
-    glucose=128
-)
-
-patient.observe(
-    date="2024",
-    glucose=165
-)
-```
-
-The resulting representation becomes
-
-```text
-R(B, t)
-```
-
-allowing longitudinal analysis, trajectory mining and disease progression studies.
-
----
-
-# Scientific Contracts
-
-BioSpace introduces the concept of scientific contracts.
-
-Representations are automatically verified to ensure desirable mathematical properties.
-
-Current contracts include:
-
-- Continuity
-- Temporal consistency
-- Provenance
-- Interoperability
-- Causality
-- Contract preservation
-
-Rather than relying on implementation conventions, these properties are continuously tested.
-
----
-
-# Architecture
-
-```text
-                    Biological System
-                            │
-                            ▼
-                  Physiological Domains
-                            │
-                            ▼
-                     Observations
-                            │
-                            ▼
-                     Measurements
-                            │
-                            ▼
-             Computational Representation
-                            │
-                            ▼
-                Representation Space
-                            │
-            ┌───────────────┼────────────────┐
-            ▼               ▼                ▼
-         Cohorts       Phenotypes      Trajectories
-            │               │                │
-            └───────────────┼────────────────┘
-                            ▼
-                     AI Algorithms
-```
-
----
-
-# Current Applications
-
-BioSpace has already been applied to several biomedical domains.
-
-## Metabolism
-
-Type 2 Diabetes
-
-Datasets:
-
-- NHANES
-- UCI Diabetes Dataset
-
-Applications include:
-
-- computational phenotyping
-- cohort construction
-- metabolic representation
-- exploratory analysis
-- dashboards
-
----
-
-## Sleep Medicine
-
-Obstructive Sleep Apnea Syndrome (OSA)
-
-Applications include:
-
-- respiratory representation
-- computational phenotypes
-- transition analysis
-- trajectory analysis
-- patient similarity
-
----
-
-# Artificial Intelligence Applications
-
-Because BioSpace separates representation from inference, virtually any AI algorithm can operate on the representation.
-
-Examples include:
-
-## Machine Learning
-
-- Random Forest
-- XGBoost
-- CatBoost
-- LightGBM
-- Logistic Regression
-- SVM
-
-## Deep Learning
-
-- MLP
-- TabNet
-- FT-Transformer
-- Neural Networks
-
-## Representation Learning
-
-- Autoencoders
-- Variational Autoencoders
-- Contrastive Learning
-- Self-Supervised Learning
-
-## Geometric Deep Learning
-
-- Graph Neural Networks
-- Graph Attention Networks
-- GraphSAGE
-- Graph Transformers
-
-## Clustering
-
-- HDBSCAN
-- K-Means
-- Spectral Clustering
-- Gaussian Mixture Models
-
-## Topological Data Analysis
-
-- Persistent Homology
-- Mapper
-- Persistence Diagrams
-
-## Survival Analysis
-
-- Kaplan-Meier
-- Cox Models
-- Random Survival Forest
-
-## Causal AI
-
-- Structural Causal Models
-- DAGs
-- Counterfactual Analysis
-
-## Digital Twins
-
-- Intervention Simulation
-- Treatment Response
-- What-if Analysis
-
----
-
-# Future Directions
-
-BioSpace is currently evolving toward several advanced capabilities.
-
-## Biomedical Ontologies
-
-Automatic integration with:
-
-- LOINC
-- SNOMED CT
-- ICD
-- FHIR
-
-Example:
-
-```python
-Glucose(
-    value=98,
-    loinc="2345-7"
-)
-```
-
----
-
-## Knowledge Graphs
-
-Physiological domains naturally induce semantic graphs connecting:
-
-- biological systems
-- domains
-- observables
-- measurements
-- ontologies
-
----
-
-## Multimodal Representation
-
-Future versions aim to integrate:
-
-- laboratory data
-- medical imaging
-- ECG
-- polysomnography
-- genomics
-- transcriptomics
-- proteomics
-- wearable devices
-- clinical notes
-
----
-
-## Systems Medicine
-
-BioSpace aims to represent multiple physiological systems simultaneously.
-
-Examples:
-
-- metabolism
-- respiratory system
-- cardiovascular system
-- renal system
-- endocrine system
-- neurological system
-
-allowing integrated computational models of human physiology.
-
----
-
-# Scientific Vision
-
-The long-term objective of BioSpace is not simply to provide another biomedical AI framework.
-
-Instead, it seeks to establish computational representation as an independent scientific discipline.
-
-Future research questions include:
-
-- What is the best representation for a biological system?
-- Which geometry best describes disease organization?
-- How should biological similarity be defined?
-- How should computational phenotypes be represented?
-- Can cohorts become permanent mathematical objects?
-- Can representation be validated independently from prediction?
-
----
-
-# Documentation
-
-Project documentation:
-
-https://goldenluke.github.io/biospace/
-
----
-
-# Citation
-
-If you use BioSpace in your research, please cite the associated publications once available.
-
----
-
-# Contributing
-
-Contributions are welcome.
-
-Possible areas include:
-
-- biomedical ontologies
-- representation learning
-- graph learning
-- geometric machine learning
-- systems medicine
-- causal inference
-- multimodal representations
-- digital twins
-- visualization
-- documentation
-- benchmarking
-- R implementation
-- Julia implementation
-
-Please open an issue before implementing major architectural changes.
-
----
-
-# License
-
-This project is released under the MIT License.
-
----
-
-# Status
-
-BioSpace is under active research and development.
-
-The framework is evolving toward a general computational theory for biological system representation, where biological systems, representations, geometry, and inference become explicitly separated scientific concepts.
+See `biospace/METABOLISM_FINDINGS.md` for the complete, dated account of every finding — including the bugs found along the way and the published numbers they corrected.
