@@ -9,3 +9,5 @@ POT>=0.9
 networkx>=3.0
 lifelines>=0.27
 shap>=0.44
+kmapper>=2.0
+ripser>=0.6

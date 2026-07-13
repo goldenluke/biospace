@@ -751,3 +751,42 @@ Ver `tests/test_anomaly.py` (8 testes: identificação de outliers
 conhecidos com 3 algoritmos diferentes, rejeição correta de LOF mal
 configurado, tratamento de erro, e o achado real de validação externa
 contra o NHANES completo).
+
+## 18. Análise Topológica de Dados (TDA) — Mapper e homologia persistente, novo, dois achados negativos honestos
+
+Módulo novo, `biospace.topology` — `compute_persistence` (envelope
+sobre `ripser`, homologia persistente/números de Betti) e
+`compute_mapper_graph` (envelope sobre `kmapper`, algoritmo Mapper).
+Validados contra um círculo sintético com topologia CONHECIDA (1
+componente conexa, exatamente 1 "buraco") — a homologia persistente
+encontra corretamente 1 persistência H₁ dominante (>5× maior que a
+segunda); o Mapper, com uma lente sensível à direção (a coordenada x,
+não a norma L2 padrão, que fica quase constante num círculo centrado),
+forma um grafo cíclico verdadeiro — número de arestas igual ao número
+de nós, consistente de forma independente com o H₁=1 já confirmado
+pela homologia persistente.
+
+**Achado real de calibração, no caminho**: com a sobreposição padrão
+inicialmente testada (`perc_overlap=0,3`), o grafo de Mapper formou
+uma árvore quase-ciclo (16 arestas, 17 nós — faltando exatamente 1
+aresta pra fechar o loop), não um ciclo genuíno. Investigado variando
+a sobreposição: 0,4–0,5 fecham o ciclo perfeitamente; 0,6
+sobre-conecta (arestas muito acima dos nós, união espúria de regiões
+não adjacentes). O módulo usa 0,4 como padrão agora, não o 0,3
+originalmente testado.
+
+**Dois achados negativos honestos em dado real**: aplicando homologia
+persistente a amostras reais de 600 pacientes do NHANES e da UCI,
+nenhuma das duas mostrou nenhum buraco topológico (H₁) significativo
+— a maior persistência fica bem abaixo de 1,0 nas duas fontes, com
+decaimento suave entre as maiores persistências, sem o "salto"
+característico de estrutura cíclica genuína (como no círculo
+sintético). Interpretação honesta, não uma prova: as duas populações,
+nesta representação, parecem mais próximas de uma nuvem contínua do
+que de estruturas com ciclos genuínos — consistente com a tese, já
+documentada em outras seções, de um continuum de gravidade metabólica
+em vez de subgrupos discretos com estrutura de retorno.
+
+Ver `tests/test_topology.py` (6 testes: detecção do buraco único no
+círculo sintético, dois blobs sem ciclo, formação do ciclo no grafo de
+Mapper, e o achado negativo real contra o NHANES completo).

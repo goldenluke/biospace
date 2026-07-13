@@ -76,6 +76,7 @@
       <a href="#architecture" class="hover:text-ink transition-colors" data-i18n="nav.architecture">Architecture</a>
       <a href="#validation" class="hover:text-ink transition-colors" data-i18n="nav.validation">Validation</a>
       <a href="#triangulation" class="hover:text-ink transition-colors" data-i18n="nav.triangulation">Triangulation</a>
+      <a href="#series" class="hover:text-ink transition-colors" data-i18n="nav.series">Article Series</a>
       <a href="#code" class="hover:text-ink transition-colors" data-i18n="nav.code">Code</a>
     </nav>
     <div class="flex items-center gap-2 sm:gap-3">
@@ -418,6 +419,8 @@ for phenotype in phenotypes:
 ├── prediction/      <span class="text-ink2" data-i18n="arch.tree.pred"># any sklearn-compatible classifier</span>
 ├── explainability/  <span class="text-ink2" data-i18n="arch.tree.expl"># SHAP over any trained predictor</span>
 ├── risk/ · latent/  <span class="text-ink2" data-i18n="arch.tree.risklatent"># transparent scores · factor analysis</span>
+├── anomaly/         <span class="text-ink2" data-i18n="arch.tree.anom"># Isolation Forest · LOF · One-Class SVM</span>
+├── topology/        <span class="text-ink2" data-i18n="arch.tree.topo"># Mapper · persistent homology</span>
 ├── ontology/        <span class="text-ink2" data-i18n="arch.tree.ont"># auto-generated ontology</span>
 ├── longitudinal/    <span class="text-ink2" data-i18n="arch.tree.long"># trajectories, transitions, updates</span>
 ├── datasets/        <span class="text-ink2" data-i18n="arch.tree.data"># NHANES · UCI Diabetes loaders</span>
@@ -541,6 +544,40 @@ phenotypes = phenotyper.fit(space)
   <p class="text-xs text-ink2/70 mt-6 font-mono" data-i18n="tri.footnote">Reported with the same weight as any positive finding — a null result four independent methods agree on is still a result. Full numbers: METABOLISM_FINDINGS.md, §10–12 and §16.</p>
 </section>
 
+<!-- ARTICLE SERIES -->
+<section id="series" class="px-6 lg:px-10 max-w-7xl mx-auto py-16 border-t border-line reveal">
+  <p class="eyebrow text-teal text-xs mb-3" data-i18n="series.eyebrow">from foundations to application</p>
+  <h2 class="font-display text-3xl font-semibold tracking-tight mb-4" data-i18n="series.title">A six-article series</h2>
+  <p class="text-ink2 max-w-2xl mb-10" data-i18n="series.subtitle">The manuscript is the full technical account. These six articles split the same body of work into independently readable pieces — from the formal theory to a single applied methodological question.</p>
+  <div class="grid md:grid-cols-2 gap-5">
+    <div class="card rounded-xl p-6">
+      <p class="eyebrow text-teal text-xs mb-1">I</p>
+      <h3 class="font-display font-semibold" data-i18n="series.i.title">Mathematical Foundations</h3>
+      <p class="text-sm text-ink2 mt-1" data-i18n="series.i.body">The meta-model, five axioms, metric structure, operator algebra, and two independent functor demonstrations.</p>
+    </div>
+    <div class="card rounded-xl p-6">
+      <p class="eyebrow text-teal text-xs mb-1">II</p>
+      <h3 class="font-display font-semibold" data-i18n="series.ii.title">Geometry as a Missing Axis</h3>
+      <p class="text-sm text-ink2 mt-1" data-i18n="series.ii.body">Holding representation fixed and varying only geometry, tested on two independent real sources — a mixed, honestly reported result.</p>
+    </div>
+    <div class="card rounded-xl p-6">
+      <p class="eyebrow text-teal text-xs mb-1">III</p>
+      <h3 class="font-display font-semibold" data-i18n="series.iii.title">Generalization Across Diseases</h3>
+      <p class="text-sm text-ink2 mt-1" data-i18n="series.iii.body">Type 2 diabetes on two structurally incompatible real sources — including a live demonstration that representation choice changes the finding.</p>
+    </div>
+    <div class="card rounded-xl p-6">
+      <p class="eyebrow text-teal text-xs mb-1">IV</p>
+      <h3 class="font-display font-semibold" data-i18n="series.iv.title">Representation Before Inference</h3>
+      <p class="text-sm text-ink2 mt-1" data-i18n="series.iv.body">A position paper engaging directly with normative modeling — why every comparative benchmark compares representation times algorithm.</p>
+    </div>
+    <div class="card rounded-xl p-6 md:col-span-2">
+      <p class="eyebrow text-teal text-xs mb-1">V</p>
+      <h3 class="font-display font-semibold" data-i18n="series.v.title">Convergence Between Independent Methods as Evidence</h3>
+      <p class="text-sm text-ink2 mt-1" data-i18n="series.v.body">A short methodological paper on the triangulation story above — why a representation-first architecture makes cross-method validation cheap enough to do routinely.</p>
+    </div>
+  </div>
+</section>
+
 <!-- CTA / FOOTER -->
 <section id="repo" class="px-6 lg:px-10 max-w-7xl mx-auto py-20 border-t border-line reveal">
   <div class="rounded-2xl bg-ink text-paper px-8 py-14 lg:px-16 text-center">
@@ -578,7 +615,7 @@ phenotypes = phenotyper.fit(space)
     en: {}, // uses the default textContent already in the HTML
     pt: {
       "nav.meta":"Meta-modelo","nav.domains":"Domínios","nav.geometries":"Geometria","nav.principles":"Princípios",
-      "nav.architecture":"Arquitetura","nav.validation":"Validação","nav.triangulation":"Triangulação","nav.code":"Código","nav.manuscript":"Manuscrito","nav.repo":"Repositório",
+      "nav.architecture":"Arquitetura","nav.validation":"Validação","nav.triangulation":"Triangulação","nav.series":"Série de Artigos","nav.code":"Código","nav.manuscript":"Manuscrito","nav.repo":"Repositório",
       "hero.eyebrow":"infraestrutura de representação · não uma biblioteca de ML",
       "hero.title":"Um paciente<br> não é um vetor.",
       "hero.body":"Algoritmos nunca observam um paciente. Eles observam uma representação construída a partir de exames, sinais e observações. O BioSpace trata essa representação como um problema científico independente — e a torna executável.",
@@ -634,6 +671,7 @@ phenotypes = phenotyper.fit(space)
       "arch.tree.gnn":"# redes neurais em grafo","arch.tree.repl":"# autoencoders vs. PCA",
       "arch.tree.pred":"# qualquer classificador compatível com sklearn","arch.tree.expl":"# SHAP sobre qualquer preditor treinado",
       "arch.tree.risklatent":"# scores transparentes · análise fatorial","arch.tree.data":"# carregadores de NHANES · UCI Diabetes",
+      "arch.tree.anom":"# Isolation Forest · LOF · One-Class SVM","arch.tree.topo":"# Mapper · homologia persistente",
       "arch.tree.long":"# trajetórias, transições, atualizações","arch.tree.plug":"# implementações por doença — sleep, metabolic",
       "arch.1.title":"core não conhece doenças","arch.1.body":"Todo conhecimento clínico específico vive nos plugins. O núcleo matemático permanece o mesmo para sono, cardiologia ou oncologia.",
       "arch.2.title":"geometry é plugável","arch.2.body":"Como a geometria é independente da representação, trocar de métrica nunca exige reconstruir pacientes.",
@@ -668,6 +706,19 @@ phenotypes = phenotyper.fit(space)
       "tri.answer.title":"Perto do acaso — e o SHAP mostra por quê",
       "tri.answer.body":"A concordância de Cox e o AUC dos dois classificadores ficam entre 0,50–0,53, validados por validação cruzada. O SHAP resolve a pergunta que uma métrica sozinha não responde: existe sinal forte numa Feature que o modelo só não está explorando bem? Não — a importância fica difusa entre as 13 Features de baseline, nunca uma dominando as outras por mais de 20×, diferente de um controle sintético onde uma Feature genuinamente informativa domina por 5× ou mais.",
       "tri.footnote":"Reportado com o mesmo peso que qualquer achado positivo — um resultado nulo que quatro métodos independentes concordam ainda é um resultado. Números completos: METABOLISM_FINDINGS.md, §10–12 e §16.",
+      "series.eyebrow":"dos fundamentos à aplicação",
+      "series.title":"Uma série de seis artigos",
+      "series.subtitle":"O manuscrito é o relato técnico completo. Estes artigos dividem o mesmo corpo de trabalho em peças independentemente legíveis — da teoria formal a uma única pergunta metodológica aplicada.",
+      "series.i.title":"Fundamentos Matemáticos",
+      "series.i.body":"O meta-modelo, cinco axiomas, estrutura métrica, álgebra de operadores, e duas demonstrações independentes de functor.",
+      "series.ii.title":"Geometria como Eixo Perdido",
+      "series.ii.body":"Mantendo a representação fixa e variando só a geometria, testado em duas fontes reais independentes — um resultado misto, reportado com honestidade.",
+      "series.iii.title":"Generalização Entre Doenças",
+      "series.iii.body":"Diabetes tipo 2 em duas fontes reais estruturalmente incompatíveis — incluindo uma demonstração ao vivo de que a escolha de representação muda o achado.",
+      "series.iv.title":"Representação Antes da Inferência",
+      "series.iv.body":"Um artigo de posicionamento engajando direto com a modelagem normativa — por que todo benchmark comparativo compara representação vezes algoritmo.",
+      "series.v.title":"Convergência Entre Métodos Independentes Como Evidência",
+      "series.v.body":"Um artigo metodológico curto sobre a história de triangulação acima — por que uma arquitetura representação-primeiro torna validação cruzada entre métodos barata o suficiente pra ser rotina.",
       "code.eyebrow":"de ponta a ponta","code.title":"Exemplo completo",
       "apps.eyebrow":"além do sono","apps.title":"Uma infraestrutura, qualquer especialidade",
       "apps.subtitle":"Cada especialidade implementa apenas seus próprios domínios semânticos. Toda a infraestrutura — core, geometria, fenotipagem, longitudinal — permanece inalterada.",
