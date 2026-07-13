@@ -708,3 +708,46 @@ Ver `tests/test_explainability.py` (6 testes: identificação correta
 da Feature verdadeiramente importante em cenário sintético, tratamento
 de erro, KernelExplainer para modelos não-árvore, e o achado real de
 importância difusa contra a UCI completa).
+
+## 17. Detecção de anomalia — `biospace.anomaly` novo, validação externa forte no NHANES
+
+Módulo novo, `SklearnOutlierDetector` — envelope genérico sobre
+qualquer detector de anomalia compatível com sklearn
+(`IsolationForest`, `LocalOutlierFactor`, `OneClassSVM`), mesmo
+espírito de `SklearnPredictor`. Validado primeiro contra dado
+fabricado com outliers em posição conhecida (3 pontos bem longe de um
+cluster apertado de 47) — os 3 corretamente identificados pelos 3
+algoritmos testados.
+
+**Achado real no caminho**: `LocalOutlierFactor` com `novelty=False`
+(o padrão da classe) só suporta `fit_predict()` sobre o próprio dado
+de ajuste — `.predict()`/`.score_samples()` num `RepresentationSpace`
+diferente depois levantam erro no sklearn. Detectado e recusado no
+construtor do wrapper, com mensagem clara, em vez de deixar o erro
+estourar de forma confusa só quando `is_outlier()` fosse chamado.
+**Segundo achado real**: `OneClassSVM` com `nu` igual à `contamination`
+usada nos outros dois algoritmos (0,06) só detectou 1 dos 3 outliers
+conhecidos, independente do kernel/gamma testado — `nu` não é uma taxa
+de contaminação esperada equivalente a `contamination`; é um limite
+superior de erros de margem e limite inferior de vetores de suporte
+(documentação do sklearn), comportando-se de forma genuinamente
+diferente. Investigado antes de simplesmente ajustar o parâmetro até
+passar — `nu=0,15` funciona de forma confiável nesta configuração,
+documentado como achado, não escondido atrás de um parâmetro ajustado
+silenciosamente.
+
+**Achado real, validação externa forte, no NHANES**: `IsolationForest`
+aplicado à representação metabólica completa (sem usar status de
+diabetes na detecção) marca 2% da população como outlier — e esses
+outliers têm taxa de diabetes de ~90%, contra ~15% entre os pontos
+normais (~6× maior). Não é circular: nada na detecção de anomalia sabe
+o que é diabetes: o padrão emerge porque diabetes descompensado desvia
+em múltiplos domínios correlacionados simultaneamente (glicêmico,
+cardiovascular, renal, lipídico) — exatamente o tipo de desvio
+multivariado que detecção de anomalia captura bem, e que um limiar
+univariado por Feature isolada não capturaria da mesma forma.
+
+Ver `tests/test_anomaly.py` (8 testes: identificação de outliers
+conhecidos com 3 algoritmos diferentes, rejeição correta de LOF mal
+configurado, tratamento de erro, e o achado real de validação externa
+contra o NHANES completo).
