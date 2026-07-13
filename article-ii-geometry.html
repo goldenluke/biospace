@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geometry as an Independent Methodological Axis in the Detection of Computational Structure — BioSpace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#EEF2F1', paper2: '#E4EAE8', ink: '#0E1620', ink2: '#3B4653',
+          line: '#C7D2D1', teal: '#0E7C7B', amber: '#D6912B', violet: '#6C5B9E',
+          rose: '#B85C6B', sky: '#3E7CA6', olive: '#7A8450',
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', 'sans-serif'],
+          body: ['Inter', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', 'monospace'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html{ scroll-behavior:smooth; }
+  body{ background-color:#EEF2F1; }
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; letter-spacing:.14em; text-transform:uppercase; }
+  ::selection{ background:#0E7C7B; color:#F8FAF9; }
+  article h1 { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.6rem; margin-top:3rem; margin-bottom:1rem; color:#0E1620; scroll-margin-top: 6rem; border-top:1px solid #C7D2D1; padding-top:2rem; }
+  article h1:first-of-type { border-top:none; margin-top:0; padding-top:0; }
+  article h2 { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.2rem; margin-top:2rem; margin-bottom:.75rem; color:#0E1620; scroll-margin-top:6rem; }
+  article p { margin-bottom:1.1rem; line-height:1.8; color:#232D3A; }
+  article strong { color:#0E1620; }
+  article ul, article ol { margin: 0 0 1.1rem 1.4rem; line-height:1.8; color:#232D3A; }
+  article li { margin-bottom:.4rem; }
+  article table { width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:.92rem; }
+  article th, article td { border:1px solid #C7D2D1; padding:.5rem .75rem; text-align:left; }
+  article th { background:#E4EAE8; font-family:'IBM Plex Mono',monospace; font-size:.75rem; letter-spacing:.05em; text-transform:uppercase; }
+  article code { font-family:'IBM Plex Mono',monospace; background:#E4EAE8; padding:.1rem .35rem; border-radius:.25rem; font-size:.85em; }
+  article pre { background:#0E1620; color:#EEF2F1; padding:1.25rem; border-radius:.6rem; overflow-x:auto; margin-bottom:1.1rem; }
+  article pre code { background:none; padding:0; color:inherit; }
+  article blockquote { border-left:3px solid #0E7C7B; padding-left:1rem; color:#3B4653; font-style:italic; margin:1.5rem 0; }
+  article hr { border:none; border-top:1px solid #C7D2D1; margin:2.5rem 0; }
+  .scrollbar-thin::-webkit-scrollbar{ width:5px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb{ background:#C7D2D1; border-radius:4px; }
+</style>
+</head>
+<body class="font-body text-ink">
+
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur bg-paper/85 border-b border-line">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2 font-display font-semibold text-lg">
+      <svg width="22" height="22" viewBox="0 0 22 22"><line x1="2" y1="11" x2="20" y2="11" stroke="#0E1620" stroke-width="1.4"/><line x1="11" y1="2" x2="11" y2="20" stroke="#0E1620" stroke-width="1.4"/><circle cx="15" cy="7" r="2.4" fill="#0E7C7B"/><circle cx="8" cy="15" r="2.4" fill="#D6912B"/></svg>
+      BioSpace
+    </a>
+    <a href="index.html#series" class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-ink2 hover:text-teal transition-colors">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 3 3 11M3 11H9M3 11V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to the series
+    </a>
+    <a href="https://github.com/goldenluke/biospace" target="_blank" rel="noopener"
+       class="flex items-center gap-2 bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-teal transition-colors">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.49c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.72-.5.06-.49.06-.49.8.06 1.22.82 1.22.82.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.22 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      Repository
+    </a>
+  </div>
+</header>
+
+<section class="pt-32 pb-10 px-6 lg:px-10 max-w-4xl mx-auto">
+  <p class="eyebrow text-teal text-xs mb-4">article ii — from foundations to application</p>
+  <h1 class="font-display font-semibold text-3xl sm:text-4xl leading-tight tracking-tight text-ink">
+    Geometry as an Independent Methodological Axis in the Detection of Computational Structure
+  </h1>
+  <p class="font-display text-lg sm:text-xl text-ink2 mt-2">A Formal Decomposition of Representation, Geometry, and Inference, Tested on Two Independent Real Public Data Sources</p>
+</section>
+
+<div class="max-w-7xl mx-auto px-6 lg:px-10 pb-8 grid lg:grid-cols-[240px_1fr] gap-12">
+  <nav class="hidden lg:block">
+    <div class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-thin pr-2">
+      <p class="eyebrow text-ink2 text-[11px] mb-3">contents</p>
+      <div class="text-sm">
+<a href="#introduction" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">1. Introduction</a>
+<a href="#a-formal-decomposition" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">2. A Formal Decomposition</a>
+<a href="#methods" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">3. Methods</a>
+<a href="#results" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">4. Results</a>
+<a href="#discussion" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">5. Discussion</a>
+<a href="#limitations" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">6. Limitations</a>
+<a href="#conclusion" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">7. Conclusion</a>
+<a href="#references" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">References</a>
+      </div>
+    </div>
+  </nav>
+  <article class="max-w-3xl">
+<h1 id="abstract">Abstract</h1>
+<p>The lack of reproducibility of clustering-derived subtypes is one of
+the most persistent obstacles in computational phenotyping in medicine —
+documented in psychiatric disorders, chronic respiratory disease,
+sepsis, and autism spectrum disorder, among other conditions, reviewed
+by groups with no obvious disciplinary overlap. Part of the field has
+responded to this problem by moving away from discrete clustering toward
+continuous, model-based alternatives such as normative modeling. We do
+not dispute that diagnosis. We ask a narrower, complementary question:
+when a clustering-based pipeline <em>is</em> used, how much of the
+instability commonly attributed to “the algorithm” or “the disease” is
+actually attributable to the representation and geometry chosen upstream
+of the algorithm — a design decision rarely varied, and almost never
+reported, in the applied literature?</p>
+<p>We formalize this question as a decomposition F = A(G(R(B))),
+separating the biological system (B), its representation (R), the
+geometry imposed on that representation (G), and the inference algorithm
+(A) as four independent methodological degrees of freedom. We test this
+decomposition directly on two structurally distinct real public data
+sources — NHANES (national metabolic health survey, adults ≥20 years)
+and UCI Diabetes 130-US Hospitals (administrative hospital admission and
+readmission records) — without relying on any additional data source to
+carry the central argument.</p>
+<p>On NHANES, holding the representation fixed, the standard geometry
+(Euclidean distance over the feature vector, feeding K-Means) finds
+highly stable clusters (ARI=0.957 at K=2). An alternative geometric
+diagnostic over the SAME representation — structural curvature of the
+similarity graph — initially <strong>does not corroborate</strong> that
+structure (p=0.36, null), until the representation, not the geometry, is
+enriched with an additional physiologically motivated domain — at which
+point the same curvature comparison becomes significant (p=0.0012). On
+UCI, two distinct geometric operationalizations of “cohort of similar
+patients” — K-Means cluster membership versus a k-nearest-neighbor query
+to that same cluster’s centroid, both over the SAME representation and
+the same underlying Euclidean metric — recover substantially different
+populations (Jaccard index≈0.11, ~20% overlap), even though both capture
+real hospital-readmission signal above the population baseline. In
+neither source did a relational geometry (a graph, explored by a graph
+neural network) produce a benefit over an equivalent point-wise
+representation — a negative finding, and a real tension with the common
+intuition that relational structure should always help.</p>
+<p>We do not interpret these findings as evidence that clustering
+“works” as long as the right geometry is chosen — the point is narrower
+and, we think, more useful: representation and geometry are measurable,
+independent contributors to the structure detectable in a computational
+space, and comparisons that vary only the algorithm, holding
+representation and geometry fixed and implicit, are underspecified
+relative to the real space of methodological decisions at play.</p>
+<h1 id="introduction">1. Introduction</h1>
+<p>A growing body of work has documented, independently and across
+disciplines with no obvious overlap, that computational subtypes derived
+from clustering frequently fail to replicate: across different research
+groups, across resamplings of the same population, and across small
+pipeline variations. This convergence is, in itself, a finding — it
+suggests that whatever is driving the instability is not particular to
+any one disease’s biology, but something closer to a shared
+methodological substrate underlying how “phenotype discovery” is
+typically performed.</p>
+<p>One response to this state of affairs is to abandon discrete
+clustering entirely, replacing it with continuous, model-based deviation
+scores relative to a normative reference. This is a well-grounded
+response to a real problem, and nothing that follows is offered as
+competing with it.</p>
+<p>We pursue a narrower and, we think, complementary question. Papers
+reporting unstable clusters, and papers reporting stable ones, typically
+vary the clustering <em>algorithm</em> (K-Means versus Gaussian mixtures
+versus hierarchical methods) while holding each patient’s
+<em>representation</em> — which variables, under what normalization,
+under what notion of distance — essentially fixed, and almost never
+reported as a design decision. If representation and geometry are
+themselves independent sources of variance in the outcome, then
+comparing algorithms while holding representation implicit is not a
+controlled comparison — it is a comparison confounded by an unexamined
+variable.</p>
+<p>We test this directly, on two real public data sources that are
+structurally very different from each other — which makes any finding
+that holds across both more defensible than a finding isolated to a
+single cohort: NHANES (a cross-sectional metabolic health survey) and
+the UCI Diabetes 130-US Hospitals dataset (longitudinal administrative
+hospitalization records, with no real calendar dates, only encounter
+order). Neither was chosen for convenience or because it already
+supported the argument — both were adopted in this project for
+independent reasons (validating generalization across diseases), and the
+geometry findings reported here emerged from the same infrastructure
+already used for other purposes, not from data collected specifically
+for this argument.</p>
+<h1 id="a-formal-decomposition">2. A Formal Decomposition</h1>
+<p>We propose representing a biological system B through an explicit
+function R: B → X, producing a representation space X, and we separate
+what is usually called “the clustering pipeline” into four independent
+components:</p>
+<p><strong>F = A(G(R(B)))</strong></p>
+<p>where R is the representation, G is the geometry (the notion of
+distance or similarity imposed on R(B)), A is the inference algorithm,
+and F is the resulting phenotype assignment. This is not a new claim
+about biology; it is a claim about where methodological degrees of
+freedom live. R and G are typically treated as fixed background
+assumptions — a vector of z-scored clinical variables under Euclidean
+distance — rather than as hypotheses in their own right, comparable in
+status to the choice of A. Our claim is that R and G deserve the same
+explicit scrutiny, and the same systematic variation across candidate
+choices, that the clustering algorithm A conventionally receives.</p>
+<p>This decomposition makes a specific, falsifiable prediction: if
+instability is substantially attributable to G, rather than solely to
+the underlying population structure or to A, then holding a single
+representation R fixed and varying only G should change the
+detectability of stable structure — even though the patients, the
+variables collected on them, and the available algorithm family are
+identical across conditions. Section 4 tests this prediction in two
+complementary ways: by varying the <em>geometric diagnostic</em> applied
+to the same representation (Section 4.1), and by varying the
+<em>geometric grouping mechanism</em> applied to the same representation
+and the same base metric (Section 4.2).</p>
+<h1 id="methods">3. Methods</h1>
+<h2 id="data-sources-and-base-representations">3.1 Data sources and base
+representations</h2>
+<p><strong>NHANES</strong> (National Health and Nutrition Examination
+Survey, pre-pandemic cycle): 9,232 adults ≥20 years, represented by a
+vector organized into clinically motivated semantic domains (glycemic,
+anthropometric, cardiovascular, renal, lipid, comorbidity, treatment),
+each variable normalized by completeness-weighted z-score against the
+population reference. Cross-sectional — a single point per patient.</p>
+<p><strong>UCI Diabetes 130-US Hospitals</strong>: 71,518 patients,
+101,766 administrative hospital encounters, represented by a 3-domain
+vector (hospital utilization, glycemic testing, medication intensity).
+16,773 patients have two or more encounters, enabling longitudinal
+analysis; the source contains no real calendar dates, only encounter
+order.</p>
+<p>In both sources, the representation R used in each geometry
+comparison is held identical across the compared conditions — no
+variable is added or removed when switching geometry within the same
+results section; where the representation is deliberately changed
+(Section 4.1), this is explicitly stated as the manipulated
+variable.</p>
+<h2 id="geometries-and-geometric-mechanisms-compared">3.2 Geometries and
+geometric mechanisms compared</h2>
+<ol type="1">
+<li><strong>Point-wise Euclidean + K-Means</strong> — the default
+geometry: unweighted Euclidean distance over the feature vector, feeding
+cluster assignment via Voronoi partition among K simultaneous
+centroids.</li>
+<li><strong>Structural curvature (Ollivier-Ricci)</strong> — over a
+k-nearest-neighbor graph built on the same vector representation,
+comparing edge curvature within the same phenotype against edges
+crossing the boundary between phenotypes.</li>
+<li><strong>Geometric proximity query (k-nearest-neighbors to a query
+point)</strong> — the same Euclidean distance underlying K-Means, but
+applied as a query to a SINGLE reference point (the centroid of an
+already-identified cluster), not as a simultaneous partition among
+multiple centroids.</li>
+<li><strong>Relational geometry (patient similarity graph)</strong> —
+the same base vector space, converted into a graph whose nodes are
+patients and whose edges connect k-nearest-neighbors, explored by a
+semi-supervised graph neural network.</li>
+</ol>
+<h2 id="evaluation-metrics">3.3 Evaluation metrics</h2>
+<p><strong>Cluster stability</strong>: Adjusted Rand Index (ARI) between
+partitions obtained on independent random halves of the cohort,
+conventional stability threshold ARI ≥ 0.7.</p>
+<p><strong>Structural curvature</strong>: Ollivier-Ricci curvature per
+edge of the similarity graph, compared between edges within the same
+phenotype and edges crossing the phenotype boundary (Mann-Whitney
+test).</p>
+<p><strong>Overlap between geometric grouping mechanisms</strong>:
+Jaccard index and asymmetric overlap fractions between the membership
+set of a K-Means cluster and the membership set of a k-nearest-neighbor
+query to that same cluster’s centroid, with identical k between the two
+definitions.</p>
+<p><strong>Semi-supervised classification performance</strong>: accuracy
+of a graph neural network (Graph Convolutional Network) trained on the
+relational representation, compared against an architecturally identical
+network with message passing disabled, across a range of
+label-availability-fraction conditions.</p>
+<p>All methods were validated against synthetic data with known ground
+truth before any analytic application — for example, the Ollivier-Ricci
+curvature implementation was checked against textbook results (exactly
+zero curvature on a cycle graph, strongly positive curvature on a
+complete graph) before any analytic use.</p>
+<h1 id="results">4. Results</h1>
+<h2
+id="nhanes-the-standard-geometry-finds-stable-structure-but-an-alternative-geometric-diagnostic-initially-does-not-corroborate-it">4.1
+NHANES: the standard geometry finds stable structure, but an alternative
+geometric diagnostic initially does not corroborate it</h2>
+<p>Under the standard geometry (Euclidean + K-Means), NHANES’s metabolic
+representation produces highly stable clusters: ARI=0.957 at K=2,
+remaining above the conventional stability threshold through K=7. By
+this criterion, the standard geometry “works” — the opposite of what is
+usually reported in the phenotype-reproducibility literature.</p>
+<p>We applied, over the SAME representation and the same sample, a
+second geometric diagnostic: structural curvature of the similarity
+graph at phenotype boundaries. If the structure found by K-Means were
+robust in any broader geometric sense, we would expect edges crossing
+the phenotype boundary to show systematically different curvature from
+edges within the same phenotype. The initial test found no such
+difference (p=0.36, null, K=2, sample of 1,500) — a result that, taken
+in isolation, would suggest that the boundary found by K-Means, despite
+being statistically stable under resampling, corresponds to no genuine
+structural tension detectable by a different geometric criterion.</p>
+<p>We did not treat this null as final. Enriching the representation
+with an additional physiologically motivated domain — full lipid profile
+(total cholesterol, HDL, triglycerides) — and repeating the identical
+curvature comparison, over the same population and the same graph
+geometry, the finding reversed: <strong>the same boundary, now with a
+richer representation, shows significant curvature discrimination
+(p=0.0012)</strong>. Neither the geometry nor the population changed
+between the two tests — only R.</p>
+<p><strong>Table 1.</strong> Structure detected in NHANES, by geometric
+diagnostic and representation.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Condition</th>
+<th>Geometric diagnostic</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>6-domain representation</td>
+<td>Cluster stability (ARI, K=2)</td>
+<td>Stable (0.957)</td>
+</tr>
+<tr class="even">
+<td>6-domain representation</td>
+<td>Boundary curvature</td>
+<td>Not significant (p=0.36)</td>
+</tr>
+<tr class="odd">
+<td>7-domain representation (+ lipid)</td>
+<td>Boundary curvature</td>
+<td>Significant (p=0.0012)</td>
+</tr>
+</tbody>
+</table>
+<p>We interpret this as a direct instance, not anticipated when this
+article’s central argument was formulated, of the decomposition in
+Section 2 itself: “detectable structure” is not a fixed property of
+either geometry or representation alone — it is a joint property of the
+two, and changing either one, holding the other fixed, can reverse the
+conclusion.</p>
+<h2
+id="uci-two-geometric-operationalizations-of-cohort-the-same-representation-substantially-different-populations">4.2
+UCI: two geometric operationalizations of “cohort,” the same
+representation, substantially different populations</h2>
+<p>A high-risk phenotype for early hospital readmission was identified
+by K-Means (K=4) over UCI’s canonical 3-domain representation — 6,091
+patients, with a 30-day readmission rate of 8.75% (versus 4.51% in the
+general population, ~1.9× baseline).</p>
+<p>We built a second geometric operationalization of “patients similar
+to this group,” over the SAME representation and the same Euclidean
+metric underlying K-Means: a k-nearest-neighbor query to that same
+phenotype’s centroid — not to a real patient, but to an arbitrary query
+point in the representation space — with k equal to the original
+phenotype’s size. If the two operationalizations were capturing
+essentially the same geometric notion of “proximity,” we would expect
+high overlap between the two patient sets.</p>
+<p>The observed overlap was low: Jaccard index≈0.11, about 20% overlap
+between the two sets, despite identical size and identical base
+representation and metric. This has a direct mathematical explanation,
+not an artifact: K-Means partitions the space by Voronoi cells among the
+K centroids SIMULTANEOUSLY — a point belongs to the cluster of the
+nearest centroid, among all K, not only to the reference centroid —,
+while the k-nearest-neighbor query considers only distance to ONE
+reference point, ignoring the other centroids. These are two genuinely
+different geometric mechanisms for defining “similar group,” not two
+approximations of the same thing, even when operating over identical
+representation and metric.</p>
+<p><strong>Table 2.</strong> Two geometric operationalizations of the
+same high-risk phenotype, UCI.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Cohort definition</th>
+<th>Geometric mechanism</th>
+<th>Size</th>
+<th>30-day readmission rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Original K-Means cluster</td>
+<td>Voronoi partition among 4 centroids</td>
+<td>6,091</td>
+<td>8.75% (~1.9× baseline)</td>
+</tr>
+<tr class="even">
+<td>k-nearest-neighbor query</td>
+<td>Distance to a single reference point (the centroid)</td>
+<td>6,091</td>
+<td>6.70% (~1.5× baseline)</td>
+</tr>
+<tr class="odd">
+<td>—</td>
+<td>Overlap between the two</td>
+<td>Jaccard≈0.11 (~20%)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Both operationalizations capture real signal above the population
+baseline — neither is spurious —, but they define substantially
+different populations. The methodological point is that “using a
+geometry” is not a binary choice: within what would generically be
+called a “geometric approach,” distinct grouping mechanisms produce
+distinct results on identical data.</p>
+<h2
+id="relational-geometry-graph-no-benefit-detected-in-either-source">4.3
+Relational geometry (graph): no benefit detected in either source</h2>
+<p>We tested whether exploiting relational geometry — the patient
+similarity graph, via a semi-supervised graph neural network — improves
+classification relative to a purely point-wise representation (the same
+network, with graph message passing disabled), in both sources, across a
+range of available-label fractions from 1.5% to 50%.</p>
+<p>In neither source did the graph produce a consistent benefit. In
+NHANES, the relational geometry hurts or does not help across nearly the
+entire range tested; a possible positive signal appears only at an
+extreme fraction (~1.5% labeled, n=22), with too small a margin (+0.9
+percentage points) to be reported as conclusive rather than as a
+direction worth dedicated follow-up. In UCI, the graph does not help at
+any fraction tested, with no crossover detected.</p>
+<p>This is a negative finding, and it is worth recording with the same
+weight as the positive findings of Sections 4.1 and 4.2: the common
+intuition that relational structure should always add value over a
+point-wise representation did not hold in either source tested here. A
+plausible interpretation, consistent with the findings of the previous
+sections: in both sources, the point-wise representation under standard
+geometry already resolves substantial structure on its own (Section 4.1:
+NHANES has very stable clusters; Section 4.2: UCI has phenotypes with
+clear readmission signal) — leaving relatively little unresolved
+structure for a relational geometry to recover.</p>
+<h1 id="discussion">5. Discussion</h1>
+<h2 id="relation-to-the-reproducibility-critique">5.1 Relation to the
+reproducibility critique</h2>
+<p>We read our results as consistent with, and offering a partial
+mechanistic account for, the reproducibility problem already established
+across multiple diseases and multiple research groups — but with a
+nuance the reproducibility literature typically does not emphasize:
+geometry is not a one-dimensional axis of “better” or “worse.” NHANES
+shows stable clustering under the standard geometry, but an alternative
+geometric diagnostic initially disagrees with that conclusion on the
+SAME representation — and the disagreement only resolves by varying the
+representation, not the diagnostic geometry. UCI shows that even within
+“geometric approaches,” distinct grouping mechanisms (multi-centroid
+partition versus single-point query) produce substantially different
+populations over identical representation. Neither finding would be
+visible in a comparison that varies only the clustering algorithm,
+holding representation and geometry fixed and unexamined.</p>
+<h2 id="relation-to-normative-modeling">5.2 Relation to normative
+modeling</h2>
+<p>Normative modeling responds to the reproducibility problem by
+changing what the output of phenotyping <em>is</em> — replacing discrete
+cluster membership with a continuous deviation score against a reference
+distribution, sidestepping the requirement that stable discrete
+boundaries exist at all. Our approach responds to a narrower version of
+the same problem without changing the output type: we ask whether,
+<em>given</em> that discrete clustering is being used, the
+representation and geometry feeding into it receive the same scrutiny as
+the algorithm itself. These are not competing answers to the same
+question, but answers to two different questions — “should we be
+clustering at all” and “if we are clustering, what upstream choices does
+the result depend on” — and we would expect a well-specified account of
+computational phenotyping to eventually need both.</p>
+<h2 id="on-the-risk-of-cherry-picked-geometry">5.3 On the risk of
+“cherry-picked geometry”</h2>
+<p>If representation and geometry can be chosen to reveal structure that
+a default choice conceals, the same flexibility could in principle be
+used to manufacture apparent structure that does not exist, simply by
+trying representations and geometries until one produces a stable
+result. The four geometric mechanisms tested here were chosen for
+stating a distinct, nameable structural hypothesis — stability under
+multi-centroid partition, structural tension at a boundary, proximity to
+a single reference point, relational adjacency — not by searching among
+many candidates until one produced the desired result. We report the
+geometries and representations that revealed structure (stable K-Means
+on NHANES; both geometric cohorts on UCI with real signal) alongside
+those that did not, or revealed structure only partially (null curvature
+until R was enriched; the relational graph in neither source), with the
+explicit purpose of making this point verifiable, not merely
+asserted.</p>
+<h2 id="what-would-falsify-this-position">5.4 What would falsify this
+position</h2>
+<p>It is worth explicitly stating what evidence would count against the
+claim made here, since the claim is only useful if it is falsifiable.
+If, across more data sources and more diseases, alternative geometric
+diagnostics applied to the same representation always agreed with each
+other, and different geometric grouping mechanisms always recovered the
+same population — that is, if varying G (holding R fixed) or varying the
+specific geometric mechanism (holding R and the base metric fixed)
+produced no detectable difference at all — that would be evidence that
+geometry is not, in fact, doing independent work, and that the
+instability documented in the literature has other, geometry-independent
+causes. We would consider that a more important result than the one
+reported here, and we would want to know about it.</p>
+<h1 id="limitations">6. Limitations</h1>
+<ol type="1">
+<li><strong>Two data sources, no more.</strong> Although structurally
+very different from each other (cross-sectional versus longitudinal
+administrative; population metabolic health versus hospital
+utilization), both come from United States healthcare contexts;
+generalization to other healthcare systems or populations was not
+tested.</li>
+<li><strong>The set of geometric mechanisms tested does not exhaust the
+space of possible geometries</strong> over the same representation —
+other choices may reveal additional structure not captured here.</li>
+<li><strong>None of the comparisons was validated against independent
+hard clinical outcomes</strong> (cardiovascular events, mortality)
+beyond the hospital readmission already used as an outcome in Section
+4.2; the NHANES curvature comparison (Section 4.1) is entirely about
+internal statistical structure, with no associated clinical
+outcome.</li>
+<li><strong>The representation enrichment that reversed the NHANES
+curvature finding (Section 4.1) was a post-hoc decision</strong>,
+motivated by the initial null result, not pre-registered. We report this
+transparently because the alternative — discarding the null without
+investigating, or not reporting the reversal — would be less honest, but
+we recognize that a pre-registered replication of the representation
+enrichment would strengthen the claim.</li>
+<li><strong>The graph neural network tested in Section 4.3 is one
+architecture among many possible ones</strong>; we do not rule out that
+a different relational architecture could find benefit where this one
+did not.</li>
+</ol>
+<h1 id="conclusion">7. Conclusion</h1>
+<p>We tested, on two structurally very different real public data
+sources, whether representation and geometry function as genuinely
+independent methodological degrees of freedom in the detection of
+computational structure — not only in principle, but with measurable
+practical consequence. On NHANES, the same representation and the same
+population produce opposite conclusions under two different geometric
+diagnostics (cluster stability versus structural curvature), until the
+representation, not the geometry, is changed. On UCI, the same
+representation and the same base Euclidean metric produce substantially
+different populations under two distinct geometric cohort-definition
+mechanisms (multi-centroid partition versus single-point proximity
+query), both capturing real signal, but not the same signal. In neither
+source did a relational geometry produce the benefit that common
+intuition would attribute to it.</p>
+<p>We think the honest summary of these results is not “geometry
+matters” in a generic sense, but the more precise and more useful claim
+the decomposition in Section 2 was built to make from the start:
+representation and geometry are separate, independently manipulable
+degrees of freedom, and the detectability of structure in a
+computational phenotype is a joint property of both — tested here
+without relying on any single data source to carry the argument, and
+available for replication on any third source that satisfies the same
+standard of methodological transparency.</p>
+<h1 id="references">References</h1>
+<p>Hennig, C. (2007). Cluster-wise assessment of cluster stability.
+<em>Computational Statistics &amp; Data Analysis</em>, 52(1),
+258–271.</p>
+<p>Kipf, T. N., &amp; Welling, M. (2017). Semi-Supervised Classification
+with Graph Convolutional Networks. <em>International Conference on
+Learning Representations (ICLR)</em>.</p>
+<p>Marquand, A. F., Kia, S. M., Zabihi, M., Wolfers, T., Buitelaar, J.
+K., &amp; Beckmann, C. F. (2019). Conceptualizing mental disorders as
+deviations from normative functioning. <em>Molecular Psychiatry</em>,
+24(10), 1415–1424.</p>
+<p>Ollivier, Y. (2009). Ricci curvature of Markov chains on metric
+spaces. <em>Journal of Functional Analysis</em>, 256(3), 810–864.</p>
+
+  </article>
+</div>
+
+<div class="max-w-3xl mx-auto lg:ml-[calc(240px+3rem+1.5rem)] px-6 lg:px-0 pb-16 flex items-center gap-4 border-t border-line pt-8">
+  <a href="article-i-foundations.html" class="inline-flex items-center gap-2 text-sm font-medium text-ink2 hover:text-teal transition-colors"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 3 3 11M3 11H9M3 11V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="rotate(180 7 7)"/></svg>Previous article</a>
+  <a href="article-iii-generalization.html" class="inline-flex items-center gap-2 text-sm font-medium text-ink2 hover:text-teal transition-colors ml-auto">Next article<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 3 3 11M3 11H9M3 11V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+</div>
+
+<footer class="border-t border-line px-6 lg:px-10 py-10 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-ink2">
+  <p>BioSpace — a six-article series, from foundations to application.</p>
+  <a href="index.html" class="font-medium text-teal hover:text-ink transition-colors">← Back to biospace overview</a>
+</footer>
+</body>
+</html>

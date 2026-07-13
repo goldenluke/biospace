@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathematical Foundations of the Computational Representation of Biological Systems — BioSpace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#EEF2F1', paper2: '#E4EAE8', ink: '#0E1620', ink2: '#3B4653',
+          line: '#C7D2D1', teal: '#0E7C7B', amber: '#D6912B', violet: '#6C5B9E',
+          rose: '#B85C6B', sky: '#3E7CA6', olive: '#7A8450',
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', 'sans-serif'],
+          body: ['Inter', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', 'monospace'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html{ scroll-behavior:smooth; }
+  body{ background-color:#EEF2F1; }
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; letter-spacing:.14em; text-transform:uppercase; }
+  ::selection{ background:#0E7C7B; color:#F8FAF9; }
+  article h1 { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.6rem; margin-top:3rem; margin-bottom:1rem; color:#0E1620; scroll-margin-top: 6rem; border-top:1px solid #C7D2D1; padding-top:2rem; }
+  article h1:first-of-type { border-top:none; margin-top:0; padding-top:0; }
+  article h2 { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.2rem; margin-top:2rem; margin-bottom:.75rem; color:#0E1620; scroll-margin-top:6rem; }
+  article p { margin-bottom:1.1rem; line-height:1.8; color:#232D3A; }
+  article strong { color:#0E1620; }
+  article ul, article ol { margin: 0 0 1.1rem 1.4rem; line-height:1.8; color:#232D3A; }
+  article li { margin-bottom:.4rem; }
+  article table { width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:.92rem; }
+  article th, article td { border:1px solid #C7D2D1; padding:.5rem .75rem; text-align:left; }
+  article th { background:#E4EAE8; font-family:'IBM Plex Mono',monospace; font-size:.75rem; letter-spacing:.05em; text-transform:uppercase; }
+  article code { font-family:'IBM Plex Mono',monospace; background:#E4EAE8; padding:.1rem .35rem; border-radius:.25rem; font-size:.85em; }
+  article pre { background:#0E1620; color:#EEF2F1; padding:1.25rem; border-radius:.6rem; overflow-x:auto; margin-bottom:1.1rem; }
+  article pre code { background:none; padding:0; color:inherit; }
+  article blockquote { border-left:3px solid #0E7C7B; padding-left:1rem; color:#3B4653; font-style:italic; margin:1.5rem 0; }
+  article hr { border:none; border-top:1px solid #C7D2D1; margin:2.5rem 0; }
+  .scrollbar-thin::-webkit-scrollbar{ width:5px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb{ background:#C7D2D1; border-radius:4px; }
+</style>
+</head>
+<body class="font-body text-ink">
+
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur bg-paper/85 border-b border-line">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2 font-display font-semibold text-lg">
+      <svg width="22" height="22" viewBox="0 0 22 22"><line x1="2" y1="11" x2="20" y2="11" stroke="#0E1620" stroke-width="1.4"/><line x1="11" y1="2" x2="11" y2="20" stroke="#0E1620" stroke-width="1.4"/><circle cx="15" cy="7" r="2.4" fill="#0E7C7B"/><circle cx="8" cy="15" r="2.4" fill="#D6912B"/></svg>
+      BioSpace
+    </a>
+    <a href="index.html#series" class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-ink2 hover:text-teal transition-colors">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 3 3 11M3 11H9M3 11V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to the series
+    </a>
+    <a href="https://github.com/goldenluke/biospace" target="_blank" rel="noopener"
+       class="flex items-center gap-2 bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-teal transition-colors">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.49c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.72-.5.06-.49.06-.49.8.06 1.22.82 1.22.82.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.22 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      Repository
+    </a>
+  </div>
+</header>
+
+<section class="pt-32 pb-10 px-6 lg:px-10 max-w-4xl mx-auto">
+  <p class="eyebrow text-teal text-xs mb-4">article i — from foundations to application</p>
+  <h1 class="font-display font-semibold text-3xl sm:text-4xl leading-tight tracking-tight text-ink">
+    Mathematical Foundations of the Computational Representation of Biological Systems
+  </h1>
+  <p class="font-display text-lg sm:text-xl text-ink2 mt-2">An Axiomatic Meta-Model for Computational Precision Medicine</p>
+</section>
+
+<div class="max-w-7xl mx-auto px-6 lg:px-10 pb-8 grid lg:grid-cols-[240px_1fr] gap-12">
+  <nav class="hidden lg:block">
+    <div class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-thin pr-2">
+      <p class="eyebrow text-ink2 text-[11px] mb-3">contents</p>
+      <div class="text-sm">
+<a href="#introduction" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">1. Introduction</a>
+<a href="#the-formal-meta-model" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">2. The Formal Meta-Model</a>
+<a href="#axiomatic-foundations" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">3. Axiomatic Foundations</a>
+<a href="#algebra-of-operators" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">5. Algebra of Operators</a>
+<a href="#fundamental-theorems" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">6. Fundamental Theorems</a>
+<a href="#invariants" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">7. Invariants</a>
+<a href="#categorical-organization" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">8. Categorical Organization</a>
+<a href="#formal-contracts" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">9. Formal Contracts</a>
+<a href="#discussion-and-conclusion" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">10. Discussion and Conclusion</a>
+<a href="#references" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">References</a>
+      </div>
+    </div>
+  </nav>
+  <article class="max-w-3xl">
+<h1 id="abstract">Abstract</h1>
+<p>In computational medicine, a patient’s representation is typically
+treated as a preprocessing step, subordinate to the inference algorithm
+that follows it — its quality assessed only indirectly, through the
+performance of a downstream classifier or regressor. This article
+defends and formalizes a different position: the computational
+representation of a biological system is a legitimate scientific object,
+whose properties can and should be defined, tested, and refuted
+independently of any specific inference algorithm.</p>
+<p>We present a meta-model with nine formal entities, five fundamental
+axioms (four of which restate properties already tested empirically as
+software contracts), a formalization of the representation space as a
+metric space — with an honest account of which implemented geometries
+satisfy that condition and which do not —, an algebraic characterization
+of admissible operators as a monoid, fundamental theorems connecting the
+framework to classical results in mathematics (the Banach fixed-point
+theorem, continuity), a catalog of invariants — some confirmed
+empirically, one refuted — and a categorical organization demonstrated
+by two independent realizations of a functor between representation
+categories of distinct data sources.</p>
+<p>This is the first of a planned series of articles. The following ones
+report empirical validation on Type 2 Diabetes Mellitus, using two
+structurally independent real public data sources (NHANES, a
+cross-sectional metabolic health survey; and UCI Diabetes 130-US
+Hospitals, longitudinal administrative hospitalization records).</p>
+<h1 id="introduction">1. Introduction</h1>
+<p>Most of the machine-learning-for-healthcare literature treats patient
+representation as an engineering artifact: a feature table, chosen
+pragmatically to feed a predictive model. When the representation
+changes — a different set of variables, a different normalization, a
+different missing-data encoding — this is typically logged as a
+different version of the pipeline, not as a change in a mathematical
+object with its own properties, verifiable independently of whichever
+model comes afterward.</p>
+<p>The BioSpace framework starts from a different central hypothesis:
+the computational representation of a biological system — not the
+algorithm that operates on it — is the correct unit of scientific rigor.
+If this hypothesis is correct, it should be possible to: (i) formally
+define what counts as an admissible representation; (ii) declare
+properties that every admissible representation must satisfy, in the
+form of contracts verifiable by automated test, not merely described in
+prose; (iii) show that these properties hold — or honestly report when
+they do not — against synthetic data with known ground truth and,
+decisively, against real clinical data; and (iv) demonstrate that the
+same representation infrastructure remains valid when the data source
+and the inference algorithm both change.</p>
+<p>This article establishes the formal apparatus — the meta-model, the
+axioms, the space’s structure, the theorems, the invariants, the
+categorical organization, and the contracts. Extensive empirical
+validation — on Type 2 Diabetes Mellitus, using two real, independent
+public sources (NHANES and UCI Diabetes 130-US Hospitals), structurally
+very different from each other (cross-sectional versus longitudinal
+administrative) — is reported in the articles that follow in this
+series, to which this one serves as the foundation.</p>
+<h1 id="the-formal-meta-model">2. The Formal Meta-Model</h1>
+<p>We define a biological system as a pair</p>
+<p><strong>B = (E, T)</strong></p>
+<p>where E represents the organism’s physiological state and T its
+temporal evolution. This definition precedes any clinical observation:
+the biological system exists independently of exams, sensors, or
+computational models. Consequently,</p>
+<p><strong>B ∉ X</strong></p>
+<p>that is, the biological system does not belong to the computational
+space X — it belongs to the physical world. This distinction, although
+it may seem obvious, has a direct practical consequence: no property of
+the representation space can be used to make claims about the biological
+system itself, only about its computational image.</p>
+<p>An observation O(B) is a set of measurements M taken on B at an
+instant t. Each measurement is processed by a semantic domain D — a
+clinically coherent grouping of variables (for example, a glycemic
+domain, a cardiovascular domain) — which encodes it into one or more
+characteristics (Features), preserving provenance (which raw measurement
+each characteristic came from) and completeness (whether the measurement
+was in fact available, or was imputed).</p>
+<p>A representation R aggregates one or more semantic domains. Applied
+to an observation, it produces a representation vector — a point in the
+representation space X:</p>
+<p><strong>R : O(B) → X</strong></p>
+<p>The complete composition, from the biological system to the point in
+the space, is:</p>
+<p><strong>B → O(B) → R(O(B)) ∈ X</strong></p>
+<p>Over X, a geometry G assigns a notion of distance or similarity
+between points (Section 4). When the same biological system is observed
+repeatedly over time, the resulting sequence of points forms a
+trajectory Γ — the fundamental object becomes the entire trajectory, not
+an isolated instant, whenever the scientific question is about dynamics,
+not state. A phenotype F is a subset of X defined by a membership rule;
+a cohort C is a collection of biological systems, each with its own
+trajectory, all represented in the same space X.</p>
+<p>A complete meta-model is, therefore, the tuple M = (B, O, D, R, X, G,
+Γ, F, C) — nine entities, each with a precise formal definition, serving
+as shared vocabulary for everything that follows.</p>
+<h1 id="axiomatic-foundations">3. Axiomatic Foundations</h1>
+<p>The previous sections introduced the meta-model’s entities
+definitionally. We now state five axioms that govern how these entities
+relate to one another. Each was chosen because it corresponds to a
+property already implemented as an executable formal contract (Section
+9) — the axioms are not free-standing mathematical decoration; one of
+them, as reported below, was violated by a real implementation bug
+before being fixed.</p>
+<h2 id="axiom-1-existence">Axiom 1 (Existence)</h2>
+<p>For every observed biological system, at least one admissible
+computational representation exists:</p>
+<p><strong>∀ B with O(B) ≠ ∅, ∃ R(B) ∈ X</strong></p>
+<p>The qualification O(B) ≠ ∅ is deliberate: existence is guaranteed
+constructively by R being a total function of the available
+observations, not of the biological system itself. A never-observed
+system has no representation — there is, trivially, nothing yet for R to
+act on.</p>
+<h2 id="axiom-2-observational-determinism">Axiom 2 (Observational
+Determinism)</h2>
+<p>Under the same set of observations, the representation is unique:</p>
+<p><strong>O₁ = O₂ ⟹ R(O₁) = R(O₂)</strong></p>
+<p>This axiom restates the Reproducibility Contract (Section 9). It is
+tested, not merely assumed: the regression suite confirms bit-identical
+output across repeated builds from the same input data.</p>
+<h2 id="axiom-3-semantic-preservation">Axiom 3 (Semantic
+Preservation)</h2>
+<p>The representation preserves a declared biological equivalence
+relation ~:</p>
+<p><strong>bᵢ ~ bⱼ ⟹ R(bᵢ) ~ R(bⱼ)</strong></p>
+<p>This axiom restates the Semantic Preservation Contract. It is
+important to state explicitly that ~ must be declared per domain — the
+meta-model provides no universal biological equivalence relation of its
+own. The axiom constrains whatever equivalence a domain author chooses
+to declare; it is not evidence that a privileged notion of biological
+equivalence exists a priori.</p>
+<h2 id="axiom-4-temporal-consistency">Axiom 4 (Temporal
+Consistency)</h2>
+<p>If tᵢ &lt; tⱼ, the representation at tᵢ cannot depend on observations
+that occurred after tᵢ:</p>
+<p><strong>tᵢ &lt; tⱼ ⟹ R(B, tᵢ) is independent of O(B, tⱼ)</strong></p>
+<p>This axiom restates the Temporality Contract — and it is, as far as
+we know, the only one of these five axioms whose violation was caught
+empirically, not merely anticipated in theory: an incorrectly propagated
+<code>as_of</code> parameter allowed, in an earlier version of the
+implementation, a later observation to leak into an earlier time cut — a
+real bug, fixed, now covered by a dedicated regression test. We report
+this episode because it is direct evidence that declaring a property
+axiomatically does not, by itself, guarantee that an implementation
+satisfies it — the axiom is a specification against which code can fail,
+not a description of code that cannot fail.</p>
+<h2 id="axiom-5-closure">Axiom 5 (Closure)</h2>
+<p>Every admissible operator maps the representation space to
+itself:</p>
+<p><strong>T : X → X</strong></p>
+<p>Unlike Axioms 1–4, this one is not independently falsifiable by
+testing an existing implementation — it is instead a definitional
+boundary of the theory: an operator whose output leaves X is, by
+construction, outside the scope of this framework. We declare it as an
+axiom because it is the condition that makes the algebraic structure of
+Section 5 possible, not because it is itself an empirical claim.</p>
+<h1 id="metric-structure-of-the-representation-space">4. Metric
+Structure of the Representation Space</h1>
+<p>We formalize the representation space as a triple</p>
+<p><strong>(X, d, Σ)</strong></p>
+<p>where X is the set of admissible representations, d is a distance
+function, and Σ is the semantic structure that assigns each coordinate
+to a named domain — already implemented as a mapping from domain name to
+a list of characteristics, distinct from the flattened vector that a
+geometry or algorithm actually consumes.</p>
+<p>A function d: X × X → ℝ≥0 is a metric on X if, for all x, y, z ∈ X,
+it satisfies non-negativity, identity of indiscernibles (d(x,y)=0 iff
+x=y), symmetry, and the triangle inequality (d(x,z) ≤ d(x,y) +
+d(y,z)).</p>
+<p>Not every implemented geometry satisfies all four properties, and we
+report this as a real limitation, not a footnote to be avoided.
+Euclidean distance and approximate geodesic distance over a
+k-nearest-neighbor graph are true metrics by construction. Dynamic Time
+Warping (DTW) is well documented in the sequence-alignment literature as
+generally not satisfying the triangle inequality — and, resolving a
+question that earlier informal attempts in this project had left open,
+this failure was confirmed for the specific implementation used here:
+using the published counterexample of Tralie et al. (2022) — three
+sequences a = (−1,…,−1,0), b = (−1,0,1), c = (0,1,…,1), each element
+repeated more than once —, we verified that this project’s DTW
+implementation violates the triangle inequality, both with and without
+its optional path-length normalization. We therefore treat DTW as a
+dissimilarity, not a metric, and restrict the Section 6 theorems that
+depend on completeness to the geometries confirmed as true metrics.</p>
+<h1 id="algebra-of-operators">5. Algebra of Operators</h1>
+<p>Let T = {T : X → X} be the set of admissible operators under Axiom 5.
+Composition T₂∘T₁, an identity operator I(x)=x for all x ∈ X, and
+associativity ((T₃∘T₂)∘T₁ = T₃∘(T₂∘T₁)) give (T, ∘, I) the structure of
+a monoid. Associativity requires no proof specific to this framework —
+it is inherited for free from function composition in general, once
+closure is guaranteed by Axiom 5.</p>
+<p>We stop short of claiming a group structure, because that would be
+false: most operators implemented in this project — phenotyping,
+dimensionality reduction, aggregation — are not invertible. A K-Means
+assignment or a PCA projection loses information and admits no T⁻¹ that
+recovers the original representation. The algebra of admissible
+operators in this framework is a monoid, not a group, and we state this
+precisely rather than reaching for a stronger structure the
+implementation does not support.</p>
+<h1 id="fundamental-theorems">6. Fundamental Theorems</h1>
+<h2
+id="theorem-1-existence-of-a-stationary-state-under-mean-reverting-dynamics">Theorem
+1 (Existence of a stationary state under mean-reverting dynamics)</h2>
+<p>Consider a single coordinate of the representation space evolving
+under a mean-reverting operator, xₜ₊₁ = φxₜ + (1−φ)μ + εₜ. Discarding
+the stochastic term εₜ, the deterministic map T(x) = φx + (1−φ)μ
+satisfies |T(x) − T(y)| = |φ|·|x − y| for all x, y. If |φ| &lt; 1, T is
+a contraction on (ℝ, |·|), and by the Banach fixed-point theorem, T has
+a unique fixed point x* = μ, to which every trajectory converges under
+iteration.</p>
+<p>The scope of this result is stated precisely so as not to be read
+more broadly than it is: it holds per coordinate, because the fitted
+model is diagonal — each characteristic’s φ is estimated independently
+—, not as a claim of a single global contraction over the entire
+multidimensional space. The condition |φ| &lt; 1 is exactly the
+stability criterion this project already computes and tests for each
+characteristic, which makes the theorem’s hypothesis directly verifiable
+against real data, not merely assumed: in empirical validation on real
+multi-encounter hospital trajectories (UCI Diabetes 130-US Hospitals,
+16,773 patients), the thirteen characteristics with a fitted dynamic
+satisfy |φ| &lt; 1, guaranteeing a unique stationary mean for each.</p>
+<h2
+id="theorem-2-continuity-of-the-representation-with-documented-exceptions">Theorem
+2 (Continuity of the representation, with documented exceptions)</h2>
+<p>If R is continuous, small biological perturbations produce small
+representational perturbations: for every ε &gt; 0 there exists δ &gt; 0
+such that d_B(B₁,B₂) &lt; δ implies d_X(R(B₁),R(B₂)) &lt; ε.</p>
+<p>We do not claim that this holds as a general property of the
+meta-model, because it demonstrably does not. Continuous-valued domains
+under fixed completeness weight are Lipschitz-continuous — a z-score is
+an affine, hence Lipschitz, function of the raw measurement. But the
+completeness-weighted z-score has a genuine discontinuity at the
+missing-data boundary: moving from “present” to “absent” changes a
+characteristic’s weight discretely, not continuously. Ordinal and
+categorical encodings are inherently discrete and are not continuous in
+the input variable in any useful sense. Theorem 2, therefore, holds on
+the subset of domains that use purely continuous encoding under fixed
+completeness, and does not hold across a missing-data transition nor
+within categorical domains. We report this as a real structural
+limitation of the current representation, not a caveat to be swept under
+the rug.</p>
+<h2
+id="corollary-1-indistinguishability-under-identical-representation">Corollary
+1 (Indistinguishability under identical representation)</h2>
+<p>If R(B₁) = R(B₂), then M(R(B₁)) = M(R(B₂)) for any function M defined
+over X.</p>
+<p>We call this a corollary, not a theorem, because it is an immediate
+consequence of the well-definedness of functions — M applied to equal
+arguments produces equal results, by the very definition of “function” —
+not a result requiring proof specific to this framework. Its value is
+not in mathematical depth; it lies in making explicit a claim left
+implicit throughout the entire architecture: an inference algorithm M
+has access only to R(B), never to B directly, so that any two biological
+systems the meta-model represents identically are, by construction,
+indistinguishable to any downstream algorithm. This is the formal
+grounding for treating representation and inference as independent
+methodological degrees of freedom — the central thesis of this article
+series.</p>
+<h1 id="invariants">7. Invariants</h1>
+<h2 id="domain-order-invariance">Domain-order invariance</h2>
+<p>A system’s representation is indexed by domain name, not by
+sequential position: two representations built from the same
+observations are equal as elements of X regardless of the order in which
+the domains were registered in a Representation’s constructor. This
+invariance does not automatically extend to the flattened vector
+consumed by geometries and algorithms — that operation requires an
+explicit order as an argument, and comparing two vectors built with
+different orders compares different coordinates under the same index.
+The implementation avoids this failure by requiring the order to be
+propagated consistently through every downstream call, verified by a
+dedicated test — not by any property of X that makes the failure
+structurally impossible.</p>
+<h2
+id="scale-re-parametrization-equivariance-confirmed-empirically">Scale
+re-parametrization equivariance — confirmed empirically</h2>
+<p>The completeness-weighted z-score is equivariant, not invariant,
+under an affine change of the underlying unit (for example, kilograms to
+pounds): re-fitting the reference statistics in the new unit reproduces
+the identical z-score, because the z-score transformation commutes with
+an affine change of variable. This is a weaker and more precise claim
+than “invariance” — the representation does not ignore units; it is
+stable under the simultaneous change of the reported unit and the
+re-fitting of the reference distribution in that unit.</p>
+<p>This property was CONFIRMED by a dedicated regression test, not
+merely deduced from the algebraic form of the transformation: identical
+to floating-point precision (difference &lt; 10⁻⁹) across the base case,
+partial missingness in the reference population, sign-inverted domains,
+and ten independent random scale factors.</p>
+<h2
+id="temporal-discretization-tested-and-the-invariance-does-not-hold">Temporal
+discretization — tested, and the invariance does not hold</h2>
+<p>Unlike the two previous properties, this one was tested and refuted,
+not confirmed. We subsampled real multi-encounter trajectories from the
+UCI hospital cohort (keeping only even-indexed encounters per patient,
+which exactly doubles the time interval between the remaining points)
+and re-fit the Theorem 1 evolution operator. The per-day contraction
+rate φ is not invariant to this change: it increases systematically
+under subsampling for nearly every characteristic tested — for instance,
+length of stay goes from φ ≈ 0.21 at daily resolution to φ ≈ 0.43 at the
+coarser resolution, nearly doubling, not a rounding-level discrepancy.
+For characteristics already close to the instability threshold, the
+fitted mean μ diverges far more severely, consistent with the
+well-documented near-unit-root estimation problem in the time-series
+literature.</p>
+<p>The practical conclusion is stated plainly: φ, as currently
+estimated, should not be treated as a discretization-independent
+physical rate constant — comparing φ values fitted at different
+observation frequencies is not, today, a valid operation in this
+framework.</p>
+<h1 id="categorical-organization">8. Categorical Organization</h1>
+<p>The operator algebra of Section 5 can be organized as a category C:
+objects are representation spaces X_d, one per data source or
+physiological scope (for example, NHANES’s cross-sectional metabolic
+representation and UCI’s longitudinal hospital-utilization
+representation — two structurally very different sources, not two
+variations of the same thing); morphisms are admissible operators T: X_d
+→ X_d within a single object; identity is I_Xd; composition is as
+defined in Section 5, associative by inheritance from function
+composition.</p>
+<p>Since every category defined here has exactly one object, a functor
+between two such categories is precisely a monoid homomorphism — a map φ
+from the admissible operators of one category to those of the other,
+preserving identity and composition. We report two concrete candidates,
+not just one, each tested against real data, with scope stated precisely
+in each case:</p>
+<p>The first candidate: the evolution operator (Theorem 1) satisfies the
+one-parameter semigroup law T_{s+t} = T_s∘T_t — verified algebraically
+by direct substitution, then tested numerically against genuine real
+longitudinal data: 16,773 real multi-encounter patients from the UCI
+hospital cohort. The law holds exactly, to floating-point precision, for
+the Features with a fitted dynamic. This validates the law on one real
+object of the category — not yet, by itself, a demonstration of a
+functor between two different categories, since that requires a second,
+equally longitudinal source to test whether the same law holds
+identically on another object; the cross-sectional source (NHANES) used
+in the second candidate below has no per-patient longitudinal structure
+and cannot be used for this specific test.</p>
+<p>The second candidate, more direct, and the one that actually realizes
+the mapping BETWEEN categories: a projection function takes the
+representation of any data source to a dictionary {process_name:
+aggregated value}, indexed by shared physiological process — not by
+source-specific domain. Real demonstration: a NHANES patient and a UCI
+patient, projected onto the same shared process (glucose homeostasis,
+present in both representations under the same label), despite zero raw
+variables in common between the two representations. We report a real
+limitation encountered while building this example, not hidden away:
+direct numeric comparability between the two projected values depends on
+the source Features being under the same scale convention — which holds
+for NHANES (completeness-weighted z-score) but not, today, for UCI’s
+glycemic-testing domain, which uses a raw ordinal category (0, 1, or 2)
+by design, not a z-score. The functorial mapping — the same named
+process, aggregating Features from structurally distinct representations
+into a shared target — is genuinely demonstrated; direct numeric
+comparability of the aggregated value, in this specific instance, is
+not, and we register this distinction precisely rather than erasing
+it.</p>
+<p>The two candidates are complementary, not competing: the first proves
+an algebraic law about operators, validated on a real object; the second
+constructs a concrete object-level mapping BETWEEN two structurally very
+different data sources, toward a shared target. What we still do not
+have — named here as future work, not claimed as a result — is the first
+candidate’s semigroup law demonstrated as a genuine functor between two
+categories (which would require a second, real, longitudinal source
+beyond UCI), and a systematic check that the identity and composition
+laws hold for any pair of sources, not only the one tested.</p>
+<h1 id="formal-contracts">9. Formal Contracts</h1>
+<p>The previous sections defined the meta-model’s structure. Defining
+entities, however, is not sufficient to characterize a formal theory —
+it is necessary to specify which properties every implementation must
+satisfy. Formally, each contract is a predicate over the representation
+space,</p>
+<p><strong>Cᵢ : X → {0, 1}</strong></p>
+<p>where Cᵢ(x) = 1 if representation x satisfies property i. The
+scientifically admissible subspace is</p>
+<p><strong>X* = {x ∈ X : Cᵢ(x) = 1 ∀ Cᵢ ∈ K}</strong></p>
+<p>Only representations belonging to X* — not X in general — are
+eligible for the inference operators; a representation that fails even
+one contract is, by this definition, outside the theory’s admissible
+domain, regardless of whether an implementation eventually produces an
+output for it.</p>
+<p>Eleven contracts compose K today: Traceability, Semantic
+Preservation, Compositionality, Continuity, Extensibility, Algorithmic
+Independence, Temporality, Reproducibility, Versionability,
+Interoperability, and an eleventh — Population Injectivity — which did
+not receive its own number in the original convention. All eleven now
+have a dedicated empirical test, not merely a formal declaration; the
+last four to gain a test — Compositionality, Algorithmic Independence,
+Versionability, and Interoperability — were closed in a single dedicated
+round, each with a positive case and a decisive negative case (for
+example, an algorithm with a hard-coded dependency on a specific domain
+correctly fails the Algorithmic Independence contract when applied to a
+representation lacking that domain, rather than the test merely
+confirming success on well-behaved inputs).</p>
+<h1 id="discussion-and-conclusion">10. Discussion and Conclusion</h1>
+<p>This article established the formal apparatus of the BioSpace
+framework: a meta-model of nine entities, five axioms — four of them
+reformulations of already-tested contracts, one whose real violation was
+caught by a fixed implementation bug —, a metric structure with an
+honest accounting of which geometries satisfy that condition, an
+operator algebra characterized precisely as a monoid, theorems
+connecting the framework to classical results with scope stated without
+exaggeration, a catalog of invariants where two were confirmed
+empirically and one was tested and refuted, and a categorical
+organization demonstrated by two independent functor realizations.</p>
+<p>The discipline running through every section is deliberate: every
+strong claim comes with the test that supports it, and every limitation
+found — the triangle inequality violated by DTW, the discontinuity at
+missing-data transitions, the temporal-discretization invariance that
+does not hold — is reported with the same weight as the positive
+results. A representation theory is only as trustworthy as the tests
+that could have refuted it.</p>
+<p>This is the first article in a series. The second establishes
+geometry and representation as independent methodological axes in the
+detection of computational structure — validated, like this one, without
+relying on any single data source to carry the argument. The third
+demonstrates generalization across data sources with empirical
+validation on two independent public sources of Type 2 Diabetes Mellitus
+(NHANES and UCI Diabetes 130-US Hospitals). A fourth article positions
+this architecture relative to the existing normative-modeling
+literature. The foundation established here is what makes these later
+articles comparable to one another — the same theory, tested against
+genuinely different data sources and inference algorithms.</p>
+<h1 id="references">References</h1>
+<p>Tralie, C. J., Schlamowitz, Z., Arbelo, J., Delgado, A. I., Kirk, C.,
+&amp; Scoville, N. A. (2022). The DOPE Distance is SIC: A Stable,
+Informative, and Computable Metric on Time Series and Ordered Merge
+Trees. arXiv:2212.01648.</p>
+<p>Müller, M. (2007). Dynamic Time Warping. In <em>Information Retrieval
+for Music and Motion</em> (pp. 69–84). Springer.</p>
+<p>Jain, B. J. (2018). On the semi-metric properties of Dynamic Time
+Warping. arXiv:1808.09964.</p>
+<p>Dakos, V., Carpenter, S. R., Brock, W. A., et al. (2012). Methods for
+Detecting Early Warnings of Critical Transitions in Time Series
+Illustrating Fundamental Concepts. <em>PLOS ONE</em>, 7(7).</p>
+<p>Scheffer, M., Bascompte, J., Brock, W. A., et al. (2009).
+Early-warning signals for critical transitions. <em>Nature</em>, 461,
+53–59.</p>
+
+  </article>
+</div>
+
+<div class="max-w-3xl mx-auto lg:ml-[calc(240px+3rem+1.5rem)] px-6 lg:px-0 pb-16 flex items-center gap-4 border-t border-line pt-8">
+  
+  <a href="article-ii-geometry.html" class="inline-flex items-center gap-2 text-sm font-medium text-ink2 hover:text-teal transition-colors ml-auto">Next article<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 3 3 11M3 11H9M3 11V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+</div>
+
+<footer class="border-t border-line px-6 lg:px-10 py-10 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-ink2">
+  <p>BioSpace — a six-article series, from foundations to application.</p>
+  <a href="index.html" class="font-medium text-teal hover:text-ink transition-colors">← Back to biospace overview</a>
+</footer>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convergence Between Independent Methods as Methodological Evidence — BioSpace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#EEF2F1', paper2: '#E4EAE8', ink: '#0E1620', ink2: '#3B4653',
+          line: '#C7D2D1', teal: '#0E7C7B', amber: '#D6912B', violet: '#6C5B9E',
+          rose: '#B85C6B', sky: '#3E7CA6', olive: '#7A8450',
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', 'sans-serif'],
+          body: ['Inter', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', 'monospace'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html{ scroll-behavior:smooth; }
+  body{ background-color:#EEF2F1; }
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; letter-spacing:.14em; text-transform:uppercase; }
+  ::selection{ background:#0E7C7B; color:#F8FAF9; }
+  article h1 { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.6rem; margin-top:3rem; margin-bottom:1rem; color:#0E1620; scroll-margin-top: 6rem; border-top:1px solid #C7D2D1; padding-top:2rem; }
+  article h1:first-of-type { border-top:none; margin-top:0; padding-top:0; }
+  article h2 { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.2rem; margin-top:2rem; margin-bottom:.75rem; color:#0E1620; scroll-margin-top:6rem; }
+  article p { margin-bottom:1.1rem; line-height:1.8; color:#232D3A; }
+  article strong { color:#0E1620; }
+  article ul, article ol { margin: 0 0 1.1rem 1.4rem; line-height:1.8; color:#232D3A; }
+  article li { margin-bottom:.4rem; }
+  article table { width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:.92rem; }
+  article th, article td { border:1px solid #C7D2D1; padding:.5rem .75rem; text-align:left; }
+  article th { background:#E4EAE8; font-family:'IBM Plex Mono',monospace; font-size:.75rem; letter-spacing:.05em; text-transform:uppercase; }
+  article code { font-family:'IBM Plex Mono',monospace; background:#E4EAE8; padding:.1rem .35rem; border-radius:.25rem; font-size:.85em; }
+  article pre { background:#0E1620; color:#EEF2F1; padding:1.25rem; border-radius:.6rem; overflow-x:auto; margin-bottom:1.1rem; }
+  article pre code { background:none; padding:0; color:inherit; }
+  article blockquote { border-left:3px solid #0E7C7B; padding-left:1rem; color:#3B4653; font-style:italic; margin:1.5rem 0; }
+  article hr { border:none; border-top:1px solid #C7D2D1; margin:2.5rem 0; }
+  .scrollbar-thin::-webkit-scrollbar{ width:5px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb{ background:#C7D2D1; border-radius:4px; }
+</style>
+</head>
+<body class="font-body text-ink">
+
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur bg-paper/85 border-b border-line">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2 font-display font-semibold text-lg">
+      <svg width="22" height="22" viewBox="0 0 22 22"><line x1="2" y1="11" x2="20" y2="11" stroke="#0E1620" stroke-width="1.4"/><line x1="11" y1="2" x2="11" y2="20" stroke="#0E1620" stroke-width="1.4"/><circle cx="15" cy="7" r="2.4" fill="#0E7C7B"/><circle cx="8" cy="15" r="2.4" fill="#D6912B"/></svg>
+      BioSpace
+    </a>
+    <a href="index.html#series" class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-ink2 hover:text-teal transition-colors">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 3 3 11M3 11H9M3 11V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to the series
+    </a>
+    <a href="https://github.com/goldenluke/biospace" target="_blank" rel="noopener"
+       class="flex items-center gap-2 bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-teal transition-colors">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.49c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.72-.5.06-.49.06-.49.8.06 1.22.82 1.22.82.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.22 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      Repository
+    </a>
+  </div>
+</header>
+
+<section class="pt-32 pb-10 px-6 lg:px-10 max-w-4xl mx-auto">
+  <p class="eyebrow text-teal text-xs mb-4">article v — from foundations to application</p>
+  <h1 class="font-display font-semibold text-3xl sm:text-4xl leading-tight tracking-tight text-ink">
+    Convergence Between Independent Methods as Methodological Evidence
+  </h1>
+  <p class="font-display text-lg sm:text-xl text-ink2 mt-2">What a Representation-First Architecture Enables, Tested Against a Single Real Predictive Problem</p>
+</section>
+
+<div class="max-w-7xl mx-auto px-6 lg:px-10 pb-8 grid lg:grid-cols-[240px_1fr] gap-12">
+  <nav class="hidden lg:block">
+    <div class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-thin pr-2">
+      <p class="eyebrow text-ink2 text-[11px] mb-3">contents</p>
+      <div class="text-sm">
+<a href="#introduction" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">1. Introduction</a>
+<a href="#results" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">4. Results</a>
+<a href="#discussion" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">6. Discussion</a>
+<a href="#limitations" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">7. Limitations</a>
+<a href="#conclusion" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">8. Conclusion</a>
+<a href="#references" class="block py-1.5 text-ink2 hover:text-teal transition-colors border-l-2 border-transparent hover:border-teal pl-3">References</a>
+      </div>
+    </div>
+  </nav>
+  <article class="max-w-3xl">
+<h1 id="abstract">Abstract</h1>
+<p>A null result obtained by a single method is always ambiguous between
+two explanations: the effect does not exist, or the chosen method failed
+to find it. Resolving this ambiguity normally requires rebuilding the
+problem from scratch under a different method — feature engineering,
+missing-data handling, variable encoding, all redone — which carries a
+real cost and, for that reason, is rarely done in practice. This article
+argues, and demonstrates against a single real predictive problem, that
+an architecture treating representation as an explicit, reusable object
+— not a preprocessing step rebuilt for every new method — reduces that
+cost to nearly zero, turning triangulation between independent methods
+into a routine practice rather than an expensive exception.</p>
+<p>We test this against a genuine question: does a patient’s first
+hospital encounter predict a future early readmission? Using exactly the
+same baseline representation — Features from the first encounter, never
+information from later encounters (Temporality Contract) —, we handed
+the same data, with no intermediate reconstruction, to four
+statistically independent methods: a Cox survival model stratified by
+phenotype (concordance index≈0.52), a Random Forest (AUC=0.50–0.52,
+5-fold cross-validation), a Logistic Regression (AUC≈0.53, 5-fold
+cross-validation), and SHAP explainability over the trained Random
+Forest (diffuse importance across 13 Features, ratio between the largest
+and smallest &lt;20×, versus &gt;5× in a synthetic control with known
+genuine signal). A fifth, related method — early-warning-signal
+detection (critical slowing down) — could not be tested with adequate
+statistical power, which is itself informative: only 139 of 71,518
+patients (0.19%) have long enough longitudinal follow-up for the most
+rigorous test available, and only 1 shows the warning signal.</p>
+<p>The first four methods converge on essentially the same performance
+ceiling, close to chance. We argue that this convergence is stronger
+evidence than any of the four results in isolation — not because four
+numbers near 0.5 are more impressive than one, but because the four
+methods share only the representation, not the model’s mathematical
+form, the linearity assumption, or the optimized loss function. If the
+limitation were specific to one method, there would be no reason for the
+other three to agree.</p>
+<h1 id="introduction">1. Introduction</h1>
+<p>Comparing different statistical methods against the same problem is,
+in principle, a valuable practice: when two methods agree despite
+operating under distinct assumptions, that agreement is stronger
+evidence than either method alone — the inverse of the usual argument
+about p-values obtained by chance, where multiple independent attempts
+<em>increase</em> the chance of an isolated false positive but
+<em>drastically reduce</em> the chance of multiple concordant false
+positives arising by chance.</p>
+<p>In practice, this kind of triangulation is rare — not because it is
+theoretically less valuable, but because it carries a real engineering
+cost. A Cox survival model, a Random Forest, and a SHAP explanation
+typically require three different data pipelines: different input
+formats, different categorical-variable encoding conventions,
+missing-data handling potentially inconsistent across the three
+implementations. Rebuilding the same feature set three times, in three
+slightly different ways, introduces a real risk that the observed
+“convergence” is actually an artifact of three reconstructions that
+coincidentally carry the same bias — or, in the opposite direction, that
+an observed divergence is a reconstruction artifact, not a genuine
+finding about the methods.</p>
+<p>This article tests a narrower claim: if a patient’s representation is
+a first-class object — built once, under formal contracts guaranteeing
+reproducibility and semantic preservation, served identically to any
+downstream consumer —, the cost of triangulating across methods drops
+enough that rebuilding the same problem under four independent methods
+stops being an expensive engineering decision and becomes a routine
+check. We test this not in the abstract, but against a single real
+predictive question, using the same representation, with no feature
+reconstruction between the four methods compared.</p>
+<h1 id="the-question-used-as-a-test-case">2. The Question Used as a Test
+Case</h1>
+<p>The question: does a patient’s state at their first hospital
+encounter predict an early readmission (fewer than 30 days) at a
+<em>subsequent</em> encounter? We use the UCI Diabetes 130-US Hospitals
+cohort — 16,773 patients with two or more encounters, of whom 3,011 have
+four or more, the subset used by methods requiring a larger reference
+window.</p>
+<p>The design imposes a deliberate constraint, not an incidental
+limitation: no characteristic used to characterize a patient may come
+from an encounter after the first. This is not merely good statistical
+practice — it is a direct instance of the Temporality Contract already
+formalized in the representation architecture used (a patient’s
+representation at instant t cannot depend on observations after t), and
+applying it here is what makes this question genuinely predictive, not a
+cross-sectional characterization disguised as prediction.</p>
+<p>The label: 1 if the patient had at least one early-readmission event
+at any encounter from the fourth onward (or the second, depending on the
+method); 0 otherwise. The event rate in the eligible cohort is
+approximately 20–31%, varying slightly across the subsets used by each
+method (Section 3).</p>
+<h1 id="five-methods-one-representation">3. Five Methods, One
+Representation</h1>
+<p>All methods below consume the same feature matrix — Features from
+each patient’s first encounter, in the same domain order, produced by
+the same representation-construction call. No method involved
+reconstructing features, re-encoding variables, or adjusting
+missing-data handling differently from the others.</p>
+<p><strong>Survival (Cox by phenotype).</strong> Eligible patients
+phenotyped by K-Means over the baseline representation; a Cox
+proportional-hazards model fit with phenotype as the covariate, time to
+the first readmission event (in encounter-index units, not calendar —
+the source has no real date) as the survival variable.</p>
+<p><strong>Random Forest.</strong> A random-forest classifier (200
+trees, max depth 6, class-balanced weights) trained directly on the same
+feature matrix, evaluated by 5-fold stratified cross-validation, AUC-ROC
+metric.</p>
+<p><strong>Logistic Regression.</strong> Same matrix, same
+cross-validation, a linear classifier with class-balanced weights.</p>
+<p><strong>Explainability (SHAP over the Random Forest).</strong> Not a
+predictive method in itself — a lens over the already-trained model.
+Computes each feature’s mean absolute contribution to each patient’s
+prediction, using an exact explainer for tree models
+(<code>TreeExplainer</code>). Validated earlier against a synthetic
+scenario with known ground truth: a feature that determines the label by
+construction receives SHAP importance more than 5× larger than a
+pure-noise feature with no relationship to the label.</p>
+<p><strong>Early-warning signals (critical slowing down).</strong> A
+related but structurally different method from the four above: it does
+not predict a label, it tests whether a feature’s autocorrelation and
+variance show a statistically significant rising trend (Kendall’s test
+with significance via autoregressive surrogate data) in the encounters
+preceding an event — the classical signature of approaching a critical
+transition in the dynamical-systems literature. Validated earlier
+against a genuine synthetic saddle-node bifurcation, the field’s own
+standard test.</p>
+<h1 id="results">4. Results</h1>
+<p><strong>Table 1.</strong> Predictive performance of the four
+comparable methods, same baseline representation.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cox by phenotype</td>
+<td>Concordance index</td>
+<td>≈0.52</td>
+</tr>
+<tr class="even">
+<td>Random Forest</td>
+<td>AUC (5-fold cross-validation)</td>
+<td>0.50–0.52</td>
+</tr>
+<tr class="odd">
+<td>Logistic Regression</td>
+<td>AUC (5-fold cross-validation)</td>
+<td>≈0.53</td>
+</tr>
+<tr class="even">
+<td>SHAP (over the Random Forest)</td>
+<td>Largest/smallest mean |SHAP| ratio</td>
+<td>&lt;20× (synthetic control: &gt;5×)</td>
+</tr>
+</tbody>
+</table>
+<p>The four methods converge on essentially the same ceiling — all close
+to 0.5, the expected performance of a prediction with no genuine
+discriminative power. SHAP explainability adds information the first
+three methods, alone, do not give: it is not that strong signal is
+concentrated in a specific feature the models are failing to exploit
+well — importance is distributed diffusely across the 13 available
+baseline features, with none dominating the others by a margin that
+would resemble a genuine lost signal.</p>
+<p><strong>Early-warning signals, treated separately.</strong> Unlike
+the four methods above, this one did not produce a null result with
+adequate statistical power — it produced an eligible sample too small
+for any test to have power to detect anything, even if it exists. Of the
+source’s 71,518 patients, only 320 (0.45%) have enough encounters for
+the most rigorous method available; restricting to a design with genuine
+prospective validation (detection within the first 8 encounters, event
+checking only in later ones, with no future information leaking in), 139
+patients remain, of whom only 1 shows the warning signal. We report this
+separately from the four main methods because it is evidence of a
+different nature: not “we tested and did not find,” but “there is not
+enough data to test with confidence” — a distinction worth keeping
+explicit, not collapsing into the same category as the adequately
+powered null results.</p>
+<h1 id="why-convergence-is-stronger-evidence-than-an-isolated-result">5.
+Why Convergence Is Stronger Evidence Than an Isolated Result</h1>
+<p>This article’s central argument is not that four numbers close to 0.5
+are, arithmetically, more convincing than one. It is that the four
+methods compared in Table 1 share no structural assumption in common,
+except the input representation:</p>
+<ul>
+<li>Cox assumes proportional hazards and a parametric form for the
+baseline hazard function; Random Forest and Logistic Regression make
+neither assumption.</li>
+<li>Random Forest is a non-linear method, based on recursive partitions
+of the feature space; Logistic Regression is strictly linear in the
+feature space (after the link function).</li>
+<li>SHAP is not, itself, a predictive method — it tests a different
+question (concentration versus diffusion of importance) over one of the
+already-trained models, not over the data directly.</li>
+</ul>
+<p>If the observed absence of predictive signal were a limitation
+specific to ONE method — Cox penalized by the proportional-hazards
+assumption not holding, or Logistic Regression penalized by non-linear
+relationships it cannot capture —, there would be no reason for the
+other methods, free of that specific assumption, to reach the same
+conclusion. Convergence across methods with mutually exclusive
+structural assumptions is evidence that the limitation lies in the
+informational content of the baseline representation relative to this
+specific outcome, not in the choice of any individual method.</p>
+<p>This form of argument — multiple independent methods, same
+representation, same conclusion — is only cheap to produce when the
+representation already exists as a reusable object before any method is
+chosen. Rebuilding the same feature matrix three or four times, once per
+method, would be the usual pattern; here, each method was simply an
+additional consumer of the same already-built representation, with no
+incremental engineering cost beyond fitting the model itself.</p>
+<h1 id="discussion">6. Discussion</h1>
+<h2 id="what-convergence-does-not-prove">6.1 What convergence does not
+prove</h2>
+<p>Convergence across methods rules out one class of explanation (a
+limitation specific to one method), not every possible class. A bias
+shared by all four methods — for example, a systematic error in
+extracting the baseline representation itself, present before any method
+is applied — would produce the same apparent convergence without the
+substantive conclusion (“there is not enough signal in the first
+encounter”) necessarily being correct. We tested the representation
+itself, separately and before this analysis, against synthetic data with
+known ground truth (not reported in this article) — but we recognize
+that this is a residual assumption that convergence across methods, by
+itself, does not eliminate.</p>
+<h2 id="relation-to-the-underlying-representation-architecture">6.2
+Relation to the underlying representation architecture</h2>
+<p>This article’s argument depends on a condition not every medical-data
+architecture satisfies: that a patient’s representation be built once,
+under explicit formal contracts (reproducibility — the same input data
+always produces the same representation; temporality — no characteristic
+at one instant depends on future observations), and served identically
+to any downstream consumer. When these guarantees do not exist, or are
+not verified, triangulation across methods stops being a cheap check and
+goes back to being an expensive engineering project — the usual scenario
+this article argues is avoidable.</p>
+<h2 id="why-report-a-null-result-across-four-methods-not-just-one">6.3
+Why report a null result across four methods, not just one</h2>
+<p>A null result reported under a single method invites the obvious
+question: would another method find the signal this one did not?
+Reporting the same question under four structurally independent methods
+closes that objection in advance, at an additional engineering cost the
+underlying architecture reduced to nearly zero. We treat this as the
+standard null results should meet, whenever the cost of producing it is
+low enough that skipping it is not a reasonable excuse.</p>
+<h1 id="limitations">7. Limitations</h1>
+<ol type="1">
+<li><strong>A single predictive question, on a single data
+source.</strong> We do not claim that the convergence observed here
+generalizes to any other question or source — only that the
+triangulation method itself, enabled by the underlying representation
+architecture, is reusable for any future question at low cost.</li>
+<li><strong>The four methods compared do not exhaust the space of
+possible predictive methods</strong> — we did not test, for example,
+deep neural networks or sequential boosting methods over the same
+representation; it is possible, though it does not seem likely given the
+observed pattern, that an additional method would find signal the four
+tested did not.</li>
+<li><strong>The fifth method (early-warning signals) could not be
+evaluated with adequate statistical power</strong> — its inclusion in
+this article is as evidence of a different kind (a data limit, not a
+tested null result), not as a fifth point of convergence of the same
+nature as the first four.</li>
+<li><strong>Convergence across methods does not eliminate the
+possibility of a shared bias in the baseline representation
+itself</strong>, prior to any method (Section 6.1) — mitigated, but not
+eliminated, by independent validation of the representation against
+synthetic data with known ground truth.</li>
+</ol>
+<h1 id="conclusion">8. Conclusion</h1>
+<p>We tested whether four statistically independent methods — survival,
+non-linear classification, linear classification, and explainability
+over the non-linear model — agree when applied to the same real
+predictive question, using the same baseline representation with no
+feature reconstruction between them. They agree: all converge on a
+performance ceiling near chance, and explainability adds that this
+absence of signal is distributed diffusely, not hidden in a specific
+feature the models are failing to exploit well.</p>
+<p>The central methodological argument is not about this specific
+predictive question — it is about what makes this kind of triangulation
+cheap enough to be done routinely, rather than reserved for exceptional
+findings that justify the engineering cost of rebuilding the problem
+multiple times. An architecture that treats representation as an
+explicit, testable, reusable object — not an implicit preprocessing step
+rebuilt for every new method — turns triangulation between independent
+methods from an expensive exception into a routine check. A null result
+confirmed by four methods that share no structural assumption in common,
+except the input representation, is qualitatively different — and
+stronger — evidence than the same null result reported under a single
+method, however well that single method was executed.</p>
+<h1 id="references">References</h1>
+<p>Dakos, V., Carpenter, S. R., Brock, W. A., et al. (2012). Methods for
+Detecting Early Warnings of Critical Transitions in Time Series
+Illustrating Fundamental Concepts. <em>PLOS ONE</em>, 7(7).</p>
+<p>Guttal, V., &amp; Jayaprakash, C. (2008). Changing skewness: an early
+warning signal of regime shifts in ecosystems. <em>Ecology Letters</em>,
+11(5), 450–460.</p>
+<p>Lundberg, S. M., &amp; Lee, S.-I. (2017). A Unified Approach to
+Interpreting Model Predictions. <em>Advances in Neural Information
+Processing Systems</em>, 30.</p>
+<p>Scheffer, M., Bascompte, J., Brock, W. A., et al. (2009).
+Early-warning signals for critical transitions. <em>Nature</em>, 461,
+53–59.</p>
+<p>Strogatz, S. H. (2015). <em>Nonlinear Dynamics and Chaos: With
+Applications to Physics, Biology, Chemistry, and Engineering</em> (2nd
+ed.). Westview Press.</p>
+
+  </article>
+</div>
+
+<div class="max-w-3xl mx-auto lg:ml-[calc(240px+3rem+1.5rem)] px-6 lg:px-0 pb-16 flex items-center gap-4 border-t border-line pt-8">
+  <a href="article-iv-representation-before-inference.html" class="inline-flex items-center gap-2 text-sm font-medium text-ink2 hover:text-teal transition-colors"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 3 3 11M3 11H9M3 11V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="rotate(180 7 7)"/></svg>Previous article</a>
+  
+</div>
+
+<footer class="border-t border-line px-6 lg:px-10 py-10 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-ink2">
+  <p>BioSpace — a six-article series, from foundations to application.</p>
+  <a href="index.html" class="font-medium text-teal hover:text-ink transition-colors">← Back to biospace overview</a>
+</footer>
+</body>
+</html>
