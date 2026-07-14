@@ -790,3 +790,297 @@ em vez de subgrupos discretos com estrutura de retorno.
 Ver `tests/test_topology.py` (6 testes: detecção do buraco único no
 círculo sintético, dois blobs sem ciclo, formação do ciclo no grafo de
 Mapper, e o achado negativo real contra o NHANES completo).
+
+## 19. Longitudinal Learning / Forecasting — GRU em NumPy puro, sexta confirmação do teto de acaso na UCI
+
+Módulo novo, `biospace.sequence` — GRU (Gated Recurrent Unit, Cho et
+al. 2014) implementado em NumPy puro, forward e backward
+(backpropagation through time) escritos à mão, sem framework de deep
+learning disponível no ambiente (nem PyTorch nem TensorFlow instalados;
+tentativa de instalar PyTorch consumiu quase todo o disco disponível
+com dependências CUDA/GPU irrelevantes para um container sem GPU —
+revertida e limpa antes de qualquer dano real). Mesmo espírito de
+`biospace.gnn.SimpleGCN`: sem framework pronto, a alternativa é
+implementar o método de verdade, não fingir com um MLP sobre janela
+deslizante.
+
+**Validação em duas camadas, na ordem certa**: primeiro, checagem de
+gradiente por diferenças finitas em todos os 11 grupos de parâmetros —
+maior erro relativo de 1,15×10⁻⁸, confirmando o backward manual correto
+antes de qualquer treino real. Segundo, dado sintético com dependência
+não-linear CRUZADA entre duas Features conhecida por construção (uma
+Feature depende de tanh de outra, defasada) — um modelo linear por
+coordenada (como o operador de evolução diagonal já usado no resto do
+projeto) não pode capturar essa dependência por desenho; o GRU treinado
+reduz o erro de previsão nessa Feature a quase metade do erro de uma
+previsão ingênua por persistência (0,089 vs. 0,159).
+
+**Achado real na UCI — sexta confirmação independente da triangulação
+do Artigo V**: usando a sequência inteira dos 3 primeiros encontros
+(não só o baseline do 1º, como Cox/RandomForest/LogisticRegression/SHAP
+usaram antes) para prever readmissão precoce a partir do 4º encontro,
+com validação cruzada de 5 folds e três capacidades de modelo
+diferentes (mais/menos parâmetros, mais/menos épocas): AUC de
+0,534±0,050, 0,444±0,054 e 0,469±0,083 — todos dentro do ruído de 0,5,
+com desvio grande refletindo a amostra pequena (267 pacientes com 4+
+encontros nesta base). Investigado antes de reportar: um teste inicial
+com um único split treino/teste (não validação cruzada) deu AUC=0,450
+com perda de treino caindo a 0,0003 — sinal claro de sobreajuste numa
+amostra pequena, corrigido usando validação cruzada de 5 folds e
+comparando capacidades de modelo diferentes antes de aceitar o
+resultado como estável, não só o primeiro número que apareceu.
+
+Ver `tests/test_sequence.py` (4 testes: checagem de gradiente decisiva,
+aprendizado da dependência não-linear cruzada, aprendizado de um
+padrão sequencial sintético com rótulo conhecido, e o achado real de
+teto de acaso contra a UCI completa).
+
+## 20. Bayesian Learning — Processo Gaussiano e Rede Bayesiana, testando ao vivo uma hipótese do Artigo IV
+
+Módulo novo, `biospace.bayesian` — dois componentes: `GaussianProcessOperator`
+(envelope sobre `sklearn.gaussian_process`, com 4 kernels comparáveis:
+RBF, Matérn, linear, periódico) e `BayesianNetworkOperator` (envelope
+sobre `pgmpy`: aprendizado de estrutura por Hill-Climb Search + score
+BIC, estimação de parâmetros por máxima verossimilhança, inferência
+por eliminação de variáveis).
+
+**Validação com verdade conhecida, antes de qualquer uso real**: o GP,
+ajustado a uma função suave conhecida (seno), reproduz a função dentro
+da região treinada e — o comportamento clássico e decisivo de um
+Processo Gaussiano — tem incerteza mais de 5× maior em pontos bem fora
+da região de treino. A rede bayesiana, ajustada a uma cadeia sintética
+conhecida A→B→C, recupera corretamente a estrutura como classe de
+equivalência de Markov (B conectado a A e a C — a direção exata A→B
+vs. B→A não é identificável só com dado observacional, um limite
+conhecido do método, não um bug), e a inferência reflete exatamente a
+relação real (P(c baixo | b alto)=95%, P(c alto | b baixo)=96%).
+
+**Três bugs reais de API do pgmpy, corrigidos no caminho**: o nome do
+método de score mudou entre versões (`"bicscore"` → `"bic-d"`); o
+estimador de parâmetros não é mais passado como classe
+(`MaximumLikelihoodEstimator`), precisa ser uma instância de
+`DiscreteMLE` importada de `pgmpy.parameter_estimator` (módulo
+diferente de `pgmpy.estimators`, onde a documentação sugeria
+implicitamente que estaria). Nenhum dos três estava documentado de
+forma óbvia — encontrados só rodando contra dado real e lendo o código
+fonte da biblioteca.
+
+**Achado real, testando ao vivo a hipótese do Artigo IV**: o Artigo IV
+desta série argumentou que a escolha de kernel num Processo Gaussiano
+é uma escolha de geometria — a mesma categoria de decisão que o Artigo
+II mostrou mudar drasticamente a estrutura detectável — mas nunca
+testou isso diretamente. Testado agora: prever HbA1c no NHANES a
+partir dos demais domínios metabólicos, validação cruzada de 5 folds,
+4 kernels. RBF, Matérn e Linear convergem para RMSE e
+log-verossimilhança marginal essencialmente idênticos entre si
+(RMSE≈0,97–1,02; log-verossimilhança≈-430) — **não** reproduz o padrão
+dramático do Artigo II. Só o kernel Periódico, estruturalmente
+incompatível com dado metabólico sem periodicidade conhecida, fica
+claramente pior nos dois critérios (RMSE=1,04, log-verossimilhança=-519).
+Resposta mais nuançada do que "kernel importa tanto quanto geometria":
+kernels razoáveis concordam entre si; um kernel estruturalmente mal
+escolhido se destaca — uma resposta real, não hipotética, a uma
+pergunta que o próprio Artigo IV tinha deixado em aberto.
+
+Ver `tests/test_bayesian.py` (5 testes: comportamento clássico de GP
+com verdade conhecida, recuperação de estrutura e inferência corretas
+na rede bayesiana com cadeia sintética conhecida, e o achado real da
+comparação de kernels contra o NHANES completo).
+
+## 21. Ontologias e Knowledge Graphs — LOINC/SNOMED verificados por busca, não por memória
+
+Módulo novo, `biospace.ontology.terminology` — liga `Observable.key`
+(o vocabulário interno do projeto) a códigos de terminologia clínica
+formal (LOINC para testes laboratoriais/sinais vitais, SNOMED CT para
+condições), camada estritamente aditiva sobre `Observable` (mesmo
+espírito de `process`, nunca modifica a classe base). E
+`biospace.ontology.knowledge_graph` — constrói o grafo Paciente →
+Domínio → Observable → Measurement → Ontologia por paciente, via
+`networkx`.
+
+**Disciplina seguida antes de escrever qualquer código no registro**:
+dado o episódio anterior nesta sessão em que referências de artigo
+foram parcialmente inventadas de memória, todo código LOINC/SNOMED
+usado aqui foi verificado por busca contra fonte pública (loinc.org,
+SNOMED CT) antes de entrar no registro — treze buscas, uma por
+código, não confiança em memória de treinamento. Dois erros reais
+foram encontrados e corrigidos no processo: as chaves que eu tinha
+assumido para frequência cardíaca (`frequencia_cardiaca_bpm`) e eGFR
+(`egfr_ckd_epi`) não batiam com as chaves reais dos Observables do
+projeto (`fc_repouso_bpm`, `taxa_filtracao_glomerular`) — corrigido
+antes de qualquer teste rodar, não depois.
+
+**Cobertura honesta, não forçada, fechada numa investigação
+subsequente**: da representação metabólica completa (20 Observables),
+a cobertura inicial era 12/20 (60%) — os 8 sem código (idade, sexo, e
+as seis flags de comorbidade/tratamento) tinham sido deixados sem
+entrada, não preenchidos com um palpite, por falta de confiança
+suficiente no momento da primeira rodada. Investigação dedicada
+subsequente, mesma disciplina (busca antes de escrever, não memória):
+sete buscas adicionais confirmaram Idade (LOINC 30525-0), Hipertensão
+(SNOMED CT 38341003), Retinopatia diabética (SNOMED CT 4855003),
+Neuropatia diabética (SNOMED CT 230572002), Doença cardiovascular
+(SNOMED CT 49601007), Metformina (RxNorm 6809) e Insulina (RxNorm
+5856 — insulina regular) — um terceiro sistema de terminologia
+(RxNorm, pra medicamentos, não LOINC/SNOMED) adicionado ao registro
+especificamente pra isso, não forçado num sistema errado. Cobertura
+final: 19/20 (95%) — só "sexo" continua sem entrada, honestamente,
+por não ter um código administrativo específico verificado com
+confiança suficiente no tempo disponível.
+
+**Achado real, testando interoperabilidade de verdade**: a
+representação da UCI, testada isoladamente, teve cobertura zero
+(0/13) — nomes de chave administrativos (`A1Cresult_ordinal`,
+`num_procedures`) não batem com nenhuma entrada do registro. Mas duas
+delas (`A1Cresult_ordinal`, `max_glu_serum_ordinal`) medem exatamente
+o mesmo analito clínico já mapeado para o NHANES (hemoglobina glicada,
+glicose sérica) — só codificado como categoria ordinal em vez de
+valor contínuo. Um código LOINC identifica o teste, não a convenção de
+encoding escolhida por uma fonte específica; ligar as duas
+representações ao mesmo conceito formal é o próprio ponto de uma
+terminologia — não coincidência de nome de coluna, interoperabilidade
+real entre duas fontes estruturalmente incompatíveis. Cobertura da UCI
+após essa ligação: 2/13.
+
+Ver `tests/test_ontology_terminology.py` (7 testes: busca correta de
+código conhecido, ausência honesta pra chave não mapeada, contagem
+correta de tipos de nó no grafo, e confirmação de que um Observable
+nunca observado não ganha nó de medição inventado).
+
+## 22. Active Learning — vantagem real em fronteira conhecida, ausência honesta de vantagem na tarefa real da UCI
+
+Módulo novo, `biospace.active_learning` — duas estratégias clássicas:
+`UncertaintySampler` (consulta onde um classificador já treinado tem
+maior entropia de predição) e `QueryByCommittee` (treina um comitê de
+3 modelos estruturalmente diferentes — RandomForest, Regressão
+Logística, SVM — e consulta onde o comitê mais discorda entre si,
+medido por entropia de voto).
+
+**Validação decisiva, não apenas "roda sem erro"**: numa fronteira de
+decisão não-linear conhecida (círculo x²+y²<4), comparando curvas de
+aprendizado (acurácia vs. número de rótulos consultados) contra
+seleção aleatória do mesmo orçamento — o padrão-ouro de validação de
+active learning. Amostragem por incerteza: 0,855 vs. 0,839 de acurácia
+média nos últimos passos. Query-by-committee: 0,862 vs. 0,799 — uma
+vantagem ainda maior. As duas estratégias superam aleatório de forma
+consistente, não só numa rodada de sorte.
+
+**Achado real, negativo, e coerente com a triangulação já
+estabelecida (Artigo V — Cox, Random Forest, Regressão Logística,
+SHAP, GRU)**: aplicado à mesma tarefa real de predição de readmissão
+precoce da UCI a partir do baseline — já documentada como perto do
+teto de acaso por cinco métodos independentes —, amostragem por
+incerteza **não** supera seleção aleatória do mesmo orçamento de
+rótulos (AUC médio 0,581 vs. 0,600 nos últimos passos, active
+learning ligeiramente atrás). Não é um resultado isolado nem
+contraditório — é coerente com o resto da triangulação: sem uma
+fronteira de decisão real pra explorar (porque não há sinal forte na
+representação de baseline, como já confirmado por cinco métodos
+diferentes), a estratégia de consultar "onde o modelo está mais
+incerto" não tem nada de genuíno pra encontrar — a incerteza do
+modelo aqui reflete ruído do problema, não informatividade real do
+ponto candidato. Uma sexta peça de evidência convergindo na mesma
+direção, não mais um método isolado.
+
+Ver `tests/test_active_learning.py` (4 testes: vantagem decisiva de
+cada estratégia contra seleção aleatória em fronteira conhecida,
+incerteza maior perto da fronteira de decisão, e o achado real
+negativo — mas coerente — contra a UCI completa).
+
+## 23. Knowledge Graph Embeddings — TransE em NumPy puro, investigação real sobre quando generaliza
+
+Módulo novo, `biospace.kg_embeddings` — TransE (Bordes et al., 2013)
+implementado em NumPy puro, forward, gradiente e negative sampling
+escritos à mão, mesma situação de `biospace.sequence` (sem PyTorch
+disponível no ambiente). Constrói embeddings de entidades (pacientes,
+fenótipos, conceitos de terminologia formal) e relações no mesmo
+espaço vetorial, onde h+r≈t pra toda tripla verdadeira.
+
+**Investigação real de validação, em várias camadas, antes de aceitar
+qualquer resultado**: um primeiro teste sintético (cadeia e1→e2→...→e12
+via relação "next") deu acurácia fraca de predição de link (0/6
+top-1). Investigado: as duas triplas que falharam envolviam
+exatamente as entidades nas pontas da cadeia (e11, e12), que ficam
+com só 1 tripla de treino cada quando a outra é retida — não um bug,
+um limite genuíno e conhecido de métodos transdutivos (uma entidade
+cujo único vínculo de treino é justamente o retido nunca tem seu
+embedding atualizado por gradiente, permanece na inicialização
+aleatória). Um segundo teste sintético (itens com categoria, tamanho
+e cor **independentes** entre si) também generalizou mal (perto do
+acaso) — investigado e corrigido: com atributos independentes, reter
+a categoria de um item não deixa nenhuma pista nas relações
+remanescentes dele, então nenhum método de embedding poderia
+generalizar aí. Corrigido o desenho com correlação real (tamanho
+determina categoria): 100% de acurácia na predição de link retida — a
+implementação está correta; os testes anteriores estavam mal
+desenhados, não o método.
+
+**Achado real na UCI, honesto e conectado à triangulação já
+documentada**: grafo de coorte real (paciente→fenótipo K-Means;
+paciente→nível de A1C, quando disponível) — predição de link do
+fenótipo retido fica perto do acaso (32,0% vs. 25,0% esperado por 4
+fenótipos). Investigado antes de aceitar: separando pacientes de
+teste que tinham a segunda relação (nível de A1C) dos que só tinham
+o fenótipo retido, a acurácia **não** foi maior no grupo com mais
+informação (24,5% vs. 33,8% — o oposto do esperado se a segunda
+relação fosse informativa). Interpretação honesta: nível de A1C não
+parece correlacionar com o fenótipo de utilização hospitalar nesta
+base — não é o problema de entidade sem sinal de treino (que daria o
+padrão oposto), é ausência real de correlação entre essas duas
+variáveis nesta representação. Mais um método independente
+encontrando pouco sinal explorável, coerente com o resto da
+triangulação já documentada nesta base.
+
+Ver `tests/test_kg_embeddings.py` (4 testes: convergência no próprio
+treino, predição de link decisiva com estrutura correlacionada
+conhecida, o limite documentado de entidade sem sinal de treino, e o
+achado real contra a UCI completa).
+
+## 24. Transfer Learning — não a demonstração teórica de functor, transferência de verdade com poucos rótulos
+
+Módulo novo, `biospace.transfer_learning` — pré-treina o autoencoder
+já existente (`AutoencoderRepresentationLearner`) sobre uma população
+GERAL sem rótulo, depois compara treinar um classificador sobre o
+espaço latente transferido contra treinar direto sobre as Features
+brutas — mesmo orçamento de rótulos nos dois casos. Diferente do
+Artigo I desta série (que demonstrou transferência só como
+possibilidade teórica, via o functor entre categorias), este módulo
+testa transferência como técnica aplicada, com comparação decisiva
+against treinar do zero.
+
+**Dois bugs reais de API corrigidos no caminho**: `fit()` do
+autoencoder espera um `RepresentationSpace` (não uma matriz NumPy
+crua, que eu tinha assumido); `transform()` opera sobre um vetor por
+vez (o reshape interno `(1,-1)` achata qualquer matriz de lote inteira
+numa única linha, dando erro de dimensão) — corrigido chamando linha
+por linha.
+
+**Achado real, investigado em duas rodadas antes de aceitar**: um
+primeiro teste sintético (20 rótulos-alvo, Features majoritariamente
+monotônicas em z) mostrou "do zero" (0,95) superando transferência
+(0,70) — investigado: com Features quase linearmente separáveis e
+20 exemplos, não sobra estrutura escondida pro pré-treino recuperar
+que a regressão logística direta já não capture. Corrigido o desenho
+com o regime genuíno de transfer learning (10 rótulos, 15 dimensões
+de ruído puro somadas a só 3 Features informativas): transferência
+(0,80) supera "do zero" (0,30, pior que o acaso) por margem grande —
+confirma que a implementação funciona quando a condição certa está
+presente.
+
+**Aplicado ao NHANES real, mesmo padrão do primeiro teste sintético,
+não escondido**: pré-treinando em toda a população adulta (9.232
+pacientes, sem rótulo) e transferindo pra 16 pacientes rotulados (8
+diabéticos + 8 normais), "do zero" (1,000) supera transferência
+(0,933) de novo. Faz sentido: `classify_diabetes_status`
+é calculado diretamente dos valores brutos de HbA1c/glicose — a
+representação bruta já contém uma regra quase tautológica pro rótulo,
+sem estrutura escondida a mais pra recuperar. Não é falha do método;
+é o mesmo padrão do cenário sintético "fácil" — transfer learning
+ajuda quando a tarefa-alvo é genuinamente difícil de aprender direto
+das Features brutas com poucos exemplos, não em qualquer tarefa com
+poucos rótulos.
+
+Ver `tests/test_transfer_learning.py` (4 testes: o cenário onde
+transferência não ajuda — real e documentado, não escondido —, o
+cenário decisivo onde ajuda por margem grande, tratamento de erro, e
+o achado real e coerente contra o NHANES completo).
